@@ -1,11 +1,8 @@
 # CodeEngn Library
 
-Introduces Republic of Korea's security documents recommended by CodeEngn.
+<strong>Korea Security Documents Library</strong>
 
-<p align="center">
-    <br>
-    <strong>Korea Security Documents Library</strong>
-</p>
+Introduces Republic of Korea's security documents recommended by CodeEngn.
 
 ## Category
 
