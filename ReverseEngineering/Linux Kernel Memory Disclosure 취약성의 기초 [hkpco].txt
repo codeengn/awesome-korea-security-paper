@@ -1,0 +1,211 @@
+============================================
+Linux Kernel Memory Disclosure 취약성의 기초
+
+
+
+
+by hkpco(박찬암)
+-------------------------------
+mail     - chanam.park@hkpco.kr
+homepage - http://hkpco.kr/
+group    - wowhacker
+date     - 2009. 1. 5
+-------------------------------
+============================================
+
+
+
+1. 서론
+
+본 문서에서는 Linux Kernel Memory Disclosure 취약성(이하 커널 메모리 누출 취약성)의 기초에 대해 설명하고자 한다.
+이는 비록 커널 레벨에서의 취약성이지만 전반적으로 상당히 쉬운 개념에 속하며 커널이라는 생소함 또한 크게 느낄 수
+없을 것이다. 해당 취약성은 루트 권한을 획득할 만큼의 직접적인 위험성은 지니고 있지 않지만 메모리 상에 존재하는
+패스워드와 같은 중요한 데이터를 획득할 수 있는 간접적인 위험성은 충분하다. 기법에 대한 설명은 실제 발표된 취약성을
+통해 진행할 것이며, 마침 최근에 공개된 쉬운 대상을 찾을 수 있었다.
+
+
+
+
+
+2. 취약성 설명
+
+본 문서의 메모리 누출 취약성 분석을 위하여 참고하는 커널 소스 코드의 버전은 2.6.26 이며 설명을 위한 대상은
+Linux Kernel SCTP-AUTH API 에서 발생하는 커널 메모리 누출 취약성으로 이에 대한 링크는 다음에서 확인할 수 있다.
+( Link: http://www.securityfocus.com/archive/1/archive/1/496256/100/0/threaded )
+
+일반적으로 커널 메모리 누출 취약성은 커널에서 유저 레벨으로 데이터를 복사하는 과정에서 길이 체크의 결여, 정수형 오버플로우,
+포인터 제어상의 문제점 등에 의하여 발생한다. 다음은 취약한 함수인 sctp_getsockopt_hmac_ident()의 코드이다.
+
+~
+5053 static int sctp_getsockopt_hmac_ident(struct sock *sk, int len,
+5054                                     char __user *optval, int __user *optlen)
+5055 {
+5056         struct sctp_hmac_algo_param *hmacs;
+5057         __u16 param_len;
+5058
+5059         hmacs = sctp_sk(sk)->ep->auth_hmacs_list;
+5060         param_len = ntohs(hmacs->param_hdr.length);
+5061
+5062         if (len < param_len)
+5063                 return -EINVAL;
+5064         if (put_user(len, optlen))
+5065                 return -EFAULT;
+5066         if (copy_to_user(optval, hmacs->hmac_ids, len))
+5067                 return -EFAULT;
+5068
+5069         return 0;
+5070 }
+~
+
+
+5062 라인을 보게되면, 16bit 변수인 param_len과 32bit 변수인 len을 비교하고 있다. 그런 다음 5064 라인에서 put_user() 매크로를
+통해 len의 값을 사용자 영역 변수인 optlen에 저장하는데 이는 이후에 복사할 데이터의 크기와 동일하다. 마지막으로 5066 라인에서
+copy_to_user() 함수를 통하여 커널 영역의 데이터인 hmacs->hmac_ids를 len의 크기만큼 사용자 영역 공간인 optval에 저장한다.
+
+여기서 만약 변수 len의 값을 임의로 조작 가능하다면 hmacs->hmac_ids보다 훨씬 큰 길이를 전달하여 의도하지 않은 커널 메모리
+누출 취약성을 발생시킬 수 있다. 마침 32bit 변수 len을 16bit 변수와 비교하고 있기 때문에 len의 값이 16bit 보다 크다면
+5062 라인의 체크는 무조건 통과가 가능할 것이다.
+
+그렇다면 이제 sctp_getsockopt_hmac_ident() 함수를 호출하는 루틴을 살펴보도록 하자. 다음은 sctp_getsockopt() 함수 코드의
+일부분으로써 취약한 함수인 sctp_getsockopt_hmac_ident()를 호출하는 루틴을 포함하고 있다.
+
+~
+5175 SCTP_STATIC int sctp_getsockopt(struct sock *sk, int level, int optname,
+5176                                 char __user *optval, int __user *optlen)
+5177 {
+5178         int retval = 0;
+5179         int len;
+5180
+5181         SCTP_DEBUG_PRINTK("sctp_getsockopt(sk: %p... optname: %d)\n",
+5182                           sk, optname);
+5183
+5184         /* I can hardly begin to describe how wrong this is.  This is
+5185          * so broken as to be worse than useless.  The API draft
+5186          * REALLY is NOT helpful here...  I am not convinced that the
+5187          * semantics of getsockopt() with a level OTHER THAN SOL_SCTP
+5188          * are at all well-founded.
+5189          */
+5190         if (level != SOL_SCTP) {
+5191                 struct sctp_af *af = sctp_sk(sk)->pf->af;
+5192
+5193                 retval = af->getsockopt(sk, level, optname, optval, optlen);
+5194                 return retval;
+5195         }
+5196
+5197         if (get_user(len, optlen))
+5198                 return -EFAULT;
+5199
+5200         sctp_lock_sock(sk);
+5201
+5202         switch (optname) {
+5203         case SCTP_STATUS:
+5204                 retval = sctp_getsockopt_sctp_status(sk, len, optval, optlen);
+5205                 break;
+5206         case SCTP_DISABLE_FRAGMENTS:
+5207                 retval = sctp_getsockopt_disable_fragments(sk, len, optval,
+5208                                                            optlen);
+5209                 break;
+.
+.
+.
+5303         case SCTP_HMAC_IDENT:
+5304                 retval = sctp_getsockopt_hmac_ident(sk, len, optval, optlen);
+5305                 break;
+5306         case SCTP_AUTH_ACTIVE_KEY:
+5307                 retval = sctp_getsockopt_active_key(sk, len, optval, optlen);
+5308                 break;
+5309         case SCTP_PEER_AUTH_CHUNKS:
+5310                 retval = sctp_getsockopt_peer_auth_chunks(sk, len, optval,
+5311                                                         optlen);
+5312                 break;
+5313         case SCTP_LOCAL_AUTH_CHUNKS:
+5314                 retval = sctp_getsockopt_local_auth_chunks(sk, len, optval,
+5315                                                         optlen);
+5316                 break;
+5317         default:
+5318                 retval = -ENOPROTOOPT;
+5319                 break;
+5320         }
+5321
+5322         sctp_release_sock(sk);
+5323         return retval;
+5324 }
+~
+
+
+참고로 사용자 레벨에서 소켓 생성 시 socket() 함수의 세 번째 인자인 프로토콜을 IPPROTO_SCTP로 설정한 다음 getsockopt()
+시스템 콜을 사용하면 커널 레벨의 sctp_getsockopt() 함수가 호출된다. 또한 사용자 영역에서 사용하는 getsockopt() 시스템
+콜의 인자와 커널 레벨의 sctp_getsockopt() 함수의 인자가 거의 동일하기 때문에 해당 함수의 인자는 대부분 사용자 영역에서
+임의로 조작이 가능하다고 보면된다.
+
+5304 라인을 보게되면 취약한 함수인 sctp_getsockopt_hmac_ident()를 호출하고 있다. 해당 코드까지 도달하기 위해서는 우선
+sctp_getsockopt() 함수의 두 번째 인자인 level의 값을 SOL_SCTP로 설정하여 5190 라인의 체크 구문을 통과해야 한다.
+그런 다음 5197 라인에서 사용자 영역의 값인 optlen을 커널 변수 len에 저장하는데, 이는 이후에 취약한 함수의 len 변수로
+전달되기 때문에 이전에 설명했듯이 16bit보다 큰 값을 설정하면 된다. 이제 최종적으로 취약한 함수를 호출하기 위하여 세 번째
+인자인 optname의 값을 SCTP_HMAC_IDENT으로 설정해 주면 우리가 필요한 모든 작업이 끝나게 된다.
+
+
+
+
+
+3. 익스플로잇
+
+이제 해당 취약성을 적용할 익스플로잇에 대해 간단히 살펴보겠다. milw0rm에 공개된 익스플로잇은 다음 링크에서 확인할 수 있다.
+( Link - http://milw0rm.com/exploits/7618 )
+
+익스플로잇의 수행 과정은 크게 두 부분으로 나뉜다.
+
+------------------------------------------------------
+a. 소켓 생성(IPPROTO_SCTP)
+b. getsockopt() 시스템 콜 호출을 통한 커널 메모리 열람
+------------------------------------------------------
+
+
+본 문서에서 분석했던 취약한 커널 함수를 악용하기 위한 getsockopt() 시스템 콜의 인자 구성은 다음과 같다.
+
+---------------------------------------------------------------------
+s(arg1)         : IPPROTO_SCTP 프로토콜을 기반으로 생성한 소켓 기술자
+level(arg2)     : SOL_SCTP
+optname(arg3)   : SCTP_HMAC_IDENT
+optval(arg4)    : 커널 메모리의 데이터를 저장할 버퍼
+optlen(arg5)    : 16bit 보다 크고 32bit보다 작은 값
+---------------------------------------------------------------------
+
+
+위와 같은 형식으로 익스플로잇을 구성하게 되면 네 번째 인자인 optval에 다섯번째 인자인 optlen의 크기 만큼 커널 영역 메모리의
+데이터가 저장될 것이다. 다음은 실제 익스플로잇의 핵심 코드이다.
+
+~
+.
+.
+#define DUMP_SIZE 256*1024
+.
+.
+socklen_t memlen = DUMP_SIZE;
+.
+.
+sock = socket(PF_INET, SOCK_STREAM, IPPROTO_SCTP);
+getsockopt(sock, SOL_SCTP, SCTP_HMAC_IDENT, memdump, &memlen);
+.
+.
+~
+
+
+
+
+
+4. 솔루션
+
+솔루션에 대한 자세한 설명은 레퍼런스를 참고하기 바란다. 여러가지 코드 수정이 이루어져 있지만 핵심적인 내용은 커널상의
+데이터를 유저 영역으로 복사할 때의 길이를 일반 사용자가 임의로 조작할 수 없게 한다는 것이다. 만약 조작이 가능하더라도
+특정 크기(예를들면 구조체의 크기) 이상의 값이 주어졌는지를 체크해야 한다.
+
+
+
+
+
+5. 레퍼런스
+
+http://milw0rm.com/exploits/7618
+http://www.securityfocus.com/archive/1/archive/1/496256/100/0/threaded
+http://git.kernel.org/?p=linux/kernel/git/stable/linux-2.6.26.y.git;a=commit;h=be9467bd75b522a3db0369c12db739f797cfec6a

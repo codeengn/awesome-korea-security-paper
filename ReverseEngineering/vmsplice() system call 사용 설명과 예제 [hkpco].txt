@@ -1,0 +1,150 @@
+﻿/*
+	vmsplice() system call 사용 설명과 예제
+
+	by hkpco(박찬암), hkpco@korea.com, http://hkpco.kr/
+	wowhacker&wowcode, 2008. 2. 14
+*/
+
+
+linux kernel 2.6.17 에서 부터 추가된 vmsplice() 시스템 콜에 대하여 알아보겠습니다.
+
+vmsplice() 관련 취약성도 발표된 참에 어떠한 함수인지를 살펴보는것도 나쁘지 않을 것입니다.
+
+비교적 최근에 등장한 시스템 콜 이기때문에 다소 생소한 감이 없지않아 있습니다.
+
+man page에서는 다음과 같이 정의하고 있습니다.
+
+----------------------------------------------------------------
+NAME
+       vmsplice - splice user pages into a pipe
+
+SYNOPSIS
+       #define _GNU_SOURCE
+       #include <fcntl.h>
+       #include <sys/uio.h>
+
+       long vmsplice(int fd, const struct iovec *iov,
+                     unsigned long nr_segs, unsigned int flags);
+----------------------------------------------------------------
+
+
+파이프 안으로 사용자 페이지를 삽입(?)한다고 설명되어 있습니다.
+
+첫 번째 인자는 파일 기술자, 두 번째 인자는 해당 시스템 콜에서 제공하는 구조체, 세 번째 인자는 전달 할 구조체의 갯수,
+마지막으로 네 번째 인자는 특정 기능을 수행하기 위한 플래그 입니다.
+
+vmsplice() 시스템 콜의 두 번째 인자를 위해서 다음과 같은 구조체가 제공됩니다.
+
+--
+         struct iovec {
+             void  *iov_base;            /* Starting address */
+             size_t iov_len;             /* Number of bytes */
+         };
+--
+
+
+iov_base에는 vmsplice()를 통해 파이프에 전달 할 데이터의 시작 주소가, iov_len에는 해당 데이터의 길이가 들어갑니다.
+
+설명 보다는 코드가 이해하기에 더 쉬울 것입니다. 자, 이제부터는 한국어가 아닌 C언어로 설명하도록 하겠습니다.
+
+[hkpco@localhost hkpco]$ cat vmsplice.c
+/*
+	written by hkpco
+	http://hkpco.kr/
+
+	wowhacker&wowcode
+*/
+
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/uio.h>
+
+int main( void )
+{
+	int rtn;
+	char *buf = "hkpco is ChanAm Park\n";
+	struct iovec hk;
+
+	hk.iov_base = (void *)buf;
+	hk.iov_len  = strlen(buf);
+
+	rtn = vmsplice( 1 , &hk , 1 , 0 );
+	if( rtn < 0 )
+		return -1;
+
+	return 0;
+}
+[hkpco@localhost hkpco]$ gcc -o vmpslice vmsplice.c
+[hkpco@localhost hkpco]$ ./vmsplice | cat
+hkpco is ChanAm Park
+
+
+이해가 되셨나요..?
+
+vmsplice()는 파이프와 연관된 시스템 콜이기 때문에 조금 더 와닿을 수 있도록 pipe() 함수를 추가한 예제는 다음과 같습니다.
+
+[hkpco@localhost hkpco]$ gcc -o vmp vmp.c
+[hkpco@localhost hkpco]$ cat vmp.c
+/*
+	written by hkpco
+	http://hkpco.kr/
+
+	wowhacker&wowcode
+*/
+
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/uio.h>
+
+int main( void )
+{
+	int rtn, child, pipes[2];
+	char data[1024]={0x00,};
+	char *buf1 = "hkpco is ChanAm Park\n", *buf2 = "hkpco.kr is my site\n";
+	struct iovec hk[2];
+
+	if( pipe(pipes) < 0 )
+	{
+		perror( "pipe()" );
+		return -1;
+	}
+
+	child = fork();
+	if( child == 0 )
+	{
+		hk[0].iov_base = (void *)buf1;
+		hk[0].iov_len  = strlen(buf1);
+
+		hk[1].iov_base = (void *)buf2;
+		hk[1].iov_len = strlen(buf2);
+
+		rtn = vmsplice( pipes[1] , &hk , 2 , 0 );
+		if( rtn < 0 )
+			return -1;
+	}
+	else
+	{
+		read( pipes[0] , data , sizeof(data) -1 );
+		printf( "%s" , data );
+
+		memset( data , 0x0 , sizeof(data) );
+		read( pipes[0] , data , sizeof(data) -1 );
+		printf( "%s" , data );
+	}
+
+	return 0;
+}
+[hkpco@localhost hkpco]$ gcc -o vmp vmp.c
+[hkpco@localhost hkpco]$ ./vmp
+hkpco is ChanAm Park
+hkpco.kr is my site
+
+
+파이프를 통해 많은 데이터를 한꺼번에 전달할 때 vmsplice()를 이용하면 유용할 것 같습니다.
+
+참고로 데이터를 받을 때의 순서는 FIFO(First In First Out)입니다.
+
+이상으로 vmsplice()에 대한 페이퍼를 마치겠습니다.

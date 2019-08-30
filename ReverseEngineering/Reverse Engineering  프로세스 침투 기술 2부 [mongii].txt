@@ -1,0 +1,375 @@
+<html>
+Session Start: Thu Sep 14 21:28:51 2006
+<br>
+[21:28] * Logging #wiseguyz to 'logs\실제함수후킹ㄱㄱ'
+<br>
+&ltmongii&gt 그럼 이제 강좌를 시작하겠습니다.<br>
+&ltmongii&gt 오늘은 프로세스 침투 & API 함수 후킹 두 번째 시간으로서..<br>
+&ltmongii&gt 예전에 배운 API 함수 후킹 방법과<br>
+&ltmongii&gt 지난 주에 배운 프로세스 침투 기술을 응용하여<br>
+&ltmongii&gt 타 프로세스의 send 함수를 후킹하는 실습을 해보도록 하겠습니다.<br>
+&ltmongii&gt 지난 주에 한 내용을 잠깐 복습하자면..<br>
+&ltsjh21a&gt 네<br>
+&ltmongii&gt A라는 프로세스의 메모리 값을 B라는 별도의 프로세스가 쉽게 접근/변경 할 수 있다는 걸 알았고요<br>
+&ltmongii&gt 그 방법은,<br>
+&ltmongii&gt 먼저 A 프로세스의 PID를 얻어오고,<br>
+&ltmongii&gt 그 PID를 이용해서 메모리 핸들을 얻고 (OpenProcess)<br>
+&ltmongii&gt 원하는 값을 읽거나(ReadProcessMemory) 쓸(WriteProcessMemory) 수 있었습니다.<br>
+&ltmephist&gt 네<br>
+&ltmongii&gt 우리가 타 프로세스에 새로 write하는 값은 일반적으로 쉘코드가 되고요<br>
+&ltmongii&gt 그 메모리 영역에 올라간 쉘코드를 실행시키기 위하여,<br>
+&ltmongii&gt A 프로세스의 EIP를 변경하는 실습까지 해보았습니다.<br>
+&ltmongii&gt EIP의 변경은 SDK에서 제공해주는 GetThreadContext와 SetThreadContext를 이용해서 쉽게 구현할 수 있었죠<br>
+&ltmongii&gt 그럼 오늘은<br>
+&ltmongii&gt 다음과 같은 순서로 강의를 진행하겠습니다.<br>
+&ltmongii&gt 1. DLL 개념 설명<br>
+&ltmongii&gt 2. API 함수 후킹 방법 복습<br>
+&ltmongii&gt 3. send 함수 후킹 DLL 구현<br>
+&ltmongii&gt 4. 공격 대상 예제 프로그램 제작<br>
+&ltmongii&gt 5. 공격 수행 예제 프로그램 제작<br>
+&ltmongii&gt 6. send 함수 후킹 확인<br>
+&ltmongii&gt 7. 프로세스 침투를 통한 send 함수 후킹<br>
+&ltmongii&gt 요렇게 되겠습니다.<br>
+&ltmephist&gt 넵<br>
+&ltsjh21a&gt 네 ㅎㅎ<br>
+&ltmongii&gt 먼저, DLL이란 Dynamic Linked Library의 약자로서,<br>
+&ltmongii&gt 프로그램 실행 도중 언제든지 동적으로 적재시켰다가 해제시킬 수 있는 방식의 라이브러리를 의미합니다.<br>
+&ltmongii&gt 라이브러리라는 단어에서 알 수 있듯이 DLL의 내부는 갖가지 함수들로 구성되어 있고요.<br>
+&ltmongii&gt 특정 DLL을 적재시킨 프로그램은 이 DLL 안의 Export된 함수들을 가져다 사용할 수 있습니다.<br>
+&ltmongii&gt 프로세스 침투 기술에 있어선 하나의 DLL의 특징만 기억하면 되는데<br>
+&ltmongii&gt 그것은 바로 특정 DLL이 로딩되거나 언로딩될 때 자동으로 실행될 작업을 미리 지정할 수 있다는 점입니다.<br>
+&ltmongii&gt 이해를 위해 간단한 예를 들어 보겟습니다.<br>
+&ltmephist&gt 넵<br>
+&ltmongii&gt 만약 user32.dll에 있는 MessageBoxA라는 함수를 동적으로 가져다 쓰고 싶다면,<br>
+&ltmongii&gt hDLL = LoadLibrary("user32.dll");<br>
+&ltmongii&gt pFunc = GetProcAddress(hDll, "MessageBoxA");<br>
+&ltmongii&gt pFunc(HWND_DESKTOP, "Message", "Message", MB_OK);<br>
+&ltmongii&gt 와 같은 방식으로 함수의 시작 주소를 얻어온 후, 그 함수를 사용할 수 있습니다.<br>
+&ltmongii&gt 그리고 DLL을 다 사용한 후에는 FreeLibrary(hDll); 로 해제시킬 수 있습니다.<br>
+&ltmephist&gt 넵<br>
+&ltmongii&gt 앞서 잠깐 언급한 바와 같이,<br>
+&ltmongii&gt DLL을 구현할 때는 DLL이 로딩되는 시점. 즉, 위 LoadLibrary로 DLL이 로딩될 때 실행될 작업을 구현할 수 있습니다.<br>
+&ltmongii&gt 마찬가지로 FreeLibrary될 때 실행될 작업도 구현할 수 있고요.<br>
+&ltmongii&gt 그럼 이번엔 이 부분에 대한 코드를 직접 구현해 보도록 하겠습니다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162811796/1.jpg>
+<br>
+
+<br>
+&ltmongii&gt 일반적인 Win32 기반의 exe 파일을 제작할 때는 Win32 Application Project를 선택했었는데,<br>
+&ltmongii&gt dll을 제작할 때는 그 아래아래 있는 Win32 Dynamic-Link Library를 선택해줍니다.<br>
+&ltmephist&gt 아항.<br>
+&ltmongii&gt 이름은 hooker.dll로 지었습니다.<br>
+&ltmongii&gt 다음으로 main.cpp를 추가해 줍니다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162811956/2.jpg>
+<br>
+
+<br>
+&ltmongii&gt 일반 응용 프로그램이 WinMain 함수로 시작하는 것과 마찬가지로 DLL은 DllMain 함수로 시작합니다.<br>
+&ltmephist&gt 넵<br>
+&ltmongii&gt 하지만, DLL 파일의 주 역할은 다른 프로그램에게 "함수"를 제공(Export)해 주는 것이기 때문에<br>
+&ltmongii&gt 굳이 이 DllMain 함수가 있지 않아도 상관은 없습니다.<br>
+&ltmongii&gt 여기서는 dll 로딩 시점과 언로딩 시점을 파악하기 위해 DllMain 함수를 사용할 것입니다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162812041/3.jpg>
+<br>
+
+<br>
+&ltmongii&gt 지금 보시는 코드가<br>
+&ltmongii&gt 로딩 시점과 언로딩 시점을 감지하여 특정 작업을 하는 역할을 합니다.<br>
+&ltmongii&gt 자 이제 이 코드를 컴파일 하면<br>
+&ltmongii&gt DEBUG 폴더 안에 hooker.dll이 생성됩니다.<br>
+&ltmongii&gt 참고로 DLL은 자기 혼자로서는 실행되지 못하기 때문에,<br>
+&ltmongii&gt 컴파일 완료 후엔 이 DLL을 실행할 EXE 파일을 지정하라고 합니다.<br>
+&ltmongii&gt 그냥 취소 하시면 되고요.<br>
+&ltmongii&gt DEBUG 폴더로 가시면 컴파일된 DLL 파일을 볼 수 있습니다.<br>
+&ltmongii&gt 자, 그럼 이제 이 DLL을 불러올 실행 파일을 만들어 봅시다.<br>
+&ltmongii&gt 이번엔 일반적인 Win32 Application 타입의 프로젝트로 만들겠습니다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/4.jpg>
+<br>
+
+<br>
+&ltmongii&gt 자, 다음과 같이 앞서 구현한 DLL을 LoadLibrary 함수로 Loading합니다.<br>
+&ltmongii&gt 그리고 Unloading 할 땐 FreeLibrary. <br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/5.jpg>
+<br>
+
+<br>
+&ltmongii&gt 실행해 보겠습니다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162812297/6.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162812297/7.jpg>
+<br>
+
+<br>
+&ltmongii&gt 이처럼 DLL이 Loading/Unloading 되는 시점에 우리가 미리 구현한 코드가 <br>
+&ltmongii&gt 실행되는 것을 확인할 수 있습니다.<br>
+&ltmephist&gt 오호~<br>
+&ltsjh21a&gt 으음<br>
+&ltmongii&gt 정훈이 왜 으음?<br>
+&ltmongii&gt 궁금한 부분 있으면 그 때 그 때 질문하세요.<br>
+&ltsjh21a&gt ㅎㅎ 좀더 보구용 ㅎㅎ<br>
+&ltmongii&gt 뭔데? 지금 질문해~<br>
+&ltmephist&gt dll 소스 잠깐만 보여주세요<br>
+&ltsjh21a&gt 음.. 그러니까요<br>
+&ltsjh21a&gt 실제로 API 함수를 후킹 할 때, 그럼 저 DLL 안에다가 함수를 후킹 하는 코드를 넣어 두는 건가요?<br>
+&ltmongii&gt 그렇지. <br>
+&ltmongii&gt 그렇게 하는 이유는, <br>
+&ltmongii&gt 1. API 함수 후킹 코드를 직접 프로세스에 침투시킬 경우 그 길이가 너무 길어지고<br>
+&ltmongii&gt 2. 그 코드를 모두 쉘코드로 만들어야되니까 손이 많이 가게 되기 때문이야<br>
+&ltmongii&gt 대신 이처럼 DLL로 만들어 놓고<br>
+&ltmongii&gt 이 DLL을 로딩하는 코드. 즉, LoadLibrary()만 쉘코드로 만들어서 침투시키면 훨~씬 간단해지지<br>
+&ltmongii&gt ㅇㅋ?<br>
+&ltsjh21a&gt 으음..ㅎㅎ 아직 더 봐야겠어용 ㅎㅎ<br>
+&ltmongii&gt 오킷<br>
+&ltmongii&gt 그럼 이번엔<br>
+&ltmongii&gt 앞서 구현한 DLL의 소스 코드를 수정하여,<br>
+&ltmongii&gt DLL이 로딩될 때 프로세스 내에서 send 함수를 찾아 Hooking하는 코드로 바꿔보겠습니다.<br>
+&ltmongii&gt 아, 일단은 더 간단한 것부터 해보죠. <br>
+&ltmongii&gt MessageBox를 후킹하는 걸로 해보겠습니다.<br>
+&ltmephist&gt 옙<br>
+&ltmongii&gt 먼저, API 함수 후킹 과정에 대한 정리를 간단하게 하고 시작하겠습니다.<br>
+&ltmongii&gt 1. PE 헤더의 IMAGE_DOS_HEADER 값을 가져온다.<br>
+&ltmongii&gt 2. IMAGE_DOS_HEAER의 e_lfanew 값으로 IMAGE_NT_HEADERS의 위치를 얻는다.<br>
+&ltmongii&gt 3. IMAGE_NT_HEADERS -> OptionalHeader -> DataDirectory에서 Import TABLE을 찾는다.<br>
+&ltmongii&gt 4. Import Table 내에서 후킹할 함수의 주소를 찾는다.<br>
+&ltmongii&gt 5. 찾은 주소를 바꿔치기(후킹) 한다.<br>
+&ltmongii&gt API 함수 후킹 방법을 잊어버리신 분은 지난 강의 로그를 통해 복습하시기 바랍니다.<br>
+&ltsjh21a&gt 네~<br>
+
+<br>
+* http://research.hackerschool.org/Datas/Online_Seminar/api_hooking1.txt
+<br>
+* http://research.hackerschool.org/Datas/Online_Seminar/api_hooking2.txt
+<br>
+* http://research.hackerschool.org/Datas/Online_Seminar/api_hooking2_ex.txt
+<br>
+
+<br>
+&ltmongii&gt 자, 그럼 이제 MessageBox 함수를 후킹해 보겠습니다.<br>
+&ltmongii&gt 예전에 사용한 코드를 그대로 가져와서 쓰면 되겠죠<br>
+&ltmongii&gt 우리는 MessageBox 함수를 후킹하여, MessageBox 함수가 호출되었을 때 도스쉘(cmd.exe)이 나타나게 할 것입니다.<br>
+
+<br>
+http://research.hackerschool.org/Datas/Online_Seminar/injection_src1.txt
+<br>
+
+<br>
+&ltmongii&gt 자, 위와 같은 코드가 완성되었습니다.<br>
+&ltmongii&gt 그럼 이제 함수 후킹이 제대로 되었는지 확인하는 프로그램을 만들어 봅시다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162813338/8.jpg>
+<br>
+
+<br>
+&ltmongii&gt 이 dll_loader.exe가 hooker.dll을 로딩하면(LoadLibrary)<br>
+&ltmongii&gt hooker.dll의 "case DLL_PROCESS_ATTACH:" 부분이 실행되면서<br>
+&ltmongii&gt MessageBox 함수를 후킹하게 되고, (API_Hooking)<br>
+&ltmongii&gt 그 이후로 dll_loader.exe가 사용하는 MessageBox는 후킹된 결과를 보이게 될 것입니다.<br>
+&ltmongii&gt 이제 컴파일하여 실행해 봅시다.<br>
+&ltmephist&gt 네<br>
+&ltsjh21a&gt 고고~<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162813510/9.jpg>
+<br>
+
+<br>
+&ltmephist&gt 오~<br>
+&ltmongii&gt 잘되죠 ㅎㅎ<br>
+&ltmongii&gt 그럼 이제 dll 코드를 다시 수정하여<br>
+&ltmongii&gt send 함수를 후킹하는 것으로 바꿔보겠습니다.<br>
+&ltmephist&gt 고~<br>
+&ltmongii&gt send 함수는 WS2_32.DLL에 내장되어 있고요<br>
+&ltmongii&gt MessageBox의 경우엔 문자 그대로 이 MessageBox라는 이름이 IAT에 기록되는데<br>
+&ltmongii&gt send 함수의 경우엔 IAT에 send라는 함수 이름 정보가 저장되어 있지 않습니다.<br>
+&ltmongii&gt 그렇기 때문에 send 함수는 함수의 이름이 아닌, 주소 값으로 검색해서 후킹을 할 것입니다.<br>
+&ltmongii&gt send 함수의 주소는 GetProcAddress 함수를 이용하여 얻어올 수 있으며, 이 값을<br>
+&ltmongii&gt IAT에서 찾음으로써 send 함수의 Import Address 위치 또한 찾을 수 있게 됩니다.<br>
+
+<br>
+http://research.hackerschool.org/Datas/Online_Seminar/injection_src2.txt
+<br>
+
+<br>
+&ltmongii&gt 이처럼 send 함수를 후킹하는 코드를 구현했습니다.<br>
+&ltmongii&gt 이제 후킹된 send 함수가 호출되면 기존의 정상적인 인자가 WiseGuyz!로 변조될 것입니다.<br>
+&ltmephist&gt 꼭 굳이.. send 함수 일 필요는 없는거죠?<br>
+&ltmongii&gt 넵 그 프로그램이 사용하고 있는 모든 API 함수를 후킹할 수 있습니다.<br>
+&ltmephist&gt 흠... 그렇담... dll 만 잘 짜놓으면.. 그 dll 가지고 여기저기 다 써먹을 수 있지 않을까요?<br>
+&ltmongii&gt 맞아요<br>
+&ltsjh21a&gt 와 그렇구나 ㅎㅎ<br>
+&ltsjh21a&gt 와 형은 어떤 문서로 공부 하셨어용~~ <br>
+&ltmongii&gt 해쿨 도서관에 가보면<br>
+&ltmongii&gt 후킹 어쩌구하는 문서 3개 정도 있어<br>
+&ltmongii&gt 그걸로 공부했어<br>
+&ltmongii&gt 윈도우 해킹 메뉴에 있을꺼야<br>
+&ltsjh21a&gt 아~ 넵 ㅎㅎ<br>
+&ltsjh21a&gt 필독 하겠습니당 ㅎㅎ<br>
+&ltmongii&gt ㅇㅇ ㅎㅎ<br>
+&ltmephist&gt 미투<br>
+&ltmongii&gt 자, 그럼 테스트를 위해서 예제 공격 대상 프로그램을 하나 만들어 보겠습니다.<br>
+&ltsjh21a&gt 네엥 ㅎㅎ<br>
+&ltmephist&gt 네;<br>
+&ltmongii&gt 만들려는 프로그램은 get_sendmail_banner.exe 이고요.<br>
+&ltmongii&gt 해커스쿨의 25번 포트로 접속해서 특정 메시지를 send 하는 역할을 하게 됩니다.<br>
+&ltmongii&gt 고고<br>
+&ltmephist&gt ㅎㅎ<br>
+&ltsjh21a&gt 네엥~<br>
+
+<br>
+http://research.hackerschool.org/Datas/Online_Seminar/injection_src3.txt
+<br>
+
+<br>
+&ltmongii&gt 됐죠? 코드 중 이해 안되는 부분 있나요?<br>
+&ltmephist&gt WSA 머시기는 먼가요?<br>
+&ltmongii&gt 아<br>
+&ltsjh21a&gt 소켓 초기화 해주는 부분이에용<br>
+&ltmongii&gt Windows에서 socket 관련 함수들을 사용하려면<br>
+&ltmongii&gt 먼저 저 WSAStartup 함수로 초기화를 해줘야해요<br>
+&ltmongii&gt 사용한 후엔 땐 WSACleanup<br>
+&ltmephist&gt 아... 넵.<br>
+&ltmongii&gt 코드를 보면,<br>
+&ltmongii&gt 먼저 해커스쿨의 25번 포트에 접속해서<br>
+&ltmongii&gt 접속 시 뿌려주는 배너를 받아와 보여주고<br>
+&ltmongii&gt 그 다음 HELLO!라는 명령을 보내요<br>
+&ltmongii&gt 그럼 응답으로 온다는 것이<br>
+&ltmongii&gt "난 HELLO!라는 명령 몰라" 죠<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162814863/10.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162814863/11.jpg>
+<br>
+
+<br>
+&ltmongii&gt 그럼 이제,<br>
+&ltmongii&gt 앞서 구현한 DLL을 로딩하는 부분을 추가하여 send 함수가 후킹되도록 하겠습니다.<br>
+&ltmongii&gt 후킹된 send 함수가 호출되면 기존의 "hello!" 값이 "wiseguyz!"로 바뀐 후, 다시 오리지널 send 함수로 전달될 것입니다.<br>
+&ltsjh21a&gt 네엥 ㅎ<br>
+&ltmephist&gt 오키오키<br>
+&ltmephist&gt Orig_Send 할 때.. 데이터.. "wiseguyz!" 로~<br>
+
+<br>
+http://research.hackerschool.org/Datas/Online_Seminar/injection_src4.txt
+<br>
+
+<br>
+&ltmongii&gt 그럼 실행을 해보겠습니다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162816971/12.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162816971/13.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162816981/14.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162816981/15.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162816989/16.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1162816989/17.jpg>
+<br>
+
+<br>
+&ltsjh21a&gt 와 ~ ㅎㅎ<br>
+&ltmephist&gt 와.,.<br>
+&ltmongii&gt hello! 값이 wiseguyz!로 바뀌었죠?<br>
+&ltmongii&gt 이렇게 해서 send 함수의 후킹이 제대로 작동하는 걸 확인했고요.<br>
+&ltmongii&gt 이제 마지막으로 별개의 프로세스인 Process B를 만들어서 이 get_sendmail_banner.exe의<br>
+&ltmongii&gt 메모리로 후킹 코드를 Injection 하는 실습을 해보도록 하겠습니다.<br>
+&ltmongii&gt 지난 주에 실습한 코드를 조금 수정하여 구현할 것이고요. <br>
+&ltmongii&gt 이번엔 지난 주에 설명하지 않은 두 가지의 Injection 테크닉을 추가로 설명해 드리겠습니다.<br>
+
+<br>
+<img
+src=http://research.hackerschool.org/bbs/data/images/1163329668/source.jpg>
+<br>
+http://research.hackerschool.org/Datas/Online_Seminar/example2.txt
+<br>
+
+<br>
+&ltmongii&gt 소스를 보시면,<br>
+&ltmongii&gt VirtualAllocEx 함수와 CreateRemoteThread 함수가 새롭게 사용된 것을 알 수 있습니다.<br>
+&ltmongii&gt VirtualAllocEx 함수는 타 프로세스에 새로운 메모리 공간을 확보할 때 사용됩니다.<br>
+&ltmongii&gt 그리고 CreateRemoteThread 함수는 타 프로세스에 새로운 스레드를 생성할 때 사용됩니다.<br>
+&ltmongii&gt 지난 시간에는 새롭게 메모리를 덮어 쓸 공간을 찾기 위해 0x00000000 번지에서부터 <br>
+&ltmongii&gt 0으로 가득찬 부분을 검색했었는데요, VirtualAllocEx 함수를 사용하면 이처럼 단 한줄로 해결이 됩니다.<br>
+&ltmongii&gt VirtualAllocEx 부분을 그 위의 주석 처리된 부분과 비교해 보세요.<br>
+&ltmephist&gt 오..<br>
+&ltmongii&gt VirtualAllocEx 함수에 사용된 인자들의 의미는 다음 순서와 같습니다.<br>
+&ltmongii&gt 메모리를 할당할 프로세스의 핸들, 할당할 주소, 할당될 메모리의 크기, 할당 단위(4096), 접근 권한<br>
+&ltmongii&gt 두 번째 인자를 0으로 주면, 자동으로 빈 메모리 공간을 찾아서 사용합니다.<br>
+&ltmongii&gt 다음으로 CreateRemoteThread 함수인데요,<br>
+&ltmongii&gt 4, 5번째 인자로 새롭게 생성할 스레드 함수와 인자의 주소를 지정해 줍니다.<br>
+&ltmongii&gt 여기서 중요한 점은 스레드의 함수가 아닌, LoadLibraryA 함수의 주소를 전달해 줌으로써<br>
+&ltmongii&gt 타 프로세스에서 LoadLibraryA 함수가 실행되도록 트릭을 준다는 것입니다.<br>
+&ltmongii&gt 그리고 인자로서 "hooker.dll" 문자열의 주소를 전달해 줍니다.<br>
+&ltmongii&gt 그럼 결과적으로 LoadLibraryA("hooker.dll") 코드가 타 프로세스에서 실행될 것입니다.<br>
+&ltmongii&gt CreateRemoteThread 함수를 실행함에 앞서 "hooker.dll" 문자열을 타 프로세스 메모리 영역에 저장하고,<br>
+&ltmongii&gt LoadLibraryA 함수의 주소를 구한 것은 이 같은 이유에서였습니다.<br>
+&ltmongii&gt 이해 가시나용?<br>
+&ltmephist&gt 넵..<br>
+&ltsjh21a&gt 헤에..<br>
+&ltsjh21a&gt 천천히 소스 봐야겠네용 ㅎㅎ<br>
+&ltmongii&gt ㅇㅇ<br>
+&ltmongii&gt 이제 이 코드를 컴파일하여 실행하면, 앞서 테스트한 것과 같이 get_sendmail_banner의 send 함수가 <br>
+&ltmongii&gt 후킹될 것입니다.<br>
+&ltmongii&gt 그럼 실행해 보겠습니다.<br>
+&ltmongii&gt 아, 실행하기 전에 hooker.dll을 get_sendmail_banner와 같은 폴더 혹은 c:\windows 폴더로 복사해야합니다.<br>
+&ltmongii&gt hooker.dll 파일을 상대 주소로 지정해 주었기 때문입니다.<br>
+
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1163331035/1.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1163331035/2.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1163331043/3.jpg>
+<br>
+<img src=http://research.hackerschool.org/bbs/data/images/1163331043/4.jpg>
+<br>
+
+<br>
+&ltmongii&gt 잘됐죠?<br>
+&ltsjh21a&gt 와~<br>
+&ltmephist&gt 와.. ㅎㅎ<br>
+&ltmongii&gt 흐흐.. 이해 안가는 부분 있으면 질문하세요.<br>
+&ltmongii&gt 없으면 여기까지 하겠습니다.<br>
+&ltmongii&gt 제가 지난주랑 이번주에 한거 제대로 정리 좀 해서 WGD로 올릴테니까 참고하시고요. <br>
+&ltmephist&gt 감사합니다.<br>
+&ltmongii&gt 여하튼 send, recv 후킹만 잘 하면<br>
+&ltmongii&gt 재밌는거 무지 많이 할 수 있어요<br>
+&ltmongii&gt send 같은 경우엔 익스플로러의 cookie도 쉽게 조작할 수 있게 되고요<br>
+&ltmephist&gt 예제 프로그램 말고.. 실제 프로그램 가지고 해봤으면~~ ㅋㅋ<br>
+&ltmongii&gt 프로그램 레벨에서 사용할 수 없게 만든 HTML 태그도 직접 넣어서 보낼 수 있고 (채팅 프로그램 예)<br>
+&ltsjh21a&gt 헉.ㅋㅋ<br>
+&ltsjh21a&gt 윈도우 해킹에 꽃이네용 <br>
+&ltmongii&gt 머그 게임 같은 곳에서도 장난삼아 활용할 수 있고요<br>
+&ltmongii&gt 실제 나한테 없는 아이템 패킷을 send 함수 후킹을 통해 만들어서 보낼 수도 있습니다.<br>
+&ltmongii&gt 물론 실제로 이렇게 하시면 안되겠죠 ㅎㅎ<br>
+&ltmephist&gt ㅋㅋ<br>
+&ltmongii&gt 그리고 send, recv를 후킹해서 그 인자들을 따로 저장하거나 출력하게 하면<br>
+&ltmongii&gt 패킷 스니퍼가 되는거고요<br>
+&ltmongii&gt 굳이 디바이스 드라이버 레벨가지 내려가지 않아도<br>
+&ltmongii&gt 후킹만 가지고 패킷 스니퍼를 만들 수 있어요<br>
+&ltmephist&gt ㅎㅎ<br>
+&ltsjh21a&gt 음 더 노력해야겠네용 ㅜㅜ<br>
+&ltmephist&gt 갈길이 머네.<br>
+&ltmongii&gt 저도 빡씨네요 ㅎㅎ<br>
+&ltsjh21a&gt ㅋㅋㅋ 근데 그게 재미죠 뭐 ㅎㅎ<br>
+&ltmephist&gt 네.. 잘 들었습니다.<br>
+&ltsjh21a&gt 아이고 몽이형 수고하셨어용!!<br>
+&ltFallen&gt 수고하셨어요..^-^<br>
+&ltmongii&gt 넵, 다들 수고하셨어요 ㅎㅎ<br>

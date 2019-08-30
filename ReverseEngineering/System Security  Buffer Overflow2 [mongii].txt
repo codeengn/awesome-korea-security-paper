@@ -1,0 +1,2662 @@
+<mongii> À¸Èå ÀÌÁ¦ ½ÃÀÛÇÕ´Ï´Ù
+<Dirandu> ¤¾¤¾
+<mongii> ¿À´Ã ÇÒ°ÍÀº..
+<¾Æ±â·¦ÆÛ> IDS ¸¸µé´Ù Á×°Úµû
+<¾Æ±â·¦ÆÛ> ¤Ð¤Ð
+<mongii> aleph oneÀÇ ¹®¼­¸¦ °°ÀÌ º¸±¸¿ä
+<sjh21a> ³×
+<mephist> ³×.
+<mongii> Áß°£ Áß°£¿¡ ÀÌÇØ ¾ÈµÇ´Â ºÎºÐ¿¡ ´ëÇØ¼­
+<prosager|ÇÐ±³> ³Ü
+<mongii> ¼­·Î Áú¹®/´äº¯ÇÏ´Â ½Ã°£À» °®µµ·Ï ÇÏ°Ú½À´Ï´Ù.
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<[¦¬_¦¬]FiaDot> ^^
+<[¦¬_¦¬]FiaDot> ¤·¤»¤²¤©
+<prosager|ÇÐ±³> ^^
+<Dirandu> ^^
+<mongii> ³Ý¹ÌÆÃ È­¸é º¸ÀÌ½ÃÁÒ?
+<mongii> ÀÌ È­¸é¿¡ 5ºÐ Á¤µµ ¸ØÃç³õ°Ú½À´Ï´Ù.
+<mongii> ÀÌ ºÎºÐ ÀÐÀ¸½Ã°í, ´Ù ÀÐÀ¸½Å ºÐÀº Åë°ú¶ó°í ÀÔ·ÂÇÏ¼¼¿ä
+<sjh21a> ÈåÈå
+<mongii> ´Ù¸¥ ºÐµé »ý°¢ÇØ¼­ ¼Óµ¶¹ýÀ¸·Î ÀÐÀ¸¼¼¿ä ÈåÈå
+<sjh21a> ³×
+<mongii> heapÀº ¾îµð µé¾î°¡³ª?
+<naska21> data
+<sjh21a> À½
+<sjh21a> ¾Æ¸¶
+<sjh21a> data ºÎºÐ À§¿¡ ¾Æ´Ò±î..¤Ñ.¤Ñ ÇÏ´Â °£ÀýÇÑ »ý°¢ÀÌ
+<naska21> data¿¡
+<mongii> ¿ÀÅ°..
+<naska21> bss
+<naska21> ¿Í Èû
+<naska21> Èü
+<[á¡Øª]¹Ì¸£> ¿ÀÈ£
+<mongii> ¾ÕÀ¸·Î ±×¸²À» ÁÂ¿ì·Î ±×¸±²²¿ä
+<mongii> --------- ³­ ¸Þ¸ð¸® ------------------
+<mongii> [ TEXT ] [  DATA  | HEAP ] [ STACK ]
+<mongii> --------------------------------------
+<mongii> ÀÌ·¸°Ô µÇÁÒ?
+<[¦¬_¦¬]FiaDot> ¤·¤»~
+<[á¡Øª]¹Ì¸£> ¿À~
+<mongii> PROSAGER´Ô
+<prosager|ÇÐ±³> ÃÊ±âÈ­ ¾ÈµÈ µ¥ÀÌÅ¸°¡ heap ¿µ¿ªÀÎ°¡¿ä?
+<prosager|ÇÐ±³> ³Ü?
+<mongii> "¸Þ¸ð¸®ÀÇ ³·Àº °÷" ÀÌ°Ô ¹«½¼ ÀÇ¹ÌÁÒ?
+<[á¡Øª]¹Ì¸£> ¿Ö ÃÊ±âÈ­ ¾ÈµÈ µ¥ÀÌÅ¸°¡ hepÀÌÁö...
+<prosager|ÇÐ±³> ±×³É »ó¿øÀÌ¶ó°í ºÎ¸£¼¼¿ä..ÇªÈ÷
+<[¦¬_¦¬]FiaDot> ÃÊ±âÈ­¶û »ó°ü¾øÀÌ...¤Ñ¤Ñ;;
+<mongii> ±Ùµ¥
+<[¦¬_¦¬]FiaDot> heapÀº malloc or alloc °¡Æ°..
+<mongii> »ó¿ø´Ô Àúº¸´Ù ³ªÀÌ ¸¹Àº°Å °°´øµ¥ ¤Ñ.¤Ñ
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;;
+<Dirandu> ^^;
+<Dirandu> ¤»¤»¤»
+<mongii> Àú 81³â»ý
+<[á¡Øª]¹Ì¸£> ¸¹À½ ¤Ñ.,¤Ñ::
+<mongii> ÈåÈå
+<Dirandu> ¾Æ?;
+<prosager|ÇÐ±³> Çæ..ÀúµÎ 81³â»ýÀÎµ¥..¤Ñ¤Ñ¤»
+<mongii> ¾Æ ±×·¡¿ä
+<Dirandu> µ¿°©ÀÌ½Å°É·Î;
+<[¦¬_¦¬]FiaDot> ÈåÈå...
+<Dirandu> ^^;;
+<mongii> µ¿°©´Ï³×¿ê
+<[á¡Øª]¹Ì¸£> Àü 88³â»ý
+<mongii> >,<
+<mephist> ³ªµÎ 81ÀÎµ­..
+<Dirandu> Àü 83
+<sjh21a> -_-
+<[¦¬_¦¬]FiaDot> ÀÌ·±...
+<prosager|ÇÐ±³> Àü ºü¸¥ 81ÀÌ¿¡¿ä..^^v
+<mongii> ¾Æ ±ÛÄï¿ä ÈåÈå
+<[¦¬_¦¬]FiaDot> 82 ¼Õ ¤Ñ¤Ñv
+<mongii> ³Ü..
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;;
+<mephist> Àúµµ ºü¸¥ 81
+<[¦¬_¦¬]FiaDot> ÀÌ·±ÀÌ·±
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;;
+<¾ßÀÎ¸®´ªÄÄ> ÈåÈå.. ¹Ì¸£Çü °ÅÁþ¸»..;;
+<y2family> 82
+<Dirandu> ¤Ñ_¤Ñ; ¹Ì¸£Çü 82 ¾Æ³æ³ª?
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> ¹Ì¸£´ÔÀº ¾ÆÁ÷ ÃÊµùÀÌ³×
+<mongii> ÈåÈå
+<[¦¬_¦¬]FiaDot> ÈåÈå...y2»©¸®¹¿ ^^/¤»¤»
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<Dirandu> ¤¾¤¾
+<[á¡Øª]¹Ì¸£> Á¤½Å¿¬·É¸»ÇÏ´Â°Å¾Æ´Ñ°¡
+<y2family> ¤»¤»
+<mongii> ÇªÈ÷
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ
+<mongii> PROSAGER´Ô
+<mongii> ´äº¯ÇØ ÁÖ¼¼¿ê
+<prosager|ÇÐ±³> ¸Þ¸ð¸®ÀÇ ³·Àº°÷ÀÌ¶ó´Â ¸»Àº ½ºÅÃ¿¡¼­ À§ÂÊÀ» ÀÇ¹ÌÇÏÁÒ
+<sjh21a> ÈåÈå
+<Dirandu> À½
+<mongii> ±×·³
+<mongii> ½ºÅÃ¿¡¼­ À§ÂÊÀº ¹«½¼ ÀÇ¹ÌÁÒ?
+<prosager|ÇÐ±³> Áï ¿ì¸®°¡ push ÇÑ °ªµéÀÌ µé¾î°¡ ÀÖ´Â°÷
+<prosager|ÇÐ±³> pop ÇÏ¸é ¸ÕÀú ³ª¿À´Â °ªµéÀÌ µé¾î°¡ÀÖÁö¿ä..-_-a
+<[á¡Øª]¹Ì¸£> ¸Þ¸ð¸®ÀÇ ³·Àº°÷ÀÌ¶õ ÇÒ´çµÇ´Â ¸Þ¸ð¸®ÁÖ¼Ò°¡ Àý´ëÁÖ¼Ò 0ºÎÅÍ ½ÃÀÛµÈ´Ù´Â °¡Á¤ÇÏ¿¡ Â÷·¹·Î ºÎ¿©µÇ´Â ¸Þ¸ð¸® ¹øÁöÀÇ ¼öÀ§¸¦ ³ªÅ¸³»´Â°Å..
+<[á¡Øª]¹Ì¸£> ¾Æ´Ñ°¡¿©
+<mongii> ¸Þ¸ð¸®ÀÇ ³·Àº °÷.. ÀÌ°É ¸Þ¸ð¸® ÁÖ¼Ò¿Í ¿¬°üÁö¾î ¼³¸íÇØ ÁÖ¼¼¿ä
+<mongii> ¹Ì¸£´Ô µùµ¿´ó~
+<mongii> ÁÖ¼ÒÀÇ ¼ýÀÚ·Î º¼ ¶§ ³·Àº °÷À» ÀÇ¹ÌÇÏ¡Ž..
+<mongii> Áï,
+<prosager|ÇÐ±³> ³Ü..¤Ð_¤Ð
+<mongii> 0xbfaaaaaa °ú 0xbfbbbbbb °¡ ÀÖ´Ù¸é
+<mongii> ¾î´À°Ô ´õ ³·Àº°ÅÁÒ?
+<mephist> ¸ÕÀú²¨³×¿ä
+<prosager|ÇÐ±³> ÀüÀÚ¿ä
+<mongii> ³Ü..
+<Dirandu> À½..
+<mongii> TEXT Áö¿ª - ¸í·É ÄÚµå, ÀÐ±â Àü¿ë µ¥ÀÌÅÍ
+<[á¡Øª]¹Ì¸£> ±×°Ô ¹º¼Ò¸°Áö....
+<[á¡Øª]¹Ì¸£> ÀÐ±â Àü¿ëµ¥ÀÌÅÍ¶ó´Â°Ô ¹¹¿¡¿ä?
+<mongii> DATA Áö¿ª - ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ, ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ, Á¤Àû º¯¼ö
+<prosager|ÇÐ±³> read only µ¥ÀÌÅ¸¸¦ ¸»ÇÏ´Â°Ç°¡¿ä?
+<sjh21a> !´Ð Á¤ÈÆ
+*** sjh21a ´ÔÀÇ ´ëÈ­¸íÀÌ Á¤ÈÆ ´ÔÀ¸·Î º¯°æµÇ¾ú½À´Ï´Ù.
+<mongii> STACK Áö¿ª - Áö¿ª º¯¼ö
+<[á¡Øª]¹Ì¸£> À¸Èì....
+<[¦¬_¦¬]FiaDot> ³ß....read only ¸¶ÀÚ¿©
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<¾ßÀÎ¸®´ªÄÄ> À½.. ¸í·É¾îÀÎ°¨..;;
+<mongii> TEXT Áö¿ª - ¸í·É ÄÚµå, ÀÐ±â Àü¿ë µ¥ÀÌÅÍ
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<mongii> DATA Áö¿ª - ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ, ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ, Á¤Àû º¯¼ö
+<mongii> STACK Áö¿ª - Áö¿ª º¯¼ö
+<[¦¬_¦¬]FiaDot> ¼ø°£ ÆíÁý·Â
+<mongii> ¿©±â¼­ ºüÁø°Å ÀÖÀ¸¸é ¸»ÇØÁÖ¼¼¿ä
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<mongii> ¾Æ½Ã´Â°Å
+<mongii> ================================================================
+<mongii> TEXT Áö¿ª - ¸í·É ÄÚµå, ÀÐ±â Àü¿ë µ¥ÀÌÅÍ
+<mongii> DATA Áö¿ª - ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ, ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ, Á¤Àû º¯¼ö
+<mongii> STACK Áö¿ª - Áö¿ª º¯¼ö
+<mongii> ================================================================
+<mongii> ³ª½ºÄ«´Ô ¾ó·· ¾Ë·ÁÁà
+<mongii> ºüÁø°Å
+<[á¡Øª]¹Ì¸£> ºüÁø°Å¶ó³à? ¸Þ¸ð¸®±¸Á¶¿¡¼­¿ä?
+<mongii> Àú±â¼­ Ãß°¡µÉ ¸¸ÇÑ °ÍµéÀÌ¿ä
+<naska21> ÈåÈå
+<[á¡Øª]¹Ì¸£> ¾Æ~
+<naska21> ¾Ï..
+<mongii> malloc()ÇÑ °ÍÀº ¾îµð¿¡ Æ÷ÇÔµÇÁÒ?
+<[¦¬_¦¬]FiaDot> heap~
+<naska21> data¿ä
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;;
+<mongii> ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ?
+<mephist> È÷ÇÁ
+<Dirandu> ¸Þ¸ð¸® ¾ó ·ÎÄÉÀÌ¼ÇÀÌ´ø°¡?
+<prosager|ÇÐ±³> data
+<Dirandu> Èü¿µ¿ª
+<mongii> ¾Æ´¢ À§¿¡ ºÐ·ùµÈ °Íµé Áß¿¡¼­¿ä
+<[á¡Øª]¹Ì¸£> heapÀÌ°ÚÁÒ
+<mephist> data
+<naska21> ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ¿ä
+<y2family> µ¿ÀûÇÒ´ç..
+<mongii> ÃÊ±âÈ­ µÇÁö ¾ÊÀº°Å¿ä?
+<naska21> ³Ü
+<naska21> ¾Æ´Ñ°¡
+<[á¡Øª]¹Ì¸£> ¿ÀÈ£...
+<mongii> malloc()ÇÏ¸é 0À¸·Î ÃÊ±âÈ­ µÇÁö ¾Ê³ª¿ä?
+<naska21> ¾ÈµÇ´øµ¥¿ä
+<naska21> ¾Æ´Ñ°¡
+<naska21> ÈåÈå
+<prosager|ÇÐ±³> Àü ÃÊ±âÈ­ÇÑ µ¥ÀÌÅ¸..-_-a
+<y2family> Èü¿µ¿ª..
+<mongii> ¸Â¾Æ¿ä µÇ¿ä
+<[¦¬_¦¬]FiaDot> .bss¿¡ ¤Ñ¤Ñ;
+<naska21> ¤»
+<mongii> Å×½ºÆ® ÇØº¸ÁÒ
+<Á¤ÈÆ> À¸ÈåÈå
+<prosager|ÇÐ±³> 0 À¸·Î malloc ÇÏ´Â°É·Î ¾Æ´Âµ¥..Àúµµ..-_-a
+<naska21> ¾ÈµÇ´Â °É·ç ¾Ë°í ÀÖ¾ú´Âµð
+<naska21> ÈåÈå
+<prosager|ÇÐ±³> Çæ..ºü¸£´Ù..È­¸é..;;
+<[á¡Øª]¹Ì¸£> ±×·³...ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ¶õ°Ô ºÒºÐ¸íÇØÁöÀÝ¾Æ¿ä
+<y2family> ÇÏÀ§ ¸Þ¸ð¸® ÄÚµå ÇÁ·Î±×·¥ ¸í·É 
+<y2family>  ÃÊ±âÈ­ µÈ µ¥ÀÌÅ¸ Àü¿ªº¯¼ö
+<y2family> static º¯¼ö 
+<y2family>  ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅ¸ 
+<y2family>  Èü(heap) ¿µ¿ª ÇÁ·Î±×·¡¸Ó°¡ ÇÒ´çÇÑ ¸Þ¸ð¸® 
+<y2family>  ¡é 
+<y2family> ¡è 
+<y2family>   
+<y2family> »óÀ§ ¸Þ¸ð¸® ½ºÅÃ(stack) ÀÚµ¿º¯¼ö
+<y2family> ÇÔ¼ö ÀÎ¼ö 
+<y2family> ¾ï. ÀÌ»óÇÏ°Ô µÆ³×..
+<[á¡Øª]¹Ì¸£> ÁÖ¿µ´Ô ±×°Ô¹¹¿¡¿ä?
+<mephist> ³ª½ºÄ«´Ô µð·ºÅä¸®¿¡ ³Ö¾î³ù´Âµ­..
+<mephist> Àú¹ø °­ÁÂ ½Ã°£¿¡..
+<[á¡Øª]¹Ì¸£> whereis¸í·ÉÀÌ Àß ¾È¸ÔÈ÷´øµ¥
+<mephist> ³ªµÎ ÀÖ±¸³ª.
+<mongii> µÇÀÝ¾Æ¿ä
+<naska21> Èå..
+<Á¤ÈÆ> ¿ÀÈ«
+<Á¤ÈÆ> ´Ù 0 À¸·Î µÇ³×¿ä
+<mongii> ³×
+<naska21> ÆÜ<-
+<prosager|ÇÐ±³> ³Ü
+<naska21> ÀÌ»óÅ¸..ÈåÈå
+<[¦¬_¦¬]FiaDot> Èî
+<mephist> Çä.. È­¸é ¸ØÃè´ç.
+<mephist> ÀÌ·Ð~
+<mongii> ±×·³ malloc()·Î µ¿Àû ÇÒ´çµÈ º¯¼ö´Â "ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ"¿¡ Æ÷ÇÔµÇ´Â°É±î¿ä?
+<mongii> Á¤ÀÇ¸¦ ³»¸³½Ã´ç @.@
+*** z0nKT1g3r ´ÔÀÌ IRC¸¦ Á¾·áÇß½À´Ï´Ù. (¾î´À³¯ ¹®µæ ´Ï°¡ ¹ÌÄ¡µµ·Ï º¸°í½ÍÀ¸¸é, ³ª ±×¶© ¾î¶»°Ô ÇØ¾ß ÇÏ´Â°ÅÁö?...)
+<prosager|ÇÐ±³> ±×·±µíÇÕ´Ï´Ù¸¸..^^a
+<prosager|ÇÐ±³> ÇÏÁö¸¸..
+<y2family> µÑ´Ù¿¡ ¼ÓÇÏÁö ¾ÊÀ»¼öµµ
+<mongii> ³Ü
+<prosager|ÇÐ±³> µ¿ÀûÇÒ´çº¯¼ö´Â Á¤È®È÷ heap ¿µ¿ª¾Æ´Ñ°¡¿ä?
+<y2family> ³×
+<mongii> ±×ÃÝ.. ¸Â¾Æ¿ä. heap¿¡ ÀúÀåµÇÁÒ.
+<mongii> ÀÏ´Ü
+<[á¡Øª]¹Ì¸£> Àúµµ ÁÖ¿µ´Ô ÀÇ°ß¿¡ ÇÑÇ¥
+<prosager|ÇÐ±³> DATA Áö¿ª - ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ, ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ, Á¤Àû º¯¼ö
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<prosager|ÇÐ±³> ÀÌ·¸°Ô µÇ¾î ÀÖ´Ù¸é..
+<prosager|ÇÐ±³> ¸Þ¸ð¸® ±¸Á¶..ÀÚÃ¼¸¦ 4ºÎºÐ..
+<prosager|ÇÐ±³> Áï text, data, heap, stack
+<prosager|ÇÐ±³> ÀÌ·¸°Ô ÇÏ´Â°ÍÀÌ ´õ Á¤È®ÇÏÁö ¾ÊÀ»±î¿ä??-_-a
+<[á¡Øª]¹Ì¸£> °Å±â¼­..heapÀÌ dataºÎºÐ¿¡ Æ÷ÇÔµÇ´Â°Å °°Àºµ¥¿ä?.....
+<mephist> ³ß.. Àúµµ ¹Ì¸£´Ô »ý°¢¿¡ µ¿ÀÇ~
+<prosager|ÇÐ±³> Æ÷ÇÔµÉ¼öµµ ¾Æ´Ò¼öµµ ¶ó´Â »ý°¢ÀÌ ºÒÇöµí µé¾î¿ä..-_-a
+<[á¡Øª]¹Ì¸£> À¸Èì...±×·²¼öµµ ÀÖ°Ú±º¿©
+<naska21> Èå..
+<mongii> ³ª½ºÄ«´Ô ¾ó·· Á¤´äÀ»..
+<y2family> http://procsys.gwu.ac.kr/study_c/cc.htm
+<y2family> ¿©±â ÇÑ¹ø º¸¼¼¿ä..
+<mongii> Æ÷ÇÔµÈ°Ç°¡¿ä µ¶¸³µÈ °Ç°¡¿ä?
+<naska21> Èå
+<naska21> Á¤´äÀº
+<mongii> ¾û
+<y2family> ÄÚµå- µ¥ÀÌÅÍ - Èü - ½ºÅÃ
+<mongii> ¾ó··~
+<naska21> ¾ù.. Àá½Ã
+<mongii> ¿ÀÈ£
+<[á¡Øª]¹Ì¸£> ¿ÀÈ£
+<naska21> Èå
+<[á¡Øª]¹Ì¸£> ½º½º·Î ÇÒ´çÇÑ..
+<naska21> µ¥ÀÌÅ¸¿¡ ÈüÀÌ Æ÷ÇÔµÇ¿ä
+<mongii> ±×·¡¿ä?
+<naska21> ³Ü
+<mongii> =========================³­ ¸Þ¸ð¸®¾ß===================================
+<mongii> 00000000               08xxxxxx                              0fxxxxxx
+<mongii> -----------------------------------------------------------------------
+<mongii>                       µ¿Àû ÇÒ´ç
+<mongii> =======================================================================
+<naska21> ÃÊ±âÈ­ µÇÁö ¾Ê´Â µ¥ÀÌÅ¸°¡
+<naska21> bss·Î¼­
+<[á¡Øª]¹Ì¸£> Àú È­»ìÇ¥ ¸»Àº
+<[á¡Øª]¹Ì¸£> ÈüÀº µÎ°¡Áö ´Ù À¯µ¿ÀûÀ¸·Î
+<[á¡Øª]¹Ì¸£> ÀÌµ¿ÇÑ´Ù´Â ¸»¾Æ´Ò±î¿ä
+<naska21> Èü¾Æ·¡ ÀÖ½À´Ï´Ù
+<mongii> ¿ÞÂÊ ¿À¸¥ÂÊÀ¸·ç ÇØÁÒ~
+<naska21> ¾Æ.. ¾Æ´µ
+<mongii> ¿©±â¼± À§¾Æ·¡·Î ¸ø±×¸°´Ù ÇªÈ÷
+<y2family> È­»ìÇ¥´Â..
+<naska21> Èå..
+<naska21> Áö¼Û
+<y2family> ½ºÅÃÀº À§·Î »¸°í
+<naska21> Àß¸ø ¸»Çß´Ù´Â
+<y2family> ÈüÀº ¾Æ·¡·Î »¸´Â´Ü ¸»
+<[á¡Øª]¹Ì¸£> bss°¡ ¸ÓÁö...
+<mongii> ¿ÀÅ°..
+<Dirandu> À½..
+<naska21> ´Ù½Ã¸»ÇÒ²²¿ä
+<[á¡Øª]¹Ì¸£> ¿ÀÈ£
+<Dirandu> À§, ¾Æ·¡..
+<naska21> ÈüÀº
+<naska21> µ¥ÀÌÅ¸¿¡ Æ÷ÇÔµÇÁö ¾Ê±¸¿ä
+<Dirandu> ½ºÅÃ, Èü
+<mongii> ¾Æ ±×·¡??
+<naska21> ³Ü
+<naska21> µ¥ÀÌÅÍ´Â
+<naska21> ÃÊ±âÈ­µÈ µ¥ÀÌÅÍ
+<naska21> Áï
+<naska21> º¯¼ö³ª »ó¼ö
+<naska21> ±×¸®°í
+<naska21> ±× ¾Æ·¡°¡
+<naska21> bss·Î
+<naska21> ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ
+<naska21> ¿©±âµµ º¯¼ö ÀÔ´Ï´Ù
+<naska21> ±×¸®°í ±× ¾Æ·¡°¡ ¹Ù·Î Èü
+<naska21> µ¿Àû ¸Þ¸ð¸® ¿µ¿ªÀÌ±¸¿ä
+<naska21> Èü ¾Æ·¡°¡
+<naska21> ½ºÅÃÀÔ´Ï´Ù
+<naska21> ½ºÅÃ ¾Æ·¡´Â
+<naska21> È¯°æº¯¼öµîÀÇ
+<naska21> ÇÁ·Î±×·¥ Á¤º¸°¡ µé¾î°¡±¸¿ä
+<mongii> ================================================================
+<mongii> TEXT Áö¿ª - ¸í·É ÄÚµå, ÀÐ±â Àü¿ë µ¥ÀÌÅÍ
+<mongii> DATA Áö¿ª - ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ, ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ, Á¤Àû º¯¼ö
+<mongii> STACK Áö¿ª - Áö¿ª º¯¼ö, È¯°æ º¯¼ö
+<mongii> ================================================================
+<mongii> =========================³­ ¸Þ¸ð¸®¾ß===================================
+<mongii> 00000000                           | 08xxxxxx          |  0fxxxxxx
+<mongii> -----------------------------------------------------------------------
+<mongii>                 | ÃÊ±âÈ­ | ºñÃÊ±âÈ­|    µ¿Àû ÇÒ´ç      |
+<mongii> -----------------------------------------------------------------------
+<mongii> TEXT            |    DATA          |       HEAP        |     STACK    |
+<mongii> =======================================================================
+<mongii> ¿ÀÅ°?
+<mongii> Çê ±úÁø´Ù Èæ..
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<naska21> text,data,bss,heap,stack
+<[á¡Øª]¹Ì¸£> bss°¡ ±×·³ dataÀÇ ºñÃÊ±âÈ­ µ¥ÀÌÅÍ¸¦
+<[á¡Øª]¹Ì¸£> ´ã´çÇÏ°í ÀÖ´Â°Å¾Æ³é¿ä?
+<mongii> Æ²¸°°Å ÀÕÀ½ ¸»ÇÏ±¸ÀÖ¾î~
+<[á¡Øª]¹Ì¸£> ¾Æ±î¸»ÇÑµ¥·Î¸é
+<mephist> ³ªÁß¿¡.. malloc À¸·Î ¸Þ¸ð¸® ÇÒ´çÇÏ°í.. esp °¡ ¾îµð°¡ ÀÖ´ÂÁö º¸¸é µÇÁö ¾ÊÀ»±î¿ä?
+<mephist> È®½ÇÈ÷ ÇÒ¶ó¸é~
+<naska21> ¿ì¸®°¡ º¸Åë..
+<[á¡Øª]¹Ì¸£> bss°¡ ÃÊ±âÈ­µÇÁö ¾ÊÀº µ¥ÀÌÅÍ·¨ÀÝ¾Æ¿ä
+<prosager|ÇÐ±³> ±×·±µ¥¿è..Àú±â À§¿¡ º¸¸é ¸Û¸Û´ÔÀÌ 08xxxxxx ¶ó°í Àû¾ú´Âµ¥¿ä..
+<naska21> printf("´Ï¸¾´ë·Î");
+<prosager|ÇÐ±³> µ¿ÀûÇÒ´ç º¯¼ö°¡ Àú±âºÎÅÍ ½ÃÀÛµÇ³ª¿ä?
+<naska21> ÀÌ·± ÄÚµåÀÏ °æ¿ì
+<prosager|ÇÐ±³> ¾Æ´Ï¸é ¸Þ¸ð¸® ¿µ¿ªÀÌ ³ª´¶°Ç°¡¿ä?
+<[á¡Øª]¹Ì¸£> Ç¥ÇöÇÏ½Å°Å¾Æ´Ò±î¿ä?
+<naska21> "´Ï¸¾´ë·Î"´Â .data¿¡ µé¾î°¡´Â °ÍÀÌÁÕ
+<[á¡Øª]¹Ì¸£> ÇÏÀ§¸Þ¸ð¸®¿¡¼­
+<[á¡Øª]¹Ì¸£> »óÀ§¸Þ¸ð¸®·Î °¡´Â°É...
+<mongii> prosager/ È¯°æ¿¡ µû¶ó ´Ù¸£°ÚÁö¸¸ ÀÏ¹ÝÀûÀ¸·Î ÀúÁ¤µµ ÁÖ¼Ò°¡ µÉ°Í °°³×¿ä
+<mongii> =========================³­ ¸Þ¸ð¸®¾ß=====================================
+<mongii> 00000000                                   | 08xxxxxx          |  0fxxxxxx        |
+<mongii> -----------------------------------------------------------------------
+<mongii>                   | ÃÊ±âÈ­         |ºñÃÊ±âÈ­ |     µ¿Àû ÇÒ´ç       |                   |
+<mongii> -----------------------------------------------------------------------
+<mongii> TEXT            |    DATA      |   BSS  |       HEAP        |     STACK       |
+<prosager|ÇÐ±³> À½..³Ü..
+<mongii> =======================================================================
+<[á¡Øª]¹Ì¸£> ±×·¸´Ù¸é
+<[á¡Øª]¹Ì¸£> dataÀÇ Á¤ÀÇµµ Àß¸øµÈ°Å¾Æ³é¿ä ¾Ë·¾¹®¼­ÀÇ?
+<mongii> ¾Æ¸¶µµ
+<naska21> ¸Â¾Æ¿ä~
+<mongii> heap ºÎºÐÀº ÀÐ´Â »ç¶÷ÀÌ Çò°¥¸±±îºÁ
+<mongii> ÀÏºÎ·¯ ³ÖÁö ¾ÊÀº°Í °°¾Æ¿ä
+<[á¡Øª]¹Ì¸£> »«°Ç°¡¿ä..bssºÎºÐµµ data¿¡ Æ÷ÇÔÇÑ°ÅÀÝ¾Æ¿ä±Ùµ¥
+<mongii> ÁÖÁ¦°¡ stack overflowÀÌ±â ¶§¹®¿¡..
+<prosager|ÇÐ±³> ³Ü..ÀúµÎ ±×·¸°Ô »ý°¢ÇÏ°í ÀÐ¾ú¾î¿è..
+<mongii> ±×·³ ÀÌÁ¦
+<prosager|ÇÐ±³> À§·Î ÀÚ¶ó´Â stack ¾Æ·¡·Î ÀÚ¶ó´Â heap
+<[á¡Øª]¹Ì¸£> ¤·¤»¤·¤»...
+<Dirandu> ^^;
+<mongii> heap ºÎºÐ¿¡´Â malloc()ÇßÀ» ¶§ °ø°£À» Â÷ÁöÇÑ´Ù´Â °ÍÀ» ¾Ë¾Ò°í,
+<mongii> ÃÊ±âÈ­µÈ µ¥ÀÌÅÍ°¡ µé¾î°¡´Â °ÍÀ» º¸·Á¸é
+<prosager|ÇÐ±³> Áú¹®ÀÌ ÀÖ´Âµ¥¿ä..¤Ð_¤Ð
+<mongii> ÄÚµå¸¦ ¾î¶»°Ô Â¥¾ß µÇÁÒ?
+<mongii> Àü¿ª º¯¼ö·Î ¼±¾ðÇÏ¸é µÉ±î¿ä?
+<naska21> ÃÊ±âÈ­µÈ µ¥ÀÌÅÍ..
+<[¦¬_¦¬]FiaDot> mainÀü¿¡¿©....
+<[¦¬_¦¬]FiaDot> int data=1;
+<[¦¬_¦¬]FiaDot> Á¤µµ·Î
+<mongii> 0x0804986c
+<mongii> ¾Æ±î malloc()ÇßÀ» ¶© ¸îÀÌ¿´ÁÒ? 
+<[¦¬_¦¬]FiaDot> (gdb) list
+<[¦¬_¦¬]FiaDot> 2
+<[¦¬_¦¬]FiaDot> 3       int in_data =1;
+<[¦¬_¦¬]FiaDot> 4       char *ptr;
+<[¦¬_¦¬]FiaDot> 5
+<[¦¬_¦¬]FiaDot> 6
+<[¦¬_¦¬]FiaDot> 7       int main(void)
+<[¦¬_¦¬]FiaDot> 8       {
+<[¦¬_¦¬]FiaDot> 9                int ddd;
+<[¦¬_¦¬]FiaDot> 10
+<[¦¬_¦¬]FiaDot> 11               char *mmm = (char*)malloc(100);
+<[¦¬_¦¬]FiaDot> (gdb) break 11
+<[¦¬_¦¬]FiaDot> Breakpoint 1 at 0x8048466: file view.c, line 11.
+<[¦¬_¦¬]FiaDot> (gdb) r
+<[¦¬_¦¬]FiaDot> Starting program: /home/fiadot/section/view
+<[¦¬_¦¬]FiaDot> Breakpoint 1, main () at view.c:11
+<[¦¬_¦¬]FiaDot> 11               char *mmm = (char*)malloc(100);
+<[¦¬_¦¬]FiaDot> (gdb) print in_data
+<[¦¬_¦¬]FiaDot> $1 = 1
+<[¦¬_¦¬]FiaDot> (gdb) print &in_data
+<[¦¬_¦¬]FiaDot> $2 = (int *) 0x80494f8
+<[¦¬_¦¬]FiaDot> (gdb) info symbol $2
+<[¦¬_¦¬]FiaDot> in_data in section .data
+<[¦¬_¦¬]FiaDot> (gdb)    
+<[¦¬_¦¬]FiaDot> Èî..
+<[¦¬_¦¬]FiaDot> Æ¨±æ»· ¤Ñ¤Ñ;
+<[¦¬_¦¬]FiaDot> ÂÉ¶ó¾Â
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<mongii> Áö±Ý±îÁöÀÇ ÁÖ¼Ò Ãâ·Â Å×½ºÆ® °á°úÀÓ´Ù
+<mongii> Àü¿ª º¯¼ö(ºñÃÊ±âÈ­) = 0x0x0804986c
+<mongii> malloc()·Î ÇÒ´ç = 0x080498b8 
+<[á¡Øª]¹Ì¸£> À¸Èì...
+<mongii> ºñÃÊ±âÈ­µÈ Àü¿ª º¯¼ö
+<mongii> ¹Ù·Î µÚ¿¡ malloc()·Î ÇÒ´çµÈ °ø°£ÀÌ µé¾î°¡³×¿ä
+<mongii> ¸ÂÁÒ?
+<[á¡Øª]¹Ì¸£> ÃÊ±âÈ­µÈ°Å´Â¿ä?
+<mongii> Áö±Ý ÇØº¼²¨¿¡¿ä.
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<[á¡Øª]¹Ì¸£> Àü¿ªº¯¼ö°¡ ºñÃÊ±âÈ­µÈ°Å¶õ¸»ÀÌ¿¡¿ä?
+<naska21> Èì..
+<[á¡Øª]¹Ì¸£> Àü¿ªº¯¼ö¸¸ Á¤ÇØÁáÀ»¶§°¡ ºñÃÊ±âÈ­ÀÎ°ÅÁÒ?
+<naska21> ¿¹
+<naska21> ÃÊ±âÈ­ µÈ Àü¿ª º¯¼ö°¡
+<mongii> ================================
+<mongii> Àü¿ª º¯¼ö(ÃÊ±âÈ­)   = 0x08049778
+<mongii> Àü¿ª º¯¼ö(ºñÃÊ±âÈ­) = 0x0804986c
+<mongii> malloc()·Î ÇÒ´ç     = 0x080498b8 
+<mongii> ================================
+<[á¡Øª]¹Ì¸£> Àü¿ªº¯¼ö °ªÀ» ¾ÈÁ¤ÇØÁØ°Ô ºñÃÊ±âÈ­ÀÇ ÀÇ¹ÌÀÎ°¡¿ä?
+<naska21> ÃÊ±âÈ­ µÇÁö ¾ÊÀº Àü¿ª º¯¼öº¸´Ù À§¿¡ ÀÖ³×¿ä
+<naska21> ±×·±°Í °°Àºµ¥¿ä..
+<mongii> ¼ø¼­ ´«¿¡ º¸ÀÌÁÒ?
+<prosager|ÇÐ±³> À½..¿ª½Ã³ª..
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<prosager|ÇÐ±³> ³Ü..
+<mongii> ±×¸²À¸·Î ´Ù½Ã ±×¸³´Ï´Ù
+<mongii> =========================³­ ¸Þ¸ð¸®¾ß=====================================
+<mongii> 00000000        | 080497xx      |084986x|  080498bx          |  0fxxxxxx        |
+<mongii> -----------------------------------------------------------------------
+<mongii>                   | ÃÊ±âÈ­         |ºñÃÊ±âÈ­ |     µ¿Àû ÇÒ´ç       |                   |
+<mongii> -----------------------------------------------------------------------
+<mongii> TEXT            |    DATA      |   BSS  |       HEAP        |     STACK       |
+<mongii> =======================================================================
+<mongii> ¼ÂÀÌ °ÅÀÇ µü ´Þ¶óºÙ¾î ÀÖ³×¿ä ±×ÁÒ?
+<Dirandu> À½
+<[á¡Øª]¹Ì¸£> ±×·³ ¾îÂ¼¸é...
+<prosager|ÇÐ±³> ³Ü...
+<[á¡Øª]¹Ì¸£> ±¸ºÐÀÌ ±×·¸°Ô ¸íÈ®ÇÏÁö ¾ÊÀ»Áöµµ
+<mongii> È­¸é ±úÁö´Â ºÐÀº
+<naska21> À¯µ¿ÀûÀÌ¶ó°í º¸½Ã¸é µÉµí..
+<mongii> ¾ÕÀ¸·Î Á¦ È­¸é º¸½Ã¸é µÉ²¨¿¡¿ä
+<prosager|ÇÐ±³> ÀÎ°£ÀÌ º¸±â ÆíÇÏ°Ô ³í¸®Àû ±¸ºÐÀÌ ¾Æ´Ò±î¿ä?
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<[á¡Øª]¹Ì¸£> ²ô´ö
+<[¦¬_¦¬]FiaDot> size -A -x ÆÄÀÏ¸í
+<[¦¬_¦¬]FiaDot> ÇÏ¸é ¿µ¿ª ÁÖ¼Ò ÂÒ¸£¸¤
+<mephist> brk() ·Î...  ¸Þ¸ð¸®¸¦ °¡º¯ÀûÀ¸·Î ÇÒ´çÇÑ´Ù°í ¾ÈÇß³ª¿ä?
+<[á¡Øª]¹Ì¸£> brk°¡ ¸ÓÁÒ
+<[¦¬_¦¬]FiaDot>      brk, sbrk - change data segment size   
+<mephist> Ä¿³Î¿¡¼­ »ç¿ëÇÏ´Â ½Ã½ºÅÚ ÄÝÀÌ¿¡¿ä
+<[á¡Øª]¹Ì¸£> ±×·±°Ç°¡..
+<[á¡Øª]¹Ì¸£> ¾Æ ¼¼±×¸ÕÆ® ½ÎÀÌÁî
+<naska21> ¾ÆÇÏ
+<naska21> ÈåÈå
+<mongii> ¿ì¾Æ..
+<[á¡Øª]¹Ì¸£> ¿À
+<mongii> È÷Èå~
+<naska21> data¿¡´Â
+<naska21> char b[]="what is your name?"
+<naska21> ÀÌ·±°Ô µé¾î°¡±¸¿ä
+<mongii> Àá±ñ
+<mongii> Á¤¸®ÇØº¸ÀÚ
+<naska21> bss¿¡´Â
+<naska21> char a[100];
+<mongii> Áö±Ý²« ÃÊ±âÈ­µÈ µ¥ÀÌÅÍ±¸
+<naska21> ÀÌ·±°Å
+<mongii> ¿ä°Ç ºñÃÊ±âÈ­µÈ °Í
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ¶Ç?
+<naska21> text¿¡´Â
+<naska21> ½ÇÇàÄÚµå
+<mongii> Àá±ñ
+<mongii> text ºÎºÐ¿¡ ½ÇÇà ÄÚµå°¡ µé¾î°¡ÀÖ´ÂÁö
+<mongii> ¾î¶»°Ô ´«À¸·Î È®ÀÎÇØ º¼ ¼ö ÀÖ¾Ë±î¿ä?
+<naska21> Èå..
+<naska21> gdb·Î ´ýÇÁÇØº¸¸é µÇÁö ¾Ê³ª¿ä..
+<mongii> ¿ÀÄÉÀÌ
+<naska21> -_-?
+<mephist> objdump ·Î.. °¡´ÉÇÏÁö ¾Ê¾Æ¿ä?
+<naska21> ¶Ç´Â
+<naska21> objdump·Îµµ °¡´É
+<naska21> sp..
+<naska21> ³×
+<naska21> ±× ÁÖ¼Ò¿¡¿ä
+<naska21> objdump·Îµµ ³ª¿ÀÁÒ
+<mephist> 80048~~  ¸Ó½Ã±â ÁÖ¼Ò~
+<mongii> ¾û
+<naska21> text ¼¼±×¸ÕÆ®´Â
+<naska21> °¡»ó ¸Þ¸ð¸®»óÀ¸·Î
+<naska21> 0x08048080
+<mongii> =========================³­ °¡»ó ¸Þ¸ð¸®¾ß================================
+<mongii> 080486b4    |   08049778    |   084986c   |   080498b8   |  0fxxxxxx    |
+<mongii> -------------------------------------------------------------------------
+<mongii> ÄÚµå,ronly  |  ÃÊ±âÈ­       | ºñÃÊ±âÈ­    |  µ¿Àû ÇÒ´ç   |              |
+<mongii> -------------------------------------------------------------------------
+<mephist> ¤¾¤¾
+<mongii>    TEXT     |    DATA       |   BSS       |    HEAP      |   STACK      |
+<mongii> =========================================================================
+<mongii> ±»?
+<mongii> À­ ±×¸² ÀÌÇØ ¾È°¡´Â ºÐ
+<[á¡Øª]¹Ì¸£> ±Ùµ¥...
+<mephist> ¸Þ¸ð¸® ÁÖ¼Ò°ªÀÌ.. Àú·¸°Ô Ç×»ó Á¤ÇØÁ® ÀÖ´Â°Ç ¾Æ´ÏÁÒ?
+<mongii> ³Ü
+<[á¡Øª]¹Ì¸£> ±Ùµ¥¿ä....
+<mongii> ¾Æ´Õ´Ï´Ù
+<mongii> Àú°Ç ´ÜÁö ¿ì¸®ÀÇ Å×½ºÆ® °á°ú
+<mongii> ³×
+<[á¡Øª]¹Ì¸£> ¾Æ..
+<mephist> ¿ÀÄÉÀÌ.. ³Ü~
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> Àú ¼ýÀÚ·Î
+<mongii> ¸Þ¸ð¸®ÀÇ ¾î´À ºÎºÐ¿¡ µé¾îÀÖ´ÂÁö ´ëÃæ À§Ä¡¸¦ ÆÄ¾ÇÇÒ ¼ö ÀÖ´Â°Ì´Ï´Ù
+<[á¡Øª]¹Ì¸£> Àú·¸°Ô ±¸Á¶µÇÀÖ´Ù´Â°ÅÁÒ?
+<mongii> ³Ü
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> Âü°í·Î
+<mongii> ÇÁ·Î±×·¥ÀÌ ½ÇÇàµÇ¸é
+<mongii> ÀüÃ¼ ¸Þ¸ð¸®(¸ÞÀÎº¸µå¿¡ ²ÅÇôÀÖ´Â ·¥ÀÌ¶ó°í »ý°¢ÇÏ¸éµÊ)
+<mongii> ÀÇ ÀÏÁ¤ ºÎºÐÀ» ¶ç¾î³»¼­ °¡»ó ¸Þ¸ð¸®·Î »ç¿ëÇÕ´Ï´Ù
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ±× °¡»ó¸Þ¸ð¸®¸¦ Áö±Ý ±×¸°°Å¿¡¿ä
+<Á¤ÈÆ> À½..
+<mongii> ÀüÃ¼ ¸Þ¸ð¸®´Â ¿ì¸®°¡ »ý°¢ÇÒ ÇÊ¿ä ¾ø½À´Ï´Ù
+<mongii> ¸ðµç ÇÁ·Î±×·¥ÀÌ °¡»ó ¸Þ¸ð¸®¸¦ »ç¿ëÇÏ±â ¶§¹®ÀÓ´Ù
+<mongii> ÀÌÇØ ¾È°¡´ÂºÐ?
+<mongii> @.@
+<mongii> ±×·³ ÀÌÁ¦ stack ºÎºÐ¿¡ º¯¼ö°¡ µé¾î°¡´Â °ÍÀ» º¸°Ú½¿´Ù
+<Á¤ÈÆ> ³× +_+
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ================================================================
+<mongii> TEXT Áö¿ª - ¸í·É ÄÚµå, ÀÐ±â Àü¿ë µ¥ÀÌÅÍ
+<mongii> DATA Áö¿ª - ÃÊ±âÈ­ µÇÁö ¾ÊÀº µ¥ÀÌÅÍ, ÃÊ±âÈ­ µÈ µ¥ÀÌÅÍ, Á¤Àû º¯¼ö
+<mongii> STACK Áö¿ª - Áö¿ª º¯¼ö, È¯°æ º¯¼ö
+<mongii> ================================================================
+<mephist> ¤¾¤¾¤¾
+<mongii> Áö¿ª º¯¼ö¸¦ ÇÏ³ª..
+<mongii> ¿ÀÅ°?
+<mongii> =========================³­ °¡»ó ¸Þ¸ð¸®¾ß================================
+<mongii> 080486b4    |   08049778    |   084986c   |   080498b8   |  bffffa84    |
+<mongii> -------------------------------------------------------------------------
+<mongii> ÄÚµå,ronly  |  ÃÊ±âÈ­       | ºñÃÊ±âÈ­    |  µ¿Àû ÇÒ´ç   |  Áö¿ª º¯¼ö   |
+<mongii> -------------------------------------------------------------------------
+<mongii>    TEXT     |    DATA       |   BSS       |    HEAP      |   STACK      |
+<mongii> =========================================================================
+<prosager|ÇÐ±³> È÷È÷
+<mephist> ¿ÀÄÉ¿ÀÄÉ..  ÁÁÀº ÀÚ·á ÀÔ´Ï´Ù.
+<mongii> ==========================³­ °¡»ó ¸Þ¸ð¸®¾ß================================
+<mongii> | 080486b4   |   08049778    |   084986c   |   080498b8   |  bffffa84    |
+<mongii> --------------------------------------------------------------------------
+<mongii> |ÄÚµå,ronly  |  ÃÊ±âÈ­       | ºñÃÊ±âÈ­    |  µ¿Àû ÇÒ´ç   |  Áö¿ª º¯¼ö   |
+<mongii> --------------------------------------------------------------------------
+<mongii> |   TEXT     |    DATA       |   BSS       |    HEAP      |   STACK      |
+<mongii> ==========================================================================
+<[á¡Øª]¹Ì¸£> Áö¿ªº¯¼ö¶ó¸éÀº...
+<mongii> ÀÌ°Å
+<mongii> Ä­ ±úÁö´Â ºÐµéÀº
+<[á¡Øª]¹Ì¸£> ±×¶§±×¶§ ÇÔ¼ö³»¿¡¼­ ¼±¾ðµÇ¾îÁö´Â
+<mongii> µµ±¸ - ±Û²Ã - µ¸À½Ã¼·Î ¹Ù²Ù¼¼¿ä
+<[á¡Øª]¹Ì¸£> °ÍµéÀÌ ½ºÅØ¿¡ µé°£´Ü°Å¿¡¿ä?
+<mongii> ³Ü..
+<mephist> ¿ÀÄÉ¿ÀÄÉ~
+<mongii> ±×·³
+<[á¡Øª]¹Ì¸£> ÀÌ¹Ì Áö³ª°£°Ç ±úÁø»óÅÂ³× ¤»¤»
+<mongii> È¯°æº¯¼ö°¡ STACK¿¡ µé¾î°£°Ç ¾î¶»°Ô È®ÀÎÇÏÁÒ??
+<mongii> ¾Æ½Ã´ÂºÐ?
+<mephist> bfffffff ±îÁö ´ýÇÁ ¶ßÁÒ~
+<mongii> À¸Èå..
+<mephist> ¤¾¤¾¤¾
+<mongii> ´Ù¸¥ ¹æ¹ý ¾ø³ª¿ä -_-
+<naska21> ¿ó½º
+<naska21> ¹æ±Ý °è»êÇØ ºÃ´Âµ¥¿ä
+<mongii> ³ª½ºÄ«~
+<mongii> ¾û
+<naska21> 4G¸é
+<mongii> ¾û
+<naska21> 0xffffffff
+<mongii> ¿À¿ì
+<Á¤ÈÆ> ¿Ë..ÈåÈå
+<naska21> ±×´Ï±ñ
+<mongii> ¾û
+<naska21> °¡Àå³ôÀº ÁÖ¼Ò°¡
+<mongii> ¾û
+<naska21> 4G°¡ µü ¸Â³×¿ë
+<naska21> »ç½Ç
+<naska21> ½Ã½ºÅÛÀÇ ¸Þ¸ð¸®´Â
+<naska21> ´ëÃæ
+<naska21> 1±â°¡Âë µÉ °ÍÀÌ±¸¿ä
+<naska21> ¼­¹ö±ÞÀÌ¿ä
+<mongii> ÀÀ
+<naska21> »ç¿ëÀÚµéÀÌ
+<naska21> Á¢¼ÓÇÒ¶§¸¶´Ù
+<naska21> 4GÀÇ
+<naska21> °¡»ó ¸Þ¸ð¸®¸¦ ³ª´²ÁÖÀÝ¾Æ¿ä (°¢ ÇÁ·Î¼¼½º¸¶´Ù)
+<mongii> ÀÀ
+<naska21> ±×Áß¿¡¼­
+<naska21> »ç¿ëÇÏ´Â »ç¿ëÀÚ, ÇÁ·Î¼¼½º¿¡°Ô¸¸
+<naska21> ½ÇÁ¦
+<[á¡Øª]¹Ì¸£> °¡»ó±â¾ïÀåÄ¡¶ó´Â °³³äÀº »ç¿ëÀÚ ÇÁ·Î±×·¥À» ºÐÇÒÇÏ¿© ÇÊ¿äÇÑ ºí·Ïµé¸¸ ºñ¿¬¼ÓÀûÀ¸·Î ÁÖ±â¾ïÀåÄ¡¿¡ ÀûÀç½ÃÅ°´Â °ÍÀ¸·Î °¡»óÁÖ¼Ò°ø°£°ú ½ÇÁ¦ÁÖ¼Ò°ø°£À» ¿ÏÀü ±¸ºÐÇÏ¸ç ¿î¿µÃ¼Á¦°¡ °¡»óÁÖ¼Ò¸¦ ½ÇÁ¦ÁÖ¼Ò·Î º¯È¯½ÃÄÑ°¡¸é¼­ ¼öÇàÇÑ´Ù °¡»óÁÖ¼Ò¶õ ÇöÀç ¼öÇàÁßÀÎ ÇÁ·Î¼¼½º°¡ ÂüÁ¶ÇÏ´Â ÁÖ¼ÒÀÌ°í ½ÇÁ¦ÁÖ¼Ò´Â ÁÖ±â¾ïÀåÄ¡ÀÇ »ç¿ë°¡´ÉÇÑ ÁÖ¼Ò´Ù
+<naska21> ½Ã½ºÅÛÀÇ ¸Þ¸ð¸®¸¦
+<naska21> ÂÉ°³¼­
+<naska21> ÁÖ´Â °ÍÀÌÁÒ
+<mongii> ÀÀ
+<mongii> ¿ÀÅ°..
+<naska21> ¿ì¸®°¡
+<naska21> À©µµ¿ì¿¡¼­
+<mongii> ÀÀ
+<naska21> Ã¢À» ¿Å±æ¶§
+<naska21> ¾à°£ ¹ö¹÷°Å¸®ÀÝ¾Æ¿ä
+<naska21> ±×°Ô ¹Ù·Î
+<mongii> ÀÀ
+<naska21> ½ÇÁ¦
+<naska21> ½Ã½ºÅÛÀÇ
+<naska21> ¸Þ¸ð¸®¸¦
+<naska21> ÇöÀç »ç¿ëÇÏ´Â
+<naska21> ÇÁ·Î¼¼½º¿¡°Ô ³ª´²ÁÖ´Â °Å¿¡¿ä
+<mongii> ¿ÀÅ°.~
+<naska21> ±× °úÁ¤¿¡¼­
+<naska21> Á» º¹ÀâÇÑ 
+<[á¡Øª]¹Ì¸£> ÇÁ·Î±×·¥»óÀÇ ¸ðµç °¡»óÁÖ¼Ò¸¦ ¹Ì¸® Àý´ëÁÖ¼Ò·Î º¯È¯ÇÏ´Â°Ç ºÒ°¡´ÉÇÏ´Ù´Âµ¥¿ä »ó°ü¾ø´Â°Ç°¡¿ä?
+<naska21> ¾Ë°í¸®Áò¶§¹®¿¡ ¹ö¹÷°Å¸°´Ù±¸ ¾Ë°í ÀÖÀ½..
+<mongii> ³×
+<mongii> ¿ÀÄÉÀÌ
+<prosager|ÇÐ±³> ¾Ë°í¸®Áò..
+<mongii> Âü ±×·³
+<mongii> ´ëºÎºÐ ¹®¼­´Â
+<prosager|ÇÐ±³> Áï È­¸é¿¡ paint ÇÏ´Â ºÎºÐÀÌ±â ¶§¹®¿¡ ±×·¡¿ä
+<mongii> ÃÊ±âÈ­µÇÁö ¾ÊÀº µ¥ÀÌÅÍ°¡ DATA ¿µ¿ª¿¡ Æ÷ÇÔµÇ¾îÀÖ´Ù°í ¼³¸íÇÏ´Âµ¥
+<mongii> Á¤È®ÇÑ ¼³¸íÀº BSS ¿µ¿ªÀÌ¶ó°í ÇØ¾ß ¸Â½À´Ï´Ù.
+<[á¡Øª]¹Ì¸£> ±×·¸°ÚÁÒ
+<prosager|ÇÐ±³> ³Ü
+<mongii> ³ª½ºÄ« ¿ÀÅ°?
+<[á¡Øª]¹Ì¸£> ±Ùµ¥..bssÀÇ ¿µ¿ªµµ
+<naska21> ¾Æ
+<naska21> ³×
+<[á¡Øª]¹Ì¸£> µ¥ÀÌÅÍ¸¦ °ü¸®ÇÏ´Â°Å¶ó¼­
+<mongii> ¾î¿¹
+<[á¡Øª]¹Ì¸£> data¿¡ ¹ÚÀº°Å ¾Æ´Ò±î¿ä?
+<mongii> ¤Ñ.¤Ñ
+<mongii> ³× ±×·¸°Ô º¼ ¼öµµ ÀÖ°í¿ä.
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<prosager|ÇÐ±³> -_-
+<[á¡Øª]¹Ì¸£> ¾îÂ÷ÇÇ..º¯¼ö¸¦ ´Ù·ç´Â°ÅÀÝ¾Æ¿ä
+<mongii> ±×·³ ¸¶Áö¸·À¸·Î
+<[á¡Øª]¹Ì¸£> µ¥ÀÌÅÍ¸¦
+<mongii> È¯°æ º¯¼ö°¡ STACK¿¡ µé¾î°£´Ù´Â °Í¸¸ ´«À¸·Î È®ÀÎÇÑ´Ù¸é
+<mongii> °¡»ó ¸Þ¸ð¸®ÀÇ °³³ä Àâ±â´Â ³¡ÀÔ´Ï´Ù
+<prosager|ÇÐ±³> ¿ÀÅ°
+<mongii> ¾î¶»°Ô È®ÀÎÇÒ±î¿ä?
+<naska21> ÈåÈå
+<Á¤ÈÆ> dumpcode ·Î -_-a
+<naska21> Àú´Â
+<naska21> gdb·Î
+<mongii> ¾û
+<prosager|ÇÐ±³> gdb
+<naska21> ´ýÇÁÇØ ºÃ¾î¿ë~
+<naska21> Âß ³»·Á°¡´Ù º¸¸é
+<mongii> ³»°¡ ÇØº¼²² ¼³¸íÇØºÁ
+<naska21> ¸Ç ¹Ø¿¡ ³ª¿Í¿ë
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<naska21> ¾ÆÁÖ °£´ÜÇÏÁÒ
+<naska21> ¸ÞÀÎ¿¡
+<naska21> ºê·¹ÀÌÅ©¸¦ °É±¸
+<naska21> x/5000s $esp
+<mongii> °É±¸?
+<mongii> run ÇÑ ´ÙÀ½?
+<naska21> ³Ü
+<[á¡Øª]¹Ì¸£> Âß»Ñ¸®´Â°Ç°¡ ¤Ñ,.¤Ñ
+<naska21> ±×¸®°í
+<naska21> Âß ½ºÆäÀÌ½º¹Ù·Î ³»¸®´Ù º¸¸é
+<naska21> ¸Ç ¹Ø¿¡ ³ª¿È..
+<[á¡Øª]¹Ì¸£> ¸Ç³¡¿¡ÀÖ°ÚÁÒ
+<Á¤ÈÆ> ¿À +_+
+<mongii> ±»..
+<mephist> Àú±â´ç.
+<Á¤ÈÆ> ³ª¿Ô´ç ÈåÈå
+<prosager|ÇÐ±³> ±»...
+<mephist> ³ªÀÌ¾¥.
+<mongii> ±»±»
+<[á¡Øª]¹Ì¸£> ¿À¿ì..
+<[á¡Øª]¹Ì¸£> Àú·¸°Ô º¸´Â°Å±º¿ä
+<mephist> ³ª½ºÄ«=¹Ùº¸.. Àú±â ÀÖ³×¿ä.. 
+<[á¡Øª]¹Ì¸£> ¾îµð°¡ ¾ÕÀÌÁö...
+<naska21> ¿ì¸®´Â ½ºÅÃ¿¡¼­ ¸ÕÀú µé¾î°¡ ÀÖ´ÂºÎºÐÀÌ ¾ÕÀÌ¶ó°í »ý°¢ÇÏ´Âµ¥¿ä
+<naska21> ¿ì¸®°¡ ÁÙÀ» ¼³¶§µµ
+<[á¡Øª]¹Ì¸£> ¾Æ..±ÛÄï¿©
+<prosager|ÇÐ±³> ¾ÕÀº ÄÚµåÂÊ
+<naska21> ¸ÕÀú ¼­ÀÖ´Â»ç¶÷ÀÌ
+<naska21> ¾ÕÀÌÀÚ³ª¿ä
+<[á¡Øª]¹Ì¸£> ¿ÀÅ°
+<prosager|ÇÐ±³> ¤» ³Ü
+<mongii> ==========================³­ °¡»ó ¸Þ¸ð¸®¾ß================================
+<mongii> | 080486b4   |   08049778    |   084986c   |   080498b8   |  bffffa84    |
+<mongii> |            |               |             |              |  bffffc5f    |
+<mongii> --------------------------------------------------------------------------
+<mongii> |ÄÚµå,ronly  |  ÃÊ±âÈ­       | ºñÃÊ±âÈ­    |  µ¿Àû ÇÒ´ç   |  Áö¿ª º¯¼ö   |
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> |            |               |             |              |  È¯°æ º¯¼ö   |
+<mongii> --------------------------------------------------------------------------
+<prosager|ÇÐ±³> ½ºÅÃ¿¡¼± ¾ÕÀÌÁÒ..¤¾¤¾
+<mongii> |   TEXT     |    DATA       |   BSS       |    HEAP      |   STACK      |
+<naska21> ¤»¤»
+<mongii> ====================
+<mongii> ÄÀ.. ±×¸² Â©¸°´Ù..
+<naska21> ¹Ù´ÚÀÌ¶ó±¸ »ý°¢ÇÏ¼À
+<naska21> ÈåÈå
+<mongii> ±×·³ ÀÌÁ¦ Àú ±×¸² ¿Ïº®?
+<mongii> ¼öÁ¤ÇÒ ºÎºÐÀÌ³ª Ãß°¡ÇÒ ºÎºÐ?
+<[á¡Øª]¹Ì¸£> À½..??
+<[á¡Øª]¹Ì¸£> ¿Ö ¸ù´Ô¸»´ë·ÎÇß´Âµ¥
+<[á¡Øª]¹Ì¸£> Â©¸®ÁÒ
+<mongii> ³×?
+<[¦¬_¦¬]FiaDot> Èî.... 4G¿Í ½ÃÀÛÁÖ¼Ò°¡ 0x80~~~~ÀÎ ÀÌÀ¯..
+<[¦¬_¦¬]FiaDot> 4G´Â....¸Þ¸ð¸® ·¹Áö½ºÅÍÀÇ Å©±â°¡
+<[¦¬_¦¬]FiaDot> 32BitÀÌ±â¶«½Ã·Õ
+<mongii> ¿ÀÄÉÀÌ
+<[¦¬_¦¬]FiaDot> 2^32½Â..
+<mongii> ±×Ãë..
+<[á¡Øª]¹Ì¸£> 32ºñÆ® ¤Ñ,.¤Ñ
+<prosager|ÇÐ±³> ¾Æ..¸¶Àú-_-a
+<Á¤ÈÆ> ¿ÀÈ«
+<[¦¬_¦¬]FiaDot> ±Û±¸...½ÃÀÛÁÖ¼Ò´Â...
+<[á¡Øª]¹Ì¸£> 2ÀÇ 32½Â..
+<naska21> ¿ÀÈ£
+<[¦¬_¦¬]FiaDot> ¿ì¸®´Â ÄÚµå¸¸ »ý°¢Çß´Âµ¥
+<[¦¬_¦¬]FiaDot> ¾ÕºÎºÐ¿¡...
+<mongii> ³×
+<[¦¬_¦¬]FiaDot> µ¿Àû¸µÅ©ºÎºÐ...
+<mephist> ¾Æ~
+<[¦¬_¦¬]FiaDot> Áï DLL°¡Æ°³Ñµé¶«½Ã
+<naska21> ¿À..
+<[¦¬_¦¬]FiaDot> ÈåÈåÈå...
+<naska21> ±×°Ô ÀÖ±º¿ä
+<mongii> ±×·³
+<[¦¬_¦¬]FiaDot> ±Ã±ÝÇØÁ×´ÀÁÖ ¾Æ¶ú³»
+<mongii> ¾î¶»°Ô ´«À¸·Î È®ÀÎÇÒ ¼ö ÀÖÀ»±î¿ä?
+<naska21> ¶óÀÌºê·¯¸®µé..
+<mongii> objdump·Î ÇØº¸°Ú½À´Ï´Ù.
+<[¦¬_¦¬]FiaDot> ³ß
+<[¦¬_¦¬]FiaDot> ³ß
+<naska21> ±Ùµ¥
+<naska21> 0x1ÀÌ³ª
+<naska21> Â¼À§¿¡´Â
+<naska21> Á¢±Ù ¾ÈµÇ´øµ­.. ÈåÈå
+<mongii> ¿É¼ÇÀº¿ä?
+<mephist> d ¿É¼Ç
+<[á¡Øª]¹Ì¸£> Ä¿³ÎºÎºÐÀÌ¶ó±×·±°Ç°¡¿ä?
+<naska21> |less
+<naska21> moreº¸´Ù´Â
+<naska21> less°¡ ÆíÇÔ
+<mongii> ¿ÀÅ°.. ´Ù½Ã Á¤¸®..
+<mongii> ==========================³­ °¡»ó ¸Þ¸ð¸®¾ß================================
+<mongii> | 080486b4   |   08049778    |   084986c   |   080498b8   |  bffffa84    |
+<mongii> |            |               |             |              |  bffffc5f    |
+<mongii> --------------------------------------------------------------------------
+<mongii> |ÄÚµå,ronly  |  ÃÊ±âÈ­       | ºñÃÊ±âÈ­    |  µ¿Àû ÇÒ´ç   |  Áö¿ª º¯¼ö   |
+<mongii> |            |               |             |              |  È¯°æ º¯¼ö   |
+<mongii> --------------------------------------------------------------------------
+<mongii> |   TEXT     |    DATA       |   BSS       |    HEAP      |   STACK      |
+<mongii> ====================
+<mongii> ÀÌ°Å ½ºÅÍµð ±×·ì °Ô½ÃÆÇ¿¡ ¿Ã¸³´Ï´å
+<mephist> ¾Æ..  text ¿µ¿ª ¾ÕºÎºÐ~ Èì... ¾î¶»°Ô º¸Â¡~
+<prosager|ÇÐ±³> È÷ ÀÌ¹ø¿¡µÎ Â©·È¶£..È÷È÷
+<Á¤ÈÆ> ³× ¤ÑÈå
+<mongii> ÀÎ¼âÇØ¼­ Ã¥»ó¿¡ ºÙÀÌ¼À +_+
+<mephist> ¾Æ.. ÁÁÀº ÀÚ·á¿¡¿ä~~ ^^
+<prosager|ÇÐ±³> ¤»¤»³Ü
+<mephist> ¿ÀÄÉÀÌ~
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<naska21> ¤¾¤¾
+<y2family> ¹ä»ó¿¡ ºÙÀÌ´Â °Íµµ
+<Á¤ÈÆ> ÈåÈå
+<y2family> -_-; 
+<Á¤ÈÆ> ÄÃ·¯·Î »Ì¾Æ¾ßÂ¡ -_-a
+<naska21> Èå..
+<naska21> ÀÌ°Å
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<naska21> ¹®¼­¸¸µé¶§
+<naska21> ³ÖÀ»¶ó ÇØ´Âµ©.. ¤Ñ,.¤Ñ
+<Á¤ÈÆ> ÈåÈå
+<naska21> sfp¹®¼­¸¸ µû·Î ¸¸µé°ÚÀ½..¤»¤»]
+<mongii> ³Ö¾îµÎ µÇÁö~
+<mongii> ÇÏÆ°
+<mongii> ¸Þ¸ð¸® ÀÌÇØ´Â
+<mongii> ÀÌÁ¤µµ¸é ÃæºÐÇÏ´Ù~~´Â~ »ý~~°¢ÀÌ..
+<mongii> ´ÙÀ½À¸·Î ³Ñ¾î°©´Ï´å
+<[á¡Øª]¹Ì¸£> ±Ùµ¥¿ä..
+<mongii> ³×
+<naska21> Çã¸®¾ß
+<naska21> ÇÏ·çÁ¾ÀÏ ÀÇÀÚ¿¡ ¾É¾Æ ÀÖ¾ú´õ´Ï
+<naska21> Çã¸®°¡..À¹..
+<Á¤ÈÆ> ÈåÈå 
+<naska21> Çã¸® ¿îµ¿Á» ÇÏ°Ô¾Â..
+<[á¡Øª]¹Ì¸£> ¿Ö ½ºÅØ¸¸¾²´Â°ÅÁö...
+<mephist> ¹ÌÅõ~
+<[á¡Øª]¹Ì¸£> ½ºÅÃÀÌ ±âº»´ÜÀ§ÀÎ°Ç°¡¿ä?
+<[¦¬_¦¬]FiaDot> what???
+<mongii> ¿©±â±îÁö..
+<[á¡Øª]¹Ì¸£> ½ºÅÃ, Å¥, µ¥Å¥ °°Àº°Íµé...
+<mongii> Áú¹®~
+<mongii> ³×
+<[¦¬_¦¬]FiaDot> µ¥Å¥°¡ ¸Ó¿¹¿©?
+<[á¡Øª]¹Ì¸£> Å¥ÀÇ ÀÚÀ¯Çü...
+<Á¤ÈÆ> ¾çÂÊÀ¸·Î ³ÖÀ» ¼ö ÀÖ´Â °Å..ÈåÈå
+<[¦¬_¦¬]FiaDot> ¾çÂÊÀ¸·Î ³ÖÀ¸¸é ¾îµð·Î •û±¸ ¤Ñ¤Ñ;;
+<[á¡Øª]¹Ì¸£> ±×·¯´Ï±î..¾çÂÊÁß
+<[á¡Øª]¹Ì¸£> ¾î´ÀÂÊÀÌµç ÀÔÃâ·ÂÀ»
+<[á¡Øª]¹Ì¸£> Á¤ÇØÁÙ¼ö ÀÖ´Â°ÍÀÓ
+<Á¤ÈÆ> ¿À +_+
+<[¦¬_¦¬]FiaDot> ±×·±°ÍÀÌ...ÈåÈå..
+<[¦¬_¦¬]FiaDot> ¾îµð¿¡ ¾²¿©¿©?
+<[á¡Øª]¹Ì¸£> ¸µÅ©µå¸®½ºÆ® ¤Ñ,.¤Ñ::
+<[á¡Øª]¹Ì¸£> Àúµµ ÀßÀº ¸ô¶ó¿ä
+<[á¡Øª]¹Ì¸£> ¾Ë°í¸®ÁòÃ¥¿¡¼­ º»°Å¶ó ¤Ñ,.¤Ñ
+<[á¡Øª]¹Ì¸£> ±Ùµ¥..½ºÅÃÀÌ¶û Å¥¶û
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;;;;
+<mongii> ¿ÀÅ°¿ÀÅ°
+<[á¡Øª]¹Ì¸£> ¿ÏÀü ´Þ¶ó¿ä?
+<Á¤ÈÆ> ¿Ë ±Ùµ¥ Ãß»óÀûÀÌ´Ù´Â°Ô ¸ðÁÒ -_-?
+<[á¡Øª]¹Ì¸£> ¾Æ´Ï¸é ±âº»ÀÌ ½ºÅÃÀÌ°í
+<mephist> Àúµµ µ¥Å¥´Â Ã· µè³×¿ä~
+<[á¡Øª]¹Ì¸£> Å¥·Î °¡´Â°Ç°¡¿ä?
+<mongii> À½?
+<[¦¬_¦¬]FiaDot> ¾Æ³à¾Æ³à..µÑÀÌ ±¸Á¶ÇüÀÌ ´Ù¸£Á®.... 
+<[á¡Øª]¹Ì¸£> ±¸Á¶ÇüÀÌ ´Ù¸¥°Å¿¡¿ä?
+<mephist> ´õºí ¸µÅ©µå¸®½ºÆ® ÀÎ°¡??
+<Á¤ÈÆ> ÈåÈå µ¥ÀÌÅÍ±¸Á¶·Ð Ã¥ Æìµé¾î¾Â -_-
+<mongii> ³Ü
+<[á¡Øª]¹Ì¸£> ±Ùµ¥ ¿Ö ½ºÅÃ¸¸½á¿ä?
+<[¦¬_¦¬]FiaDot> LIFO¿Í FIFO
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;
+<Á¤ÈÆ> ¿Ë..µ¥Å©·Î ³ª¿ÍÀÖ´Âµ¥ -_-...
+<[¦¬_¦¬]FiaDot> ÇÔ¼öÄÝÇÒ¶§ Å¥ ¾²¸é ÀÌ»óÇÏÀÚ³ª¿©
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;;
+<[á¡Øª]¹Ì¸£> µ¥Å©... µ¥Å©.. ¤Ñ.,¤Ñ::
+<mephist> ¤¾¤¾
+<mongii> ¿ÀÅ°..
+<mongii> ½ºÅÃ °³³ä ÀâÁö ¸øÇÏ½Å ºÐ~?
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ¸·È÷´Â ºÎºÐ¿¡¼­ Áú¹® ÇÏ¼¼¿ä
+<Á¤ÈÆ> ¤Ñ.¤Ñ ¹®±ÔÇü~
+<Á¤ÈÆ> ÀÚ~?
+<mephist> ¾Æ.. ´ã¹è »ý°¢³ª´Âµ¥¿©~
+<prosager|ÇÐ±³> È÷~
+<[á¡Øª]¹Ì¸£> °¥Áõ³­´Ù ¤Ñ.,¤Ñ::
+<[á¡Øª]¹Ì¸£> ¶ß°Ç¹°ÀÌ¶ó ¸¶½ÃÁöµµ ¸øÇÏ°Ú°í ¤»¤»
+<Á¤ÈÆ> Èå ±Ùµ¥¿ä ¤Ñ.¤Ñ Ãß»óÀûÀÌ´Ù´Â°Ô ¹¹¿¡¿ë?;;
+<Á¤ÈÆ> ÇÑ±¹¾î Àß ¸ð¸§ -_-..
+<[¦¬_¦¬]FiaDot> alldic.yahoo.co.kr Âü°íÇÏ·Å ^^
+<Á¤ÈÆ> ¾ï~ ¶¯½º ^^
+<[á¡Øª]¹Ì¸£> Ãß»óÀû...
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<mephist> ¤¾¤¾¤¾
+<[á¡Øª]¹Ì¸£> ¹Ì·ç¾î »ý°¢ÇÏ´Ù¶ó´Â ÀÇ¹Ì¶ó°í ÇÏ¸çµÇ·Á³ª
+<[á¡Øª]¹Ì¸£> µÇÂ¤¾î »ý°¢ÇÏ´Ù..ÀÏ±î..
+<mephist> °¡»óÀûÀ¸·Î »ý°¢ÇØº¸¸é~
+<[á¡Øª]¹Ì¸£> ÂÑ¾Æ¼­ »ý°¢ÇÏ´Ù..ÀÏ±î...
+<[¦¬_¦¬]FiaDot> Ãß»óÈ­~
+<[¦¬_¦¬]FiaDot> ¸ô·¯?
+<Á¤ÈÆ> ¨è±¸Ã¼¼ºÀÌ ¾ø¾î¼­ ±× ¶æÀÌ ºÐ¸íÇÏÁö ¾ÊÀº (
+<Á¤ÈÆ> ....
+<[á¡Øª]¹Ì¸£> ¿ÀÈ£
+<Á¤ÈÆ> -_-..;;;
+<Á¤ÈÆ> Àú·±°ÅÀÎ°¡ ÈåÈå
+<mongii> ´ÙÀ½À¸·Î ³Ñ¾î°¡µµ µÇ¿ä?
+<[¦¬_¦¬]FiaDot> °Á µÎ¸®µÎ¸® ¹¶½Ç...
+<[¦¬_¦¬]FiaDot> ³ß... ^^
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ½ºÅÃ¿¡ °üÇÑ Áú¹®?
+<Á¤ÈÆ> ³× ÈåÈå
+<prosager|ÇÐ±³> ½ÇÁ¦ ÀÎÀÚµéÀº FP·ÎºÎÅÍÀÇ °Å¸®(offset)°¡ ¾ç¼öÀÌ°í,
+<prosager|ÇÐ±³> Áö¿ªº¯¼öµéÀº FP·ÎºÎÅÍÀÇ °Å¸®(offset)°¡ À½¼öÀÌ´Ù.
+<prosager|ÇÐ±³> ÀÌ°Å¿ä
+<mongii> ³×
+<mongii> ±×°Ç
+<mongii> µÚ¿¡ ³ª¿À´Âµ¥
+<prosager|ÇÐ±³> Çä..-_-;;
+<prosager|ÇÐ±³> ÁË¼Û..Äð·°..;;
+<mongii> ÇÁ·Î±×·¥ÀÌ ÇÔ¼ö¸¦ È£ÃâÇÒ ¶§ ½ºÅÃ¿¡ °ªÀÌ µé¾î°¡´Â ¼ø¼­°¡..
+<[á¡Øª]¹Ì¸£> ebp-¸î¿öµå..ÀÌ¸»ÀÎ°¡...
+<mongii>             Áö¿ª º¯¼ö SFP  RET ÀÎÀÚ
+<naska21> ¿ó..
+<mongii> ÀÌ°É ¸»ÇÏ´Â°Å¿¡¿ä
+<naska21> ÀÌ°Ç¿ä
+<mongii> ÀÎÀÚ´Â ¿À¸¥ÂÊ
+<prosager|ÇÐ±³> ¾Æ..-_-
+<mongii> º¯¼ö´Â ¿ÞÂÊ
+<naska21> Áö°¡ Áö³­¹ø¿¡ Çß´ø
+<naska21> ±×¸²
+<mongii> ³×
+<prosager|ÇÐ±³> ±×·¸±¸¸¸..¤Ñ¤Ñ¤»
+<mongii> ¿ÀÅ°
+<naska21> ÀÎÀÚ°¡ ¸ÕÀú µé¾î°¡°í
+<naska21> ret
+<naska21> sfp
+<[á¡Øª]¹Ì¸£> ¾Æ...±×°Å ±Ã±ÝÇß¾ú´Âµ¥ Àúµµ
+<prosager|ÇÐ±³> ¸»ÀÌ ¾î·Æ°Ô µÇ¾îÀÖ¾î¼­¸®..¤Ñ¤Ñ¤»
+<mongii> ¿ÀÅ°..
+<[á¡Øª]¹Ì¸£> ÀÎÀÚ°¡ ¿À¸¥ÂÊÀÌ¶ó´Â°Å
+<mongii> ±×·¯°Ô¿ä
+<naska21> ±×°÷À» ebp·Î Àâ±â ¶§¹®¿¡
+<mephist> ÀÎÀÚ - fp > 0  , Áö¿ªº¯¼ö - fp < 0
+<[á¡Øª]¹Ì¸£> ½±°Ô ¼³¸íÀÌ °¡´ÉÇÏ±¸³ª ¤Ñ,.¤Ñ::
+<naska21> ebpÀÇ ¿À¸¥ÂÊ¿¡ ÀÎÀÚ°¡ ÀÖ°Ô µÇÁÕ
+<[á¡Øª]¹Ì¸£> ÀÎÀÚ ¿À¸¥ÂÊ...
+<[á¡Øª]¹Ì¸£> º¯¼ö ¿ÞÂÊ...
+<Á¤ÈÆ> ÇÔ¼ö ÀÎÀÚ°¡ ¸ÕÀú µé¾î°£´Ù´Â ¾ê±â³×¿ä..;;
+<mongii> ±×·³ ´ÙÀ½~
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<Á¤ÈÆ> ´ÙÀ½~~
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<[á¡Øª]¹Ì¸£> ¤·¤»ÀÎµ¥¿©
+<naska21> ¶Ç
+<naska21> ¾Æ±î
+<naska21> ÀúÇÑÅ× ´©°¡ Áú¹®ÇÏ½ÃÁö ¾ÊÀ¸¼Ì³¶.. -_-a
+<naska21> À¹.. ´«ÀÌ °¨±æ·Á±¸ ÇÏ³ß...
+<mongii> À½
+<mongii> ¿©±â¼­ ¾î·Á¿î ¸»ÀÌ ¸¹Àºµ¥..
+<[á¡Øª]¹Ì¸£> ¿©±â ¾î·Æ´ç...¤»¤»
+<mongii> Æ¯º°È÷ ±Ã±ÝÇÏ°Å³ª ÀÌÇØ ¾È°¡´Â ¹®Àå Áú¹®~
+<[á¡Øª]¹Ì¸£> sp·ÎºÎÅÍÀÇ offsetÀº º¯ÇÑ´Ù°í ÇÏ´Âµ¥..ÀÌ°Ç ¾Ë°Ú´Âµ¥¿ä
+<mongii> ³×
+<[á¡Øª]¹Ì¸£> fp·ÎºÎÅÍÀÇ °Å¸®´Â ¿Ö ¾Èº¯ÇØ¿ä?
+<Á¤ÈÆ> fp°¡ bp ¾Æ³é¿ä?
+<naska21> fp·ÎºÎÅÍÀÇ °Å¸®¶ó´Â°Ô
+<[á¡Øª]¹Ì¸£> ¹Ù´Ú°úÀÇ °Å¸®¶ó°í´Â ÇØµµ..Çª½¬, ÆË µÇ¸é
+<y2family> ³×.
+<[á¡Øª]¹Ì¸£> º¯ÇÏÁö ¾Ê¾Æ¿ä?
+<y2family> °°Àº°Å¿¡¿ä
+<naska21> ebp¿ÍÀÇ °Å¸®ÀÓ
+<mephist> Á¤ÈÆ..  ¸Â¾Æ..
+<Á¤ÈÆ> ÈåÈå ³×
+<naska21> ebp°¡ °íÁ¤°ªÀÌÀÚ³ª¿ä.. Áö¿ªº¯¼öÀÇ ½ÃÀÛÁ¡
+<mongii> SP º¯¼öµé FP
+<naska21> ±âÁØÁ¡..
+<[á¡Øª]¹Ì¸£> ±×°Ç ¾Ë°Ú´Âµ¥¿ä....
+<[¦¬_¦¬]FiaDot> ¹Ù´ÚÀÌ ¿òÁ÷¿© ¹ö¸²... ±âÁØÁ¡ÀÌ ³¯¶ó°¡ÀÚ³ª¿µ
+<mongii> ¿©±â¼­ º¯¼öµéÀÌ º¯ÇÏ¸é SP´Â º¯ÇÏÁö¸¸
+<mongii> FP´Â ¾Èº¯ÇÏÁÒ ±×¸»ÀÌ¿¡¿ä
+<[á¡Øª]¹Ì¸£> ¾Öµé »çÀÌ¿¡ ³¢°Å³ª ºüÁö´Â°Ç
+<naska21> ¿Ë
+<[á¡Øª]¹Ì¸£> ¾ø´Ù´Â°Å¿¡¿ä?
+<[á¡Øª]¹Ì¸£> »ó°üÀÌ?
+<naska21> ?
+<[á¡Øª]¹Ì¸£> º¯¼öµé »çÀÌ¿¡ 
+<mongii> ¤Ñ.¤Ñ;
+<[¦¬_¦¬]FiaDot> ¤»¤»...½ºÅÃ¿¡¼­ Áß°£¿¡ »ìÂ¥±â Áý¾î³Ö´Â°Å´Â...¾Óµ¥Á® ..
+<[á¡Øª]¹Ì¸£> ¹¹°¡ Çª½¬µÇ°Å³ª
+<[á¡Øª]¹Ì¸£> ÆËµÉ¼ö ¾ø¾î¿ä?
+<[¦¬_¦¬]FiaDot> ´çºü....
+<naska21> »çÀÌ¿¡¿ä?
+<[á¡Øª]¹Ì¸£> ¿¹
+<naska21> »çÀÌ´Â ¾ÈµÇÁÒ
+<[á¡Øª]¹Ì¸£> ¿Ë~...¿Ö¿ä?
+<mephist> ½ºÅÃÀÌ¶ó~
+<mongii> ¾îµð¶û ¾îµð »çÀÌ¿ä?
+<[á¡Øª]¹Ì¸£> ±×·¯´Ï±î...±¸Áö »çÀÌ°¡ ¾Æ´Ï¶óµµ
+<[á¡Øª]¹Ì¸£> [a][b][sfp]¿¡¼­
+<[á¡Øª]¹Ì¸£> ¿¡ÀÌ°¡ ÆËµÉ¼ö ¾ø¾î¿ä?
+<mephist> ½ºÅÃ¿¡ ÀÌ¹Ì µé¾î°£ µÎ µ¥ÀÌÅÍ »çÀÌ¿¡..  »õ·Î¿î µ¥ÀÌÅÍ°¡ »ðÀÔµÇ´Â°¡¸¦ ¹°¾îº¸½Ã³×¿ä~
+<mongii> ¾Æ
+<mongii> ±×°Ç ¾ÈµÇÁÒ
+<naska21> Èå..
+<[á¡Øª]¹Ì¸£> ¿Ö¿ä?
+<mephist> °ñÇÁ°ø ¾ê±â Çß¾úÀÚ³ª¿©~
+<[á¡Øª]¹Ì¸£> À½...¿¡ÀÌ°¡ ÆË ¾ÈµÅ¿ä?
+<[¦¬_¦¬]FiaDot> ¿¨? A°¡ lowÀÚ³ª¿© ¤Ñ¤Ñ;
+<naska21> »bµÇÁÕ
+<mephist> µÇ¿ä~
+<mongii> ¿¡ÀÌ´Â µÇÁö¸¸ B´Â ¾ÈµÇÁÒ
+<[¦¬_¦¬]FiaDot> ¤»¤»...
+<naska21> ³Ü
+<[á¡Øª]¹Ì¸£> ±×·¯¸é...±×°æ¿ì¿£..
+<[á¡Øª]¹Ì¸£> ¿¡ÀÌ´Â ¿­¿Ü°¡ µÇ´Â°Ç°¡¿ä?
+<mongii> ¤Ñ.¤Ñ;;
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;;;;;
+<naska21> b¸¦ »bÇÒ¶ó¹È
+<[á¡Øª]¹Ì¸£> ±×¸®°í b°¡ Áß½ÉµÇ°í...
+<mongii> Áú¹®ÀÇ ¿äÁö¸¦ ¸ð¸£°ÚÀ½ @.@
+<Á¤ÈÆ> ¿­¿Ü -_-?;;
+<[¦¬_¦¬]FiaDot> ¾Æ...
+<[á¡Øª]¹Ì¸£> ±×·¯´Ï±î¿ä...
+<naska21> ½ºÅÃÆ÷ÀÎÅÍ¸¦ ¿Å°Ü¾ß ÇÏ°ø
+<naska21> ±×·¸°Ô µÇ¸é
+<[á¡Øª]¹Ì¸£> a°¡ ÆËµÇ¸é...aÀÇ °Å¸®´Â
+<naska21> a´Â
+<[á¡Øª]¹Ì¸£> ¾î¶»°Ô µÇÁÒ?
+<naska21> ¾ðÁ¦ ´Ù¸¥ °ªÀÌ µ¤¾îÁúÁö ¸ð¸§
+<naska21> Èå..
+<naska21> Áö°¡ Á¤¸® ÇÒ²²¿ë
+<mongii> ¿ÀÄÉÀÌ
+<[¦¬_¦¬]FiaDot> ¤·¤»
+<naska21> sp´Â
+<naska21> º¯¼ö°¡ popµÇ°Å³ª
+<naska21> pushµÉ¶§¸¶´Ù
+<naska21> °ªÀÌ º¯ÇÏ¹Ç·Î
+<naska21> ¿ì¸®°¡
+<[á¡Øª]¹Ì¸£> ¿¹
+<naska21> ¾î¶² ÀÓÀÇÀÇº¯¼ö¿¡
+<naska21> sp¸¦ ÀÌ¿ëÇÑ Á¢±ÙÀº ¾î·Á¿ö¿ä
+<naska21> ¿Ö³ÄÇÏ¸é
+<mongii> ¿ÀÄÉÀÌ
+<[á¡Øª]¹Ì¸£> ¾Æ.........
+<naska21> ¿ì¸®°¡ Á¢±ÙÇÏ°íÀÚ ÇÏ´Â º¯¼ö¿Í
+<naska21> sp»çÀÌÀÇ °Å¸®°¡
+<naska21> ÀÏÁ¤ÇÏÁö ¾Ê±â ¶§¹®¿¡
+<naska21> ÄÄÇ»ÅÍ´Â ¸ÛÃ»ÇØ¼­
+<mongii> ±×·¡¼­ ¸¸µç°ÍÀº~?
+<[á¡Øª]¹Ì¸£> sfp´Â ±âÁØÀÌµÇ°í...±× °Å¸®¸¸Å­ ¹¹°¡ ÀÖ¾ú´øÁö ±× °Å¸®¸¦ Á¦´Âµ¥¿¡¼± Á¤È®ÇÏ´Ü ¸»ÀÎ°¡¿ä?
+<naska21> ±×°É ¿¹¤Ñ¤¡ÇÒ¼ö°¡ ¾ø´Â°ÅÁÕ
+<naska21> ±×·¸ÁÕ
+<[á¡Øª]¹Ì¸£> ¤·¤»¤·¤»
+<naska21> ±×·¡¼­ ebp°¡ ÀÖ±¸¿ä
+<mongii> ±×·¡¼­ ¸¸µç°ÍÀÌ~ SFP(EBP)
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<naska21> Áö¿ªº¯¼ö°¡ µé¾î°¡±âÀü
+<naska21> ¿©±âºÎÅÍ´Ù~!
+<naska21> ÇÏ°í
+<naska21> ¸øÀ» ¹Ú¾Æ ³õ´Â°Ô
+<mongii> ¿ÀÅ°¿ÀÅ°~
+<naska21> ebp ¤»¤» Ä§µµ ¹ß¶óµµ µÇ¿ä
+<[á¡Øª]¹Ì¸£> Àü ..º¯¼öÀÇ °Å¸®¶ó´Â °É ¼ø°£ ³¡°úÀÇ °Å¸®·Î Âø°¢Çß´Ù´Â...
+<naska21> ¤»¤»
+<mongii> >,<
+<[¦¬_¦¬]FiaDot> ÈåÈå...
+<mephist> ¿ÀÅ°
+<[¦¬_¦¬]FiaDot> ÁöÁö
+<mongii> ÄÈ..¤Ñ.¤Ì
+<prosager|ÇÐ±³> ¤¾¤¾
+<mongii> ±×·³ ¶Ç ÀÌÇØ ¾ÈµÇ´Â ºÎºÐ..
+<[á¡Øª]¹Ì¸£> ±×·³..
+<[á¡Øª]¹Ì¸£> ÀÎÀÚµéµµ Áß°£¿¡ ÆË ¾ÈµÇ´Â°Å¸ÂÁÒ?
+<mongii> Áß°£¿¡¶ó´Â ¸»ÀÌ ¹» ÀÇ¹ÌÇÏÁÒ?
+<mephist> Áß°£¿¡?
+<[á¡Øª]¹Ì¸£> ±×·¯´Ï±î
+<mongii> µµÁß¿¡ È¤Àº »çÀÌ¿¡?
+<[á¡Øª]¹Ì¸£> sfp ¸¦ »çÀÌ¿¡µÎÀÝ¾Æ¿ä
+<mongii> ³×
+<[á¡Øª]¹Ì¸£> ÀÎÀÚµéÀº º¯ÇÒ¼ö ¾øÁÒ? ´Ù¸¥ µ¥ÀÌÅÍ°¡
+<[á¡Øª]¹Ì¸£> ±× ÀÎÀÚµé·Î ´ëÃ¼µÇ´Â°Å...
+<mongii> SFP °¡ »ý°åÀ» ¶© ÀÌ¹Ì ÀÎÀÚµéÀÌ °áÁ¤ µÈ°ÅÁÒ
+<[á¡Øª]¹Ì¸£> ÁøÇàÁß¿£ ¾ÈµÇ´Â°ÅÁÒ?
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> º¯ÇÏÁö ¾Ê¾Æ¿ä
+<naska21> º¯ÇÒ¼ö ÀÖÁÕ
+<[á¡Øª]¹Ì¸£> ¿¨?
+<mongii> ÀÎÀÚµéÀÌ¿ä?
+<naska21> ±×·³
+<naska21> ±× ÀÎÀÚµéÀÇ °ªÀ» ¹Ù²Ü¶©
+<naska21> »õ·Î push¸¦ ÇÏ³ª¿ä?
+<naska21> ¾Æ..
+<naska21> »ó¼ö°¡ µÇ³ª¿ä?
+<[á¡Øª]¹Ì¸£> pushÇÏ¸é Áß°£¿¡µé°¡¹ö¸®ÀÝ¾Æ¿ä...
+<naska21> ¤»¤»;;
+<[á¡Øª]¹Ì¸£> ?
+<naska21> Àá±ñ..
+<mongii> PUSHÇØ¼­ Áß°£¿¡ µé¾î°¡´Â °æ¿ì´Â ¾ø¾î¿ä
+<naska21> Å×½ºÆ®Á» ÇØº¸±¸¿ä
+<mephist> »õ·Î ÇÔ¼ö¸¦ È£ÃâÇÏÁö ¾ÊÀ¸¸é... ÀÎÀÚ´Â »ó¼öÁÒ~
+<[á¡Øª]¹Ì¸£> ¾Æ ¿¹
+<mongii> ¹«Á¶°Ç ½ºÅÃÀÇ À­(¿ÞÂÊ)¿¡ °¡¿ä
+<[á¡Øª]¹Ì¸£> ±×·¸°ÔµÇ¹ö¸®ÀÝ¾Æ¿ä
+<[á¡Øª]¹Ì¸£> ÀÎÀÚ¸¸ »©³»´Â°Íµµ ºÒ°¡´ÉÇÏ°í¿ä
+<[á¡Øª]¹Ì¸£> ¸ÂÁÒ?
+<mongii> ³×
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> Áú¹® ¾øÀ¸¸é ½ºÅÃ ³Ñ¾î°¡¿ä
+<[á¡Øª]¹Ì¸£> ÀÌÁ¦ ¾ÈÈçµé·Á¾ßÁö ¤»¤»
+<mongii> ¾ó·· Áú¹®Á» ¸¹ÀÌ ¸¹ÀÌ
+<mongii> Á¤ÈÆÀÌ ¹¹Çô~
+<mongii> ¸ð¸£¸é¼­~~
+<Á¤ÈÆ> Àú¿ä~?
+<mongii> ¿Ö Áú¹® ¾ÈÇô
+<[¦¬_¦¬]FiaDot> ¤»¤»¤»
+<mongii> ´Ù ¾Ë¾î? @.@
+<Á¤ÈÆ> ±×·³ Áú¹® ÇÏ³ª ÈåÈå
+<[¦¬_¦¬]FiaDot> Á¤ÈÆÀÌ ¸¶ÀÌ ¾Æ´Âµ¥..¤»¤»
+<Á¤ÈÆ> ¤Ñ.¤Ña
+<mongii> ±×·¡
+<Á¤ÈÆ> Áú¹® Áú¹®
+<Á¤ÈÆ> Áö±Ý »ìÂ¦ Çì·Õ °Å·Á
+<mongii> Á¤ÈÆÀÌ°¡ ¸ð¸£¸é ´Ù ¸ð¸£´Â°Å´ç
+<Á¤ÈÆ> ¼­ ÇÏ´Â°Çµ¥ -_-..
+<[¦¬_¦¬]FiaDot> ³ªÀÇ ½º½Â....^^
+<Á¤ÈÆ> Çä...-_-...........
+<Á¤ÈÆ> °£´ÜÇÑ°Çµ¥ ÈåÈå
+<Á¤ÈÆ> push µÇ¸é
+<mongii> ¾û
+<Á¤ÈÆ> esp °ªÀÌ ¿ìÂ° µÅ¿ä~? ¶ó°í ¹°¾îº¼¶óÄº´Âµ¥ ¤Ñ.¤Ñ
+<Á¤ÈÆ> Áö±Ý »ý°¢ ³ª¾Â..Çæ ¤Ñ.¤Ì
+<[á¡Øª]¹Ì¸£> ÇÑ´Ü°è ¿Ã¶ó°¡Áö¾Ê³ª
+<mongii> ±×°Ç
+<naska21> Àú±â¿ä
+<naska21> ÀÎÀÚ°ªÀÌ º¯ÇÏ´Âµ¥¿ä
+<mongii> pushÇØ¼­ ÀÚ·á¸¦ Ãß°¡ÇÏ¸é esp´Â ´Ã¾î³ª°í
+<mongii> popÇØ³»¼­ ÀÚ·á¸¦ »©°¡¸é esp °ªÀº ÁÙ¾îµéÁã
+<[á¡Øª]¹Ì¸£> À§·Î ¿Ã¶ó°¡Áö¾È³ª
+<y2family> esp °¨¼Ò..
+<y2family> <mongii> ÀÌ°É ¸»ÇÏ´Â°Å¿¡¿ä
+<y2family> <naska21> ÀÌ°Ç¿ä
+<y2family> <mongii> ÀÎÀÚ´Â ¿À¸¥ÂÊ
+<y2family> <prosager|ÇÐ±³> ¾Æ..-_-
+<y2family> <mongii> º¯¼ö´Â ¿ÞÂÊ
+<[á¡Øª]¹Ì¸£> ÀÎÀÚ°ª º¯ÇØ¿ä?
+<naska21> ³Ü
+<Á¤ÈÆ> ÈåÈå ^^
+<naska21> ±×·¯´Ï±ñ
+<[á¡Øª]¹Ì¸£> ¾î¶»°Ô¿ä?
+<[á¡Øª]¹Ì¸£> ´Ù »©°í?
+<naska21> babo(int a)
+<naska21> ÀÌ·¨À» °æ¿ì
+<mongii> ¾û
+<Á¤ÈÆ> À½..push µÇ¸é ½ºÅÃÀÇ ±âÁØ¿¡¼­ ¸Ö¾îÁö°Ú³×¿ë
+<[á¡Øª]¹Ì¸£> ²ô´ö
+<naska21> a=20ÀÌ¶ó±¸ ¹Ù²ãÁÖ¸é
+<mongii> ¾û
+<naska21> ebp+8À» ÂüÁ¶ÇØ¼­
+<naska21> 20ÀÌ¶ó±¸ ¹Ù²ãÁÜ
+<mongii> ¿ÀÄÉÀÌ
+<Á¤ÈÆ> Èå..¾Èº¯ÇÑ´Ù°í ÇØ¼­ ¼ø°£ Å¸ÀÚ ¼Óµµ°¡ 1000À» ´É°¡ Çß½É -_-
+<[á¡Øª]¹Ì¸£> ¿Ë?
+<[¦¬_¦¬]FiaDot> ¤»¤»....
+<mongii> ¾Æ±î ³»°¡ ¸»ÇÑ°Ç
+<mongii> °ªÀÌ ¹Ù²ï´Ù´Â °ÍÀÌ ¾Æ´Ï°í
+<mephist> ¤¾¤¾
+<mongii> ±× ÀÎÀÚ°¡ Â÷ÁöÇÑ °ø°£ÀÌ ¹Ù²îÁö ¾Ê´Â´Ù°í ¸»ÇÑ°Çµ­~
+<naska21> ¾Æ..
+<naska21> ¤»¤»
+<Á¤ÈÆ> ÈåÈå
+<mongii> °ªÀº ¹Ù²îÁö..
+<naska21> >.<
+<[á¡Øª]¹Ì¸£> °ø°£Àº ¹Ù²îÁö ¾Ê´Â°Å±º¿ä~
+<[¦¬_¦¬]FiaDot> µÑ´Ù ÀÌÇØÇß´Âµ¥..¤»¤»
+<mongii> ±×·³
+<mongii> ¼³¸¶
+<[¦¬_¦¬]FiaDot> const ¾Æ´ÑÀÌ»ó..°ªÀº ¹Ù²î´Âµ¥... °ø°£ÀÌ ¹Ù²ð¸®°¡..ÈåÈå
+<mongii> movl ¸í·ÉÀ¸·Î °ªÀ» ¹Ù²Ü ¶§
+<mongii> ´Ù »©°í ´Ù½Ã ³Ö³ª? ¿ìÈ÷
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<naska21> Å©
+<Á¤ÈÆ> ÈåÈå
+<naska21> ¸»±¸
+<[á¡Øª]¹Ì¸£> °ø°£ÀÇ °³³äÀÌÁÒ? ½ºÅÃÀÌ¸é
+<naska21> Èå..
+<[á¡Øª]¹Ì¸£> ³í¸®Àû °¡»ó°ø°£ÀÇ °³³äÀÌ µÇ´Â°Ç°¡¿ä ±×·³?
+<naska21> ¹Ì¸£´Ô 
+<[á¡Øª]¹Ì¸£> ¿¹?
+<naska21> Áú¹®Àº
+<[¦¬_¦¬]FiaDot> Èå...°íÂ÷¿øÀû Ç¥Çö ³ª¿Â´Ù ¤Ñ¤Ñ;;
+<naska21> Ãß»óÀû.. +_+
+<[á¡Øª]¹Ì¸£> ¤Ñ,.¤Ñ::
+<mongii> µ¿°¨ @.@
+<[á¡Øª]¹Ì¸£> ÀÌÇØÇß¾î¿ä
+<[á¡Øª]¹Ì¸£> ³Ñ¾î°¡¿ä ¤»¤»
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<prosager|ÇÐ±³> ¹Ù²î´Â°Å ¸»ÇÒ·Á°í ÇÏ´Âµ¥ ¸»°É¾î¼­..¤Ñ¤Ñ¤»
+<mongii> ±×·¡µÎ ¹Ì¸£´ÔÀÌ Á¦ÀÏ Áú¹® ¸¹À¸¼Å¼­
+<[á¡Øª]¹Ì¸£> ½ºÅÃ³»¿¡ Á¤ÀÇµÈ °ø°£Àº Áß°£¿¡ ¸ø¹Ù²Û´Ù´Â°ÅÁÒ?
+<mongii> °øºÎ ¸¹ÀÌ ÇÏÀÝ¾Æ¿ä È÷È÷
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> ³Ü
+<mephist> ¤¾¤¾ ^^  ±»~
+<mongii> ½±°Ô
+<mongii> °ñÇÁ ¹¹¿ä?
+<[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ::
+<Á¤ÈÆ> °ñÇÁ°ø -_-a
+<mongii> ÆÄÀÌÇÁ¿¡ °ñÇÁ°ø?
+<[á¡Øª]¹Ì¸£> ¾Ë¾Ò¾î¿ä ¤»¤»
+<prosager|ÇÐ±³> °ñÇÁ-_-a
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<mongii> ±×°Å ¶°¿Ã¸®¼¼¿ä
+<mongii> ¾Æ´Ï¸é
+<mongii> ÅÃ½Ã Å¸¸é
+<[á¡Øª]¹Ì¸£> ¾ÆÀÌ¾¾
+<prosager|ÇÐ±³> ±×·³..´Ù ²¨³»¼­ ´Ù½Ã Á¤ÀÇÇÏ¸é?-_-aa
+<mongii> ÅÃ½Ã ¾ÆÀú¾¾ µ¿Àü ³Ö´Â ±×°Å
+<[á¡Øª]¹Ì¸£> ¾ÆÀÌ¾¾
+<[á¡Øª]¹Ì¸£> I See ¤Ñ.,¤Ñ::
+<mongii> ¿ÀÄÉÀÌ
+<mongii> ´ÙÀ½..
+<mongii> ½ºÅÃÀº ´õ ÀÌ»ó Áú¹® ³ë¿ì?
+<[¦¬_¦¬]FiaDot> ¾ÆÀÌ ¾¾ .....¹Ù ¤Ñ¤Ñ;
+<Á¤ÈÆ> ÈåÈå ¿ì¿Õ ÀÌÁ¦ ÇÁ·Î±×·¡¹Ö ¾ê±â´Ù +_+
+<[á¡Øª]¹Ì¸£> ¤»¤»¤»
+<prosager|ÇÐ±³> ¤¾¤¾
+<Á¤ÈÆ> ¾ï..¾Æ´Ñ°¡º­ -_-
+<[¦¬_¦¬]FiaDot> È­¸é´ÙƒÆÁö³×
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<mongii> Çê
+<[¦¬_¦¬]FiaDot> Ä¼~ Äð
+<Á¤ÈÆ> ÈåÈå
+<mongii> ´Ù¸¥ºÐµÎ¿ä?
+<¾ßÀÎ¸®´ªÄÄ> Àá½Ã¿ä Àá½Ã¿ä.. Áú¹®.. !!~
+<mephist> ³ß
+<mongii> ³Ü~
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ.. ÈÞ.. ÀÚ´Ù°¡ ³õÄ¥¹øÇß³ß..
+<Á¤ÈÆ> -_-
+<[á¡Øª]¹Ì¸£> ¿Ê..¾ß¸°ÀÌ ÀÔÀ»¿­¾ú´Ù
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;;
+<mongii> ¿ì¸® ÆÀ¿øÀº ´Ù ÀáÅÊÀÌ ¤Ð.¤Ð
+<[¦¬_¦¬]FiaDot> ¾ß¸°..¾ß·é´Ù´Â ´À³¦ ¤Ñ¤Ñ;
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ;;
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<prosager|ÇÐ±³> ¾ßÀÎ´Ô ÀÚ´Ù°¡ ²£³ªº¸´å..È÷È÷
+<naska21> À¹..
+<naska21> °©ÀÚ±â
+<Dirandu> -_-;; Á¸´Ù Á¹¾Æ;
+<[á¡Øª]¹Ì¸£> ºÎ»ê¿¡¼± ¾ß·éÀÌ¶ó°í ÇÏ³ª¿ä ¤Ñ,.¤Ñ::
+<naska21> ¹è°¡ »ì»ì ¾ÆÆÄ¿À´Â°Å½Ã
+<mephist> ¤¾¤¾
+<[¦¬_¦¬]FiaDot> ³ß ^^
+<[á¡Øª]¹Ì¸£> ¾ß¸®´Â°É...¾ß·é´Ù°í? ¤»¤»
+<[¦¬_¦¬]FiaDot> ³ß...¤»¤»..
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<Á¤ÈÆ> ¹®±ÔÇü Áú¹®ÀÌ ¸Ó¾ß~?
+<Dirandu> ¿À´Ã ÀÏ´Ù³à¿Í¼­; ÇÇ°ï;
+<mongii> Áú¹® ¾ó··..
+<Dirandu> ¤Ð.¤Ð
+<[á¡Øª]¹Ì¸£> ¶ÇÁ¶´Â°Å¾Æ³Ä?
+<[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ::
+<mongii> 1½Ã ¹Ý±îÁö¸¸ ÇÏ±¸ ³¾ ÇÕ½Ã´Ù
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ Áú¹®ÇÒ¶ó´Ù ÀÚ³ª ¤Ñ¤Ñ;
+<Á¤ÈÆ> -_-..¹®±ÔÇü -_-
+<Á¤ÈÆ> Çü -_-;;
+<prosager|ÇÐ±³> Áú¹®ÇÏ´Ù°¡ ÀÚ½Ã´Âµí..¤Ñ¤Ñ¤»
+<[á¡Øª]¹Ì¸£> ³»°¡ °í2¶§Àú·¨´Âµ¥
+<Á¤ÈÆ> -_-;;
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;;;;;;;
+<prosager|ÇÐ±³> ¤Ñ¤Ñ¤»
+<Á¤ÈÆ> Çü ÁøÂ¥ ÀÚ -_-?;;
+<¾ßÀÎ¸®´ªÄÄ> ebpÀÇ ¿òÁ÷ÀÓÀÌ¶ó°í ÇØ¾ßµÇ³ª.. sfp¿Í ¿¬°üÁö¾î¼­¿ä.. ¸¸¾à¿¡ ÇÔ¼ö È£ÃâµÇ¸é. ebp°¡ sfp2¿¡ ´Ù½Ã movµÇÀÝ¾Æ¿ä
+<[¦¬_¦¬]FiaDot> || ¾ßÀÎ¸®´ªÄÄ || ¾ß¾ß
+<[á¡Øª]¹Ì¸£> ¸»ÇÏ·Á´Ù ÀÚ¹ö¸° ¤Ñ.,¤Ñ::
+<[á¡Øª]¹Ì¸£> ¿À!
+<[¦¬_¦¬]FiaDot> ³ª¿Ô´Ù
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ.. Áú¹® »ý°¢ÇÏ´À¶ó±¸¿ä..;;
+<mongii> Áú¹® ´Ù½Ã¿ä
+<mongii> ÀÌÇØ ¾ÈµÊ
+<¾ßÀÎ¸®´ªÄÄ> À½..
+<[á¡Øª]¹Ì¸£> Àü¿¡ ³ª½ºÄ«´Ô °­ÀÇÇÒ¶§¸¦ ¸»ÇÏ´Â°Í°°À½
+<Á¤ÈÆ> ebp °ªÀÌ º¯ÇÏ´Â°Ô ¾Æ´Ï¶ó
+<Á¤ÈÆ> ¿¹Àü ÇÔ¼öÀÇ ebp ·Î °¡´Â°Ô ¾Æ´Ñ°¡.;
+<Á¤ÈÆ> ³» ¸» ¹ÏÁö ¸¶ ÈåÈå
+<[¦¬_¦¬]FiaDot> ¿©Â¥¼­ ¶Ç ³ª½ºÄ«´ÔÀÇ Á¤¸® ÇÔ Åß³ª¿ÍÁÖ¾ßÇÒ Å¸ÀÌ¹ÖÀÎµ¥
+<prosager|ÇÐ±³> ¿¹Àü ³ª½ºÄ«´Ô ±×¶§ÀÇ Áú¹®ÀÓ
+<¾ßÀÎ¸®´ªÄÄ> [a][sfp2][ret2][b][sfp][ret]
+<mongii> ³ª½ºÄ«´Ô ¶º½Ñ´Ù
+<Á¤ÈÆ> ÈåÈå
+<[¦¬_¦¬]FiaDot> Áñ¶º ^^/
+<naska21> ¿Ë?
+<prosager|ÇÐ±³> ¤¾¤¾
+<naska21> ¤»¤»
+<prosager|ÇÐ±³> Çæ
+<Á¤ÈÆ> -_-a
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;;
+<mongii> ³× Áú¹® °è¼ÓÀÌ¿ä
+<Dirandu> ;; ¿À´ÃÀº Àú ¸ÕÀú °¡º¸°Ú½À´Ï´Ù;
+<naska21> ¹«½¼ ¸»¾¸ ÇÏ½Ã±¸ ÀÖ¾ú¾î¿ä?
+<[á¡Øª]¹Ì¸£> ³¿»õ°¡..¤Ñ,.¤Ñ::
+<Dirandu> ÄÁµð¼ÇÀÌ ¹«Áö ¾ÈÁÁ¾Æ¼­;
+<¾ßÀÎ¸®´ªÄÄ> À½.. ÀúÀ§¿¡¼­ ebpÀÇ ¿òÁ÷ÀÓÀ» Àß ¸ð¸£°Ú¾î¿ä
+<mongii> ³× ±×·¡¿ä
+<naska21> ¤»¤»
+<Dirandu> ....
+<[á¡Øª]¹Ì¸£> ·ç¾¾´Ô Àß°¡¿ä~ 
+<naska21> ¾îµð¿ä?
+<Á¤ÈÆ> ³× ÀÎÃ¶Çü
+<Dirandu> ¤Ð.¤Ð ³×
+<[¦¬_¦¬]FiaDot> Èå...^^/ ºüºüÀ×....
+<Á¤ÈÆ> ºüÀÌ~~
+<Dirandu> ¸öÀÌ ¾ÆÇÂµí;
+<naska21> ebp°¡ ¿Ö¿ä?
+<[¦¬_¦¬]FiaDot> ¾Æ¼ü½º
+<prosager|ÇÐ±³> ºüÀÌ¿ä
+<Dirandu> ºüÀ×
+<naska21> ¤³~
+*** Dirandu ´ÔÀÌ IRC¸¦ Á¾·áÇß½À´Ï´Ù. (¢¹ ¿ïº¸Ãµ»çÀÇ ÇÑ±Û mIRC 6.01 : http://mirckorea.net ¢·)
+<Á¤ÈÆ> ºüÀÌ~ Ç« ¼Å¿ä
+<¾ßÀÎ¸®´ªÄÄ>  [a][sfp2][ret2][b][sfp][ret]
+<mongii> ³×
+<mongii> ÇÔ¼ö¿¡¼­ ÇÔ¼ö¸¦ È£ÃâÇß´Â°©³×
+<¾ßÀÎ¸®´ªÄÄ> ³ß
+<naska21> Àú°Ô ¿Ö¿ä/
+<mongii> ±Ùµ¥¿ä?
+<naska21> ?
+<¾ßÀÎ¸®´ªÄÄ> ebpÀÇ ¿òÁ÷ÀÓÀÌ¿ä
+<naska21> ¿Ë
+<y2family> ebp´Â ÇöÀç ÇÁ·¹ÀÓ ³»ÀÇ sfp¸¦ °¡¸£Å°±¸ ÀÖ±¸¿ä, sfp ³»¿ëÀº ±× ÀüÀÇ ebp ÁÖ¼Ò¸¦ °¡¸®Å°´Â°ÅÁÒ..
+<[á¡Øª]¹Ì¸£> Ã·¿¡ sfp°¡ °¡Áö°í ÀÖ´ø ebp°¡ sfp2·Î °¡°í, ±× ÇÔ¼ö ³¡³ª¸é ¸ÞÀÎ sfp·Î µ¹¾Æ°¡´Â°ÅÀÝ¾Æ
+<¾ßÀÎ¸®´ªÄÄ> ¾î¶»°Ô µÇ´ÂÁö ±Ã±ÝÇØ¿ä
+<naska21> ¿À
+<Á¤ÈÆ> ²ô´ö
+<naska21> ÁÖ¿µ´ÔÀÌ ¸ÂÀ½
+<Á¤ÈÆ> ÇÑÁÙ·Î ÇØ¹ö¸®½Ã³ß -_-
+<mongii> ¿ÀÄÉÀÌ
+<y2family> ¤·¤»
+<¾ßÀÎ¸®´ªÄÄ> ¤¾¤¾~ ok
+<Á¤ÈÆ> Çä ÀÌÇØµµ °£°Ü?
+<prosager|ÇÐ±³> ÁÖ¿µ´ÔÀÌ Á¤È®ÇÔ..¤Ñ¤Ñ¤»
+<Á¤ÈÆ> ´ë´ÜÇÏ³× ¤Ñ.¤Ña
+<mongii> sfp2´Â ÇöÀçÀÇ ebpÀÌ°í 
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<naska21> ¤»¤»
+<[¦¬_¦¬]FiaDot> ÃµÀçµé ¤Ñ,¤Ñ
+<¾ßÀÎ¸®´ªÄÄ> À½.. ¿ª½Ã ¹Ì¸£´ÔÇÏ°í »ðÁúÇÑ°Ô ¸¹ÀÌ µµ¿ò µÆ¶ä~
+<mongii> sfp1Àº ÀÌ¹Ì Áö³­ ±×³É °ª~!
+<[¦¬_¦¬]FiaDot> ÇÑÁÙ·Î ¸ðµç°É ¼îºÎº¸´Ù´Ï
+<Á¤ÈÆ> ÈåÈå
+<mongii> ÇªÈ÷
+<mongii> ±×·³
+<naska21> ¤»¤»
+<mongii> ´ÙÀ½ ³Ñ¾î°©´Ï´Ù
+<[á¡Øª]¹Ì¸£> ¾Æµû...¾¤ºÎ ºÁºÎ·¶³×À×
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<mongii> ¾Æ±î °¡»ó ¸Þ¸ð¸® ±×¸²À¸·Î ±×·È´ø °ÍÃ³·³
+<[á¡Øª]¹Ì¸£> ¿À~
+<¾ßÀÎ¸®´ªÄÄ> ¿ìÇìÇìÇì~ ¸»ÀåÇÑ ÀÌÁ¤½Å!! ¹ãµµ ¼¿¼öÀÕÀ»°Í °°À½..
+<mongii> ÀÌ ÄÚµå°¡ ½ÇÇàµÇ´Â µ¿¾ÈÀÇ ½ºÅÃ ¸ð½ÀÀ» ±×¸²À¸·Î ±×¸®°ÚÀ½´Ù
+<Á¤ÈÆ> ³×
+<Á¤ÈÆ> Çä.......
+<Á¤ÈÆ> -_-.....
+<¾ßÀÎ¸®´ªÄÄ> [buf2][buf1][sfp][ret][1][2][3][sfp][ret]
+<Á¤ÈÆ> ('' )( '')...
+<¾ßÀÎ¸®´ªÄÄ> ÀÌ°Ç°¨..;
+<Á¤ÈÆ> Àú..¸ðµÎ ´Ù ¿À¼ÌÀ¸´Ï±î
+<prosager|ÇÐ±³> ret2 ¿¡´Â ¹¹°¡ ?
+<Á¤ÈÆ> ·Î±×´Â ÇÊ¿ä ¾ø°ÚÁÒ? ^^a
+<prosager|ÇÐ±³> -_-;;
+<prosager|ÇÐ±³> ¿Ö¿ä? ·Î±× ÇØ¾ßÁÒ..¤Ñ¤Ñ¤»
+<prosager|ÇÐ±³> ´Ù½Ã ºÁ¾ßÇØ¿ä..¤Ð_¤Ð
+<[á¡Øª]¹Ì¸£> [buffer][buffer1][sfp][c][b][a][ret][3][2][1][sfp][ret]
+<Á¤ÈÆ> ÇÏÇÏ..°µÂ÷³ª¿ä -_-...
+<Á¤ÈÆ> ¸ðµç°Ç ÇÑ¹ø¿¡ ´Ù ÀÍÈ÷¼Å¾ß ´ï
+<prosager|ÇÐ±³> ¸Ó¸®³ªºü¼­.Àü..-_-aa
+<[á¡Øª]¹Ì¸£> ÀÌ·¸°Ô ÀÏ±î?
+<Á¤ÈÆ> ¿¡Çð -_-+
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<[á¡Øª]¹Ì¸£> ÀÎÀÚ °¡ ¾îµð·Î µé¾î°¡°ÔµÇÁö...
+<prosager|ÇÐ±³> ¿¨?
+<Á¤ÈÆ> [buffer2][buffer1][c][b][a][sfp][ret][1][2][3][sfp][ret]
+<Á¤ÈÆ> ¿ä°Å ¾Æ´Ñ°¡¿ä?;;
+<[á¡Øª]¹Ì¸£> ÀÎÀÚ´Â sfp ¿À¸¥ÂÊÀÌ¶ó¸ç
+<Á¤ÈÆ> À¸Èå..Áö±ÝºÎÅÍ¶óµµ ·Î±× ÇÒ°Ô¿ë ¤Ð¤Ð
+<[á¡Øª]¹Ì¸£> ¾ÆÁ÷ ·Î±× ¾ÈÇß¾ú¾î??? ¤Ñ,.¤Ñ::
+<prosager|ÇÐ±³> ·Î±× ¾ÈÇß¾î¿©?
+<Á¤ÈÆ> Èå -_-......
+<Á¤ÈÆ> ¾Æ±î ºÐ¸íÈ÷ ´­·¶´Âµ­ -_-
+<[¦¬_¦¬]FiaDot> a b c ¤Ñ¤Ñ;; ¾Æ´Ñ°¡ ¤Ñ,¤Ñ;;;
+<y2family> Á¦°¡ Çß¾î¿ä
+<prosager|ÇÐ±³> ±×·±µ¥ ¾îÄÉ ·Î±×ÇÏÁÒ?-_-a
+<y2family> ·Î±×
+<Á¤ÈÆ> ¿ì¿Í +_+
+<[á¡Øª]¹Ì¸£> [buffer][buffer1][sfp][a][b][c][ret][3][2][1][sfp][ret]
+<y2family> Ã·ºÎÅÍ
+<Á¤ÈÆ> ÁÖ¿µ´Ô Â¯ ÈåÈå
+<[á¡Øª]¹Ì¸£> ÀÌ°Ç°¡¿ä?
+<y2family> ¤»¤»
+<Á¤ÈÆ> ¾ï?
+<Á¤ÈÆ> ret »çÀÌ¿¡ 
+<Á¤ÈÆ> ÀÎÀÚ°¡?;;
+<Á¤ÈÆ> ¤Ñ.¤Ña
+<[á¡Øª]¹Ì¸£> ±×·³?
+<mongii> ¾ß¾ß
+<¾ßÀÎ¸®´ªÄÄ> ¹Ì¸£Çü.. ÀÎÀÚ°ªµé¾î°¥¶§´Â °Å²Ù·Î µé¾î°¡´Â°Å ¾Æ´Ñ°¡¿ä?
+<[¦¬_¦¬]FiaDot> Èæ ¤Ñ¤Ñ;
+<[á¡Øª]¹Ì¸£> ·¿ ³Ñ¾î¼­¾ß?
+<mongii> ¸ÕÀúÇÏ¸é ¾îÄÉ~~ ¤Ð.¤Ð
+<mongii> ±×¸² ±×¸®±¸ ÀÖ´Âµ¥
+<mongii> Èæ
+<mongii> ¹è½®~
+<Á¤ÈÆ> À¸Èå..
+<[¦¬_¦¬]FiaDot> zz
+<[á¡Øª]¹Ì¸£> ¤»¤» ÃßÃøÇÏ°í ÀÖ¾ú´Ù´Â
+<prosager|ÇÐ±³> È÷È÷
+<[¦¬_¦¬]FiaDot> ¼Ò½ÉÀïÀÌ
+<mongii> ¿©±â ±×¸² ÀÌÇØ ¾È°¡´ÂºÐ?
+<Á¤ÈÆ> [buffer2][buffer1][c][b][a][sfp][ret][1][2][3][sfp][ret] <-- ¿ä°Å °°Àºµ­ ¤Ñ.¤Ñ
+<mongii> µéÄ×´Ù
+<mongii> ¤Ð.¤Ð
+<[á¡Øª]¹Ì¸£> ¾îµø¾î¿©?
+<Á¤ÈÆ> ¾Èº¸¿©¿ä
+<mongii> Çä
+<prosager|ÇÐ±³> ±×¸²ÀÌ ¾îµøÁÒ..¤Ñ¤Ñ¤»
+<mongii> Àá½Ã
+<naska21> Èå;;
+<Á¤ÈÆ> ÈåÈå
+<naska21> ÇÇ°ï..
+<naska21> =_=
+<mongii> ½ºÅÃ±îÁö¸¸ ÇÏ°í ÀÚÁÒ
+<[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ::ÁØºñµÈ ¸Û¸Û´ÔÀÌ¶õ°Ç°¡
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<prosager|ÇÐ±³> ¸»Â¯ÇÔ..Àü..-_-;;
+<mongii> º¸¿©¿ä?
+<naska21> ¤»¤»
+<mongii> Á¦ È­¸é?
+<naska21> ³¯»õ¿ä
+<[á¡Øª]¹Ì¸£> ¾È¶ß³×..
+<Á¤ÈÆ> ¤Ñ.¤Ñ.;
+<[¦¬_¦¬]FiaDot> ¾Èºö
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ.. Çä.. ÀÌÁ¦ Á¦Á¤½Å µé¾î¿Ó´Âµ¥.. ´õÇØ¿ä~ ´õÇØ¿ä~
+<prosager|ÇÐ±³> ¾Æ´¢..
+<mongii> Èì
+<mongii> ³Ý¹ÌÆÃ ´Ù½Ã¿ê
+<[á¡Øª]¹Ì¸£> ±×·ÁÁö´Ù ¸¾
+<Á¤ÈÆ> »ìÂ¦ ±úÁ®¿ä
+<Á¤ÈÆ> ³×
+<naska21> ³­
+<naska21> Àß º¸ÀÌ´Âµ­
+<naska21> ¾Æ..
+<prosager|ÇÐ±³> Áö±Ý 10½ÃÀÓ..È÷È÷
+<naska21> ¾Æ´Ï±¸³ª
+<naska21> ¤»¤»
+<prosager|ÇÐ±³> ¾ó º¸ÀÌ´Ù°¡ ³¯¶ó°¬´Ù-_-
+<Á¤ÈÆ> ÈåÈå
+<mongii> º¸ÀÌ³ª¿ä
+<naska21> ³Ü
+<Á¤ÈÆ> Àß º¸¿©¿ä~
+<prosager|ÇÐ±³> Àá½Ã¸¸¿ä..¤¾¤¾
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<[¦¬_¦¬]FiaDot> Äð
+<prosager|ÇÐ±³> -_-
+<prosager|ÇÐ±³> ¿ÀÄÉ
+<mongii> ÀÌ ±×¸² ÀÌÇØ ¾È°¡´ÂºÐ?
+<prosager|ÇÐ±³> Çæ..Àá½ÃÀá½Ã..¤Ñ¤Ñ¤»
+<Á¤ÈÆ> ¿Ë..¤Ñ.¤Ñ ±×¸² ±×¸®¼Ì¾î¿ä?;;
+<[á¡Øª]¹Ì¸£> Àú°Ç ž±...
+<[¦¬_¦¬]FiaDot> ½ºÅÃÀÇ °³³äÀÌÇØ¿©?
+<prosager|ÇÐ±³> ¶ß´Âµ¥ ¹«Áö ¿À·¡°É¸²..¤Ð_¤Ð
+<[á¡Øª]¹Ì¸£> ¿ÁÄÉÀÌ~
+<mongii> ³Ü
+<[¦¬_¦¬]FiaDot> ÈåÈå....
+<[á¡Øª]¹Ì¸£> ¿ÁÄÉÀÌ~
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<prosager|ÇÐ±³> ±×¸²À¸·Î ¿Å°ÜÁÖ¼¼¿è
+<mephist> ¶Ç ¾È¶ß´Âµ¥¿±.. Èì~
+<[á¡Øª]¹Ì¸£> À½? ¶Ç ¹ö¹÷..
+<Á¤ÈÆ> ¾ï
+<Á¤ÈÆ> ¾Ï°Íµµ ¾ÈºÆÀÎ´Ù ¤Ñ.¤Ña
+<prosager|ÇÐ±³> ÀÌÇØ‰ç¾î¿°..
+<mephist> Èæ.. ¿À´ÃÀº ÀÌ¸¸ ½¬¶ó´Â ÇÏ´ÃÀÇ °è½ÃÀÎ°¡~
+<Á¤ÈÆ> À¸Èå
+<Á¤ÈÆ> ¿À º¸ÀÎ´ç
+<mongii> °Ô½ÃÆÇ °¡¸é ÀÖ½À´Ï´Ù.
+<mephist> ¿ÀÄÉÀÌ~
+<[á¡Øª]¹Ì¸£> 3ÂÊ¿¡ µÎ½Ã°£ÀÎ°Ç°¡..¤»¤»
+<Á¤ÈÆ> ¿ÀÈ« +_+ ³×
+<prosager|ÇÐ±³> ±×·±µ¥ ¸Û¸Û´Ô ¾Æ±îÀü¿¡ ±×·È´ø ±×¸²Àº ¾ÈÇÏ½Ã³ª¿ä?
+<¾ßÀÎ¸®´ªÄÄ> ¤Ì¤Ì.. ÀÌÁ¦ °Ü¿ì Á¦Á¤½Å µ¹¾Æ¿Ô´Âµ¥ ³¡ÀÌ¶ó´Ï....
+<mongii> ³×?
+<[á¡Øª]¹Ì¸£> [buffer][buffer1][sfp][c][b][a][ret][3][2][1][sfp][ret]
+<mongii> ÀÌÁ¦ ÇØ¾ßÁÒ
+<prosager|ÇÐ±³> text, data, heap, stack
+<[á¡Øª]¹Ì¸£> ÀÌ·±½ÄÀÇ ±×¸²±×¸°°Å ¾Æ´Ï¾ú³ª...
+<prosager|ÇÐ±³> ±×¸²¿ä
+<prosager|ÇÐ±³> È÷È÷
+<¾ßÀÎ¸®´ªÄÄ> ¹Ì¸£Çü.. 3 2 1 Æ²¸°°Í °°¾Æ¿ä
+<[á¡Øª]¹Ì¸£> ±×¸®·Á´ø°Å
+<[á¡Øª]¹Ì¸£> 321Æ²·Á?
+<[¦¬_¦¬]FiaDot> µÚ¿¡²¯µéÀÌ ¸ÕÀú ½ï~
+<¾ßÀÎ¸®´ªÄÄ> °Å²Ù·Î µé¾î°¡¾ßÇÏ´Â°Å ¾Æ³×¿ä? ÀÎÀÚ°ªÀº?
+<Á¤ÈÆ> [buffer2][buffer1][c][b][a][sfp][ret][1][2][3][sfp][ret] ÀÌ°Ç¿ä? -_-
+<[á¡Øª]¹Ì¸£> ¾Æ...
+<[á¡Øª]¹Ì¸£> ±ÛÄí³ª..
+<[¦¬_¦¬]FiaDot> ¿ø·¡ stdcallÀº µÚºÎÅÍ µé°¡°í
+<Á¤ÈÆ> ÇÔ¼öÀÎÀÚ´Â À½..¤Ñ.¤Ñ..
+<[¦¬_¦¬]FiaDot> pascal callÀº ¾Õ¿¡¼­ºÎÅÍ
+<¾ßÀÎ¸®´ªÄÄ> Çä.. ±ÙÈ£Çü.. ÇÑ±Û·ç..;;
+<[¦¬_¦¬]FiaDot> WINAPI PASCAL ÀÌ·±°Å ..
+<[á¡Øª]¹Ì¸£> [buffer][buffer1][sfp][ret][a][b][c][sfp][ret][1][2][3]
+<prosager|ÇÐ±³> Çæ..pascal call..È÷È÷
+<mongii> ±×·³ ÀÌÁ¦
+<[¦¬_¦¬]FiaDot> API‹š »ìÂ¥±â º¸ÀÌ´Â°Å..±×±×
+<[á¡Øª]¹Ì¸£> ÀÌ·¸°Õ°¡±×·³?
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<mongii> ÀÌ ÇÁ·Î±×·¥ÀÌ ½ÇÇàµÉ ¶§
+<mongii> ½ºÅÃ ¸ð½ÀÀ» ±×·Áº¸°ÚÀ½´Ù
+<prosager|ÇÐ±³> ³Ü
+<Á¤ÈÆ> ³×
+<[¦¬_¦¬]FiaDot> ³ß..
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<mongii> ½ºÅÃ¿¡ µé¾î°¡´Â ¼ø¼­·Î ¿£ÅÍ Ä¨´Ï´Ù
+<[á¡Øª]¹Ì¸£> [buffer1][buffer2][sfp][ret][a][b][c][sfp][ret][1][2][3] ÀÌ°Å Æ²·Á¿ä? ¤Ñ.,¤Ñ::
+<mongii> RET
+<mongii> SFP
+<mongii> 3
+<mongii> 2
+<mongii> 1
+<mongii> RET
+<mongii> SFP
+<mongii> BUFFER1
+<mongii> BUFFER2
+<mongii> SP
+<mongii> ¿ÀÄÉÀÌ?
+<[á¡Øª]¹Ì¸£> ¿ÀÈ£...?
+<¾ßÀÎ¸®´ªÄÄ> ÈÄÇìÇì~ ³»°¡ ¸Â¾Ò´ç..
+<Á¤ÈÆ> [sp][buffer2][buffer1][sfp][ret][1][2][3][sfp][ret]
+<Á¤ÈÆ> [buffer2][buffer1][c][b][a][sfp][ret][1][2][3][sfp][ret]
+<prosager|ÇÐ±³> È÷È÷..
+<[á¡Øª]¹Ì¸£> abc¶ó´Â ÀÎÀÚ´Â¾È³ÖÁ®¿ä?
+<naska21> ¤¾¤¾
+<Á¤ÈÆ> ¾ï..
+<[á¡Øª]¹Ì¸£> ÇÔ¼öÀÇ
+<¾ßÀÎ¸®´ªÄÄ> ¿ª½Ã abc´Â ¾ø¾ú¾î..
+<Á¤ÈÆ> abc ´Â¿ä?
+<naska21> =..=
+<¾ßÀÎ¸®´ªÄÄ> Àú¹ø¿¡ ÇÒ¶§µµ ¾ø¾úÀÝ¾Æ
+<Á¤ÈÆ> func ÇÔ¼ö ÀÎÀÚ...;;
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<mongii> Á¤ÈÆ ¿Ö µÎ°³¾ß?
+<Á¤ÈÆ> ³×?
+<mongii> 1¹ø 2¹ø µÑÁß¿¡ °í¸£¶ó´Â°Ç°¡?
+<Á¤ÈÆ> Çä ¤»¤»
+<Á¤ÈÆ> ÇÏ³ª´Â
+<¾ßÀÎ¸®´ªÄÄ> 1 2 3À¸·Î ÀÎÀÚ°ªÀ» ¢Z´Âµ¥.. ¶Ç ¼±¾ðÇØÁÙÇÊ¿ä ¾ø´Â°ÅÁÒ?
+<Á¤ÈÆ> ÇüÀÌ ÇÑ°Å±¸
+<Á¤ÈÆ> ³ªÁß¿£
+<Á¤ÈÆ> Á¦²¨..;;
+<mephist> ¤¾¤¾
+<mongii> ´Ù½Ã »Ñ·ÁºÁ
+<Á¤ÈÆ> À½..±×·¸±¸³¶
+<Á¤ÈÆ> [buffer2][buffer1][c][b][a][sfp][ret][1][2][3][sfp][ret]
+<Á¤ÈÆ> ¿ä°Å¿ä ¤Ñ.¤Ñ;;
+<Á¤ÈÆ> func ÇÔ¼ö..±×°Å ¾ø¾îµµ µÇ´Â°Ç°¡¿ä?
+<mephist> ¿À.. Á¤ÈÆÀÌ.. ÇÏµå µå·¹ÀÌ´×~
+<mongii> Àú°Ç ¶¯
+<Á¤ÈÆ> ¾ï ÈåÈå
+<[á¡Øª]¹Ì¸£> [buffer][buffer1][sfp][ret][a][b][c][1][2][3][sfp][ret]¾Æ´Ñ°¡....
+<mongii> ³»²¨ »Ñ·ÁºÁ
+<mongii> ¶¯
+<mongii> º¸¼¼¿ä
+<Á¤ÈÆ> [sp][buffer2][buffer1][sfp][ret][1][2][3][sfp][ret]
+<[á¡Øª]¹Ì¸£> ¿Ë?
+<mongii> º¯¼ö¸é ´Ù º¯¼ö·Î ÅëÀÏÇÏ°í
+<mongii> °ªÀÌ¸é ´Ù °ªÀ¸·Î ÅëÀÏÇØ¾ßÁö
+<[á¡Øª]¹Ì¸£> ÅëÀÏ?
+<mongii> ¿Ö º¯¼ö¶û °ªÀÌ¶û ¿Ô´Ù¸® °¬´Ù¸®¿¡¿ä?
+<mongii> ³Ü
+<[á¡Øª]¹Ì¸£> À¸Èì?
+<Á¤ÈÆ> ¿ÀÈ«..
+<[á¡Øª]¹Ì¸£> ÇÔ¼ö¿¡¼­ Á¤ÀÇµÈ ÀÎÀÚ´Â
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<mongii> Àß »ý°¢ÇØº¸¼¼¿ë
+<mongii> Áö±Ý
+<[á¡Øª]¹Ì¸£> »ó°ü ¾ø´Ü°Å¿¡¿ä?
+<mongii> Àú ±×¸² Áß°£¿¡
+<[á¡Øª]¹Ì¸£> ½ºÅÃ¿¡ Á÷Á¢ÀûÀÎ?
+<mongii> 1 2 3 À» ³ÖÀº °ÅÀº
+<[¦¬_¦¬]FiaDot> °¨Àâ¾Æ¾Â
+<¾ßÀÎ¸®´ªÄÄ> 1 2 3 ´ë½Å a b c ·Î ÇØÁàµµ µÈ´Ù´Â¸»ÀÌ¿ä?
+<mongii> ret address ´ë½Å 0xd392fje ¸¦ ³ÖÀº °Í°ú °°¾Æ¿ä
+<[á¡Øª]¹Ì¸£> ?
+<mongii> 1 2 3 <- ÀÌ°Ç °ª
+<mongii> a b c <- ÀÌ°Ç º¯¼ö
+<[á¡Øª]¹Ì¸£> ±×ÁÒ
+<[á¡Øª]¹Ì¸£> ±×ÁÒ
+<Á¤ÈÆ> À¸Èì..
+<[á¡Øª]¹Ì¸£> ¾Æ~
+<mongii> µÑ Áß ÇÏ³ª¸¦ ³Ö´Â °ÍÀÎµ¥
+<[á¡Øª]¹Ì¸£> ¾Ë°Ú´Ù
+<Á¤ÈÆ> ¾Æ º¯¼ö±¸³ª ¤Ñ.¤Ñ
+<mongii> Áö±Ý Àú ±×¸²À» º¸¸é
+<Á¤ÈÆ> ³×
+<mongii> ´Ù º¯¼ö·Î Ç¥ÇöÇÏ´Ï
+<mongii> ±â¿Õ ³Ö¾î ÁÙ °Å
+<[á¡Øª]¹Ì¸£> ¤·¤»¤·¤»
+<mongii> a b c º¯¼ö·Î ³ÖÀ¸¶ó ÀÌ°ÅÁÒ
+<mongii> ´Ù½Ã
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<Á¤ÈÆ> ³×
+<mongii> }
+<prosager|ÇÐ±³> [sp][buf2][buf1][sfp][ret][a][b][c][sfp][ret]
+<¾ßÀÎ¸®´ªÄÄ> µ¢´ä..
+<Á¤ÈÆ> À¸ÈåÈå
+<[á¡Øª]¹Ì¸£> ¿À¿ÁÄÉ~
+<Á¤ÈÆ> ¹®±ÔÇÜÀÌ ³ªº¸´Ù ³ªÀ½
+<[á¡Øª]¹Ì¸£> ¿À¿À¿À¿À¿ÁÄÉ~
+<Á¤ÈÆ> ¾ï..±Ùµ¥ ¹®±ÔÇÜÀº ¾ó¸¶ ÁÖ¸é »ì ¼ö ÀÖ´Â°ÅÁö
+<mongii> ½ºÅÃ³ôÀº°÷                    ½ºÅÃ³·Àº°÷
+<mongii> ================³­ ½ºÅÃÀÌ¾ß==============
+<mongii> sp buf2 buf2 sfp2 ret2 a b c sfp1 ret1  |
+<mongii> =========================================
+<mongii> ¿ÀÄÉÀÌ?
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<Á¤ÈÆ> ³× ÈåÈå
+<prosager|ÇÐ±³> ³Ü
+<mongii> }
+<mongii> ³Ü
+<¾ßÀÎ¸®´ªÄÄ> ³» ÆÒÆ¼°¡ ¸¸¿øÀÌ´Ï±î.. ¤¾¤¾ ¸¸ ¹é¿ø¸¸.. 
+<mongii> Á¤¸®ÇØ¼­ °Ô½ÃÆÇ¿¡ ¿Ã¸³´Ï´å
+<prosager|ÇÐ±³> ¿ÀÅ°
+<[á¡Øª]¹Ì¸£> ³Ê ½ºÅÃÀÌ¾ß? ³­ ³ª¾ß? ³Ê? ¶§·Á ºÎ¼ö´Â°Å¾ß~
+<Á¤ÈÆ> ³Ü ÈåÈå
+<Á¤ÈÆ> -_-...
+<[á¡Øª]¹Ì¸£> ³»..³»..³»..°¡
+<Á¤ÈÆ> À½..³ª´Â ÆÒÆ¼ ÇÑÀå¿¡ ¿ÀÃµ¿øÀÎµ­
+<[á¡Øª]¹Ì¸£> ¶§·Á ºÎ¼ø´Ù¸é ¶§·Á ºÎ¼ö´Â°Å¾ß~
+<Á¤ÈÆ> -_-..
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ.. ³­ ¿ëÆÒÆ¼..;;
+<Á¤ÈÆ> Çä +_+
+<[á¡Øª]¹Ì¸£> ³­ ¾ß±¤ÆÒÆ¼
+<Á¤ÈÆ> -_-..
+<[¦¬_¦¬]FiaDot> cindy4440@hotmail.com ´ÔÀÇ ¸»:
+<[¦¬_¦¬]FiaDot>  ºò´º½º
+<[¦¬_¦¬]FiaDot> ÀÚÃë¹æ¸ôÄ«,È­Àå½Ç¸ôÄ«,ÀÏº»¼ºÀÎµ¿¿µ»ó,ÇÑ±¹¿øÁ¶¼ºÀÎµ¿¿µ»ó ~
+<[¦¬_¦¬]FiaDot> Áö±Ý ¹Ù·Î »¡¸® ´Ù¿î¹Þ¾Æ°¡¿ä~
+<[¦¬_¦¬]FiaDot> http://goodwa.com     <<----- ±Â~¿Í ! ´åÄÄ
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;
+<Á¤ÈÆ> ¸Á»ç ÀÔÀ¸½Å ºÐ ¤Ñ.¤Ñ?
+<[á¡Øª]¹Ì¸£> °¡¿îµ¥ ÀÔ¼ú¸ð¾çÀÌ¾ß
+<¾ßÀÎ¸®´ªÄÄ> ¾Æ.. Á¤½ÅÀÌ ¸»¶Ë¸»¶ËÇÏ³×~
+<Á¤ÈÆ> -_-..
+<[á¡Øª]¹Ì¸£> ÇªÈ÷Èý
+<[¦¬_¦¬]FiaDot> ¹ÌÄ§.....
+<[¦¬_¦¬]FiaDot> ÀÌÁ¦
+<[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ
+<[¦¬_¦¬]FiaDot> MSNµµ ±¤°í¸¶¼ö°¡
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<[¦¬_¦¬]FiaDot> ½á±Û
+<Á¤ÈÆ> ÈåÈå
+<¾ßÀÎ¸®´ªÄÄ> ¸»¶Ë¸»¶Ë¸»¶Ë¸»¶Ë¸»¶Ë.. Àá¾È¿Â´ç.. ¤Ì¤Ì..
+<[á¡Øª]¹Ì¸£> ÆÙµ¾´Ô...Áñ°ÜÃ£±â
+<prosager|ÇÐ±³> =_=
+<[á¡Øª]¹Ì¸£> »Ñ¸®½Å´Ù ¤Ñ.,¤Ñ::
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+<naska21> ÈåÈå
+<naska21> ±×»ç¶÷
+<naska21> ¾ð³Õ
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mephist> ÀÚÃëÇÏÁö¸¶¼À.. ´©°¡ ³» ¿Âµµ°èÆÒÆ¼ ÈÉÃÄ°¬À½
+<naska21> Ä£±¸µî·ÏÇØ¿©
+<Á¤ÈÆ> -_-..
+<[¦¬_¦¬]FiaDot> ¤»¤»¤»¤»¤»¤»¤»
+<mongii> ÀÚ ±×·³ ÀÌÁ¦....
+<Á¤ÈÆ> ³×
+<mongii> ¸¶Áö¸·À¸·Î
+<[á¡Øª]¹Ì¸£> ¿Âµµ°èÆÒÆ¼ ¤Ñ,.¤Ñ
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ¤Ñ;;
+<[¦¬_¦¬]FiaDot> ¸¶Áö¸·À¸·Î~~~~
+<mongii> =========================================
+<mongii> ½ºÅÃ³ôÀº°÷                    ½ºÅÃ³·Àº°÷
+<mongii> ================³­ ½ºÅÃÀÌ¾ß==============
+<mongii> sp buf2 buf2 sfp2 ret2 a b c sfp1 ret1  |
+<mongii> =========================================
+<prosager|ÇÐ±³> ³Ü
+<[á¡Øª]¹Ì¸£> ÆÄÀÌ³Î¸®~
+<Á¤ÈÆ> ¶ó½ºÆ®~
+<mephist> µ¾´ë~
+<mongii> ¿©±â¼­
+<Á¤ÈÆ> ³×
+<mongii> °¢ º¯¼öÀÇ »çÀÌÁî¸¦ ¸ÂÃçº¸¼¼¿ä
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<mongii> Á¤ÈÆ ½Ç½Ã
+<¾ßÀÎ¸®´ªÄÄ> À½.. ¸ÛÇü.. buf1ÀÌ¿¡¿ä~Àú±â~
+<mongii> ÈåÈå
+<Á¤ÈÆ> ³Ü ¤»4
+<[á¡Øª]¹Ì¸£> 4,8,12,4,4,...¿©±â±îÁø ¾Ë°Ú´Âµ¥
+<mongii> ¾Æ ³Ü
+<[á¡Øª]¹Ì¸£> 4,4,4,4,4
+<mongii> =========================================
+<mongii> ½ºÅÃ³ôÀº°÷                    ½ºÅÃ³·Àº°÷
+<mongii> ================³­ ½ºÅÃÀÌ¾ß==============
+<mongii> sp buf2 buf1 sfp2 ret2 a b c sfp1 ret1  |
+<mongii> =========================================
+<[á¡Øª]¹Ì¸£> °Ú´Ù...
+<Á¤ÈÆ> sp buf2 buf2 sfp2 ret2 a b c sfp1 ret1     
+<[á¡Øª]¹Ì¸£> 4,8,12,4,4,4,4,4,4,4
+<prosager|ÇÐ±³> 4,8,12,4,4,4,4,4,4,4
+<Á¤ÈÆ> 4  12   8  4  4   1 ..-_-
+<[¦¬_¦¬]FiaDot> 4 12 6 4 4 4 4 4 4 4 
+<[á¡Øª]¹Ì¸£> ÀÌÈý
+<Á¤ÈÆ> 4 ±¸³ª -_-
+<Á¤ÈÆ> À½ -_-
+<mongii> ¿ÀÇÕÁöÁ¹ÀÌ±º~~ À¸ÈåÈå
+<[á¡Øª]¹Ì¸£> ¿¨?
+<Á¤ÈÆ> À¸Çä ¤»¤»
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ;;..
+<[á¡Øª]¹Ì¸£> ³´?
+<Á¤ÈÆ> ³»°¡ ¼îºÎ º¸°Ô¾Â -_-
+<[¦¬_¦¬]FiaDot> 4 12 8 4 4 4 4 4 4 4 
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;
+<Á¤ÈÆ> sp buf2 buf2 sfp2 ret2 a b c sfp1 ret1 |
+<mongii> ¿ÀÄÉÀÌ
+<Á¤ÈÆ> 4  12   8   4   4   2  2  2  4   4 <--------- ¸Â¾Æ¶ó ¸Â¾Æ¶ó ¤Ñ.¤Ñ
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<Á¤ÈÆ> -_-............
+<mongii> ÄÊ
+<mongii> ¶¯.
+<mephist> Èæ..
+<Á¤ÈÆ> Çä -_-
+<¾ßÀÎ¸®´ªÄÄ> 12 8 4 4 4 4 4 4 4
+<mongii> ´Ù¸¥ ºÐ µµÀü
+<mongii> µùµ¿´ó~~
+<Á¤ÈÆ> -_-..
+<Á¤ÈÆ> ¾Æ±î Àú°Å ÇØ¼­
+<Á¤ÈÆ> ¿ÀÇÕÁöÁ¹ ÀÌ¶ó°í ¤Ð¤Ð
+<¾ßÀÎ¸®´ªÄÄ> ^^V~
+<mephist> Á¤ÈÆÀÌ°¡.. 2 2 2 ÇÑµ¥°¡..  ´Ù 4 ¾ß~
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;;;;;
+<mongii> ¿ÀÄÉÀÌ
+<[á¡Øª]¹Ì¸£> ¿Ê...sp°¡ ¾Ï°Íµµ ¾È°®´Â´Ü°Ç°¡?
+<mongii> Á¤¸®..
+<[¦¬_¦¬]FiaDot> ¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»¤»
+<Á¤ÈÆ> -_-............
+<[¦¬_¦¬]FiaDot> ¾Æ~~~~~~ ¤¡ ¤¡ ¤Á~~~~~~~~`
+<[á¡Øª]¹Ì¸£> ´ÜÁö Æ÷ÀÎÅÍÀÏ»ÓÀÌ¶õ°Ç°¡? ¤Ñ.,¤Ñ::
+<Á¤ÈÆ> À¸Èå ³»°¡ Á³´ç 
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;
+<Á¤ÈÆ> ¸Ó¸® ±ï°í ³»ÀÏ »êÀ¸·Î -_- =3=3=3
+<prosager|ÇÐ±³> Çä...±×·±°Å¿´³ª..¤Ñ¤Ñ¤»
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<mongii> =========================================
+<mongii> ½ºÅÃ³ôÀº°÷                    ½ºÅÃ³·Àº°÷
+<mongii> ================³­ ½ºÅÃÀÌ¾ß==============
+<mongii> sp buf2 buf1 sfp2 ret2 a b c sfp1 ret1  |
+<mongii> =========================================
+<mongii> 4   12   8    4    4   4 4 4  4   4     | 
+<mongii> =========================================
+<[á¡Øª]¹Ì¸£> ¾Æ...¸Â´ç....
+<mongii> ¾ð´õ½ºÅÄ?
+<[á¡Øª]¹Ì¸£> buf2... ¤Ñ.,¤Ñ::
+<Á¤ÈÆ> ³×
+<mongii> Á¤ÈÆ¾Æ
+<[á¡Øª]¹Ì¸£> À§Ä¡..¤»¤»
+<prosager|ÇÐ±³> ¸Â³×-_-
+<mongii> ½ºÅÃÀº
+<Á¤ÈÆ> ³×?
+<Á¤ÈÆ> ³×
+<mongii> 4¹ÙÀÌÆ® ´ÜÀ§·Î ¹Û¿¡ ¸ø³Ö¾î~
+<mongii> ÀÌÀ¯ ¾Æ´Â »ç¶÷?
+<Á¤ÈÆ> ¿Ë..¸Þ¸ð¸® °¡
+<[¦¬_¦¬]FiaDot> word 
+<[á¡Øª]¹Ì¸£> 1¿öµå
+<Á¤ÈÆ> ¿Ë ¤Ñ.¤Ñ
+<mephist> ÇÑ ¿öµå...
+<prosager|ÇÐ±³> word ´ÜÀ§?
+<Á¤ÈÆ> ±×·¸±¸³ª
+<mongii> À½
+<mongii> ´õ Á¤È®ÇÑ ÀÌÀ¯ ¾Æ´Â »ç¶÷?
+<[á¡Øª]¹Ì¸£> 32ºñÆ® Ã¼Á¦¶ó±×·±°Å¾Æ´Ñ°¡¿©
+<[¦¬_¦¬]FiaDot> 32ºñÆ®·¹Áö½ºÅÍ
+<prosager|ÇÐ±³> 32ºñÆ®ÀÌ±â ‹š¹®¿¡
+<mongii> ³Ü~
+<mongii> ¿ÀÅ°..
+<prosager|ÇÐ±³> -_-;;;;
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<[¦¬_¦¬]FiaDot> ´Ùµé...ºü»è
+<prosager|ÇÐ±³> ´Ùµé ´äÀÌ ¶È°°¾Ö..¤¾¤¾
+<[¦¬_¦¬]FiaDot> ¾Æµû
+<¾ßÀÎ¸®´ªÄÄ> ^^~
+<mongii> 32ºñÆ® = 4¹ÙÀÌÆ®
+<Á¤ÈÆ> ¿ÀÈ« +_+
+<[¦¬_¦¬]FiaDot> ²Ü¸®¶ó
+<Á¤ÈÆ> ¾Æ..±×·¡¼­ ¾Æ±î
+<mongii> ¸¸¾à
+<Á¤ÈÆ> 2ÀÇ 32½ÂÀÌ 4 ±â°¡ ¿´±¸³ª ¤Ñ.¤Ñ
+<Á¤ÈÆ> ³×
+<mongii> 1¹ÙÀÌÆ®Â¥¸® ¹®ÀÚ aaa ÀÌ·¸°Ô ¼¼°³¸¦ ³ÖÀ¸¸é
+<Á¤ÈÆ> 4 ¹ÙÀÌÆ® ÀâÈ÷ÁÒ..
+<mongii> 1¹ÙÀÌÆ®°¡ Ãß°¡µÇ¼­ 4¹ÙÀÌÆ® ´ÜÀ§·Î ¸¸µé¾îÁø ÈÄ µé¾î°£´ç
+<naska21> ¤·¤»~
+<[á¡Øª]¹Ì¸£> °ø°£À» Àâ´Â °³³äÀÌ´Ï±î...
+<mongii> 2¹ÙÀÌÆ® aa ¸¦ ³ÖÀ¸¸é 2¹ÙÀÌÆ®°¡ Ãß°¡
+<mongii> ±×·³
+<prosager|ÇÐ±³> ±× 1¹ÙÀÌÆ®´Â ¹¹°¡ µé¾î°¡ÁÒ?
+<naska21> ±×·¸½À´Ï´Ù~
+<Á¤ÈÆ> ³×
+<mongii> Ãß°¡µÉ ¶§, ±× °ªÀº ¹¹°¡ µÉ±î?
+<[á¡Øª]¹Ì¸£> ³×~ ±×·¸½À´Ï´Ù~
+<[á¡Øª]¹Ì¸£> ±×·¨´ø °ÍÀÔ´Ï´Ù~
+<naska21> ¾Ï°ÍµÎ ¾øÂ¡
+<Á¤ÈÆ> À½..¾²·¹±â?;;
+<mongii> ¸¸¾à 1¹ÙÀÌÆ® Ãß°¡µÈ´Ù¸é
+<mongii> ¾î¶² °ªÀÌ µé¾î°¥±î¿ä?
+<mephist> 61 61 61 23(¾²·¹±â)
+<mongii> 1. ¾²·¹±â
+<Á¤ÈÆ> 1~~
+<mongii> 2. 0
+<[á¡Øª]¹Ì¸£> ¸Õ¼Ò¸®?
+<Á¤ÈÆ> 1~~.~~.~~
+<Á¤ÈÆ> 1¹ø ÄÝ ÈåÈå
+<mongii> 1. ÀÓÀÇÀÇ °ª
+<mephist> ¹®ÀÚ ÀÎ°¡¿ä?
+<mongii> 2. 0
+<naska21> 1
+<mephist> ¹®ÀÚ¿­ÀÎ°¡¿ä?
+<mongii> ÀÚ
+<Á¤ÈÆ> 1 ¹ø -_-a
+<mongii> ±×·³ »ý°¢ÇØº¾½Ã´Ù
+<prosager|ÇÐ±³> ¹®ÀÚ¿­?
+<mongii> ¿ì¸®°¡
+<Á¤ÈÆ> ³×
+<[á¡Øª]¹Ì¸£> 50ÇÁ·Î
+<naska21> 1¹ø
+<mongii> aaa ¶ó´Â ¹®ÀÚ¿­À» ½ºÅÃ¿¡ ³Ö¾ú¾î¿ä
+<naska21> Çä;;
+<naska21> ±×·³
+<mongii> ±×·³ ¾²·¹±â ¹®ÀÚ°¡ Æ÷ÇÔµÇ¼­
+<mongii> aaax °¡ µÇ¾ú½À´Ï´Ù
+<prosager|ÇÐ±³> -_-
+<naska21> 3¹ÙÀÌÆ®·Î ÀâÀ¸¸é ¾ÈµÇÁÕ..
+<mongii> ¿Ö¿ä?
+<Á¤ÈÆ> ¸¸¼¼ ¤Ñ.¤Ña ¸Â¾Ò´ç 1¹ø
+<mephist> aaa\0 ÀÌÁÕ~
+<naska21> ÀÚµ¿À¸·Î µÚ¿¡ 1¹ÙÀÌÆ®´Â
+<[á¡Øª]¹Ì¸£> ³Î¹®
+<Á¤ÈÆ> ¾Æ..³Î¹®ÀÚ ¤Ñ.¤Ñ
+<naska21> ³ÎÀÌ µé¾î°¡´Ï±î¿ä
+<mongii> ¾Æ ±â³×
+<[á¡Øª]¹Ì¸£> ÀÎ¼öÇüÀÌ¶ó¸é ¸ô¶óµµ
+<¾ßÀÎ¸®´ªÄÄ> ¾Æ..
+<[á¡Øª]¹Ì¸£> ¤»¤»¤»
+<mongii> ±×·³
+<prosager|ÇÐ±³> ¤»¤»
+<¾ßÀÎ¸®´ªÄÄ> ³Î..
+<mongii> mirable\0
+<[á¡Øª]¹Ì¸£> 123À¸·Î
+<Á¤ÈÆ> -_-a
+<mongii> ÀÌ°É ½ºÅÃ¿¡ ³ÖÀ¸¸é?
+<mongii> ÀüÈÆ ±×·ÁºÁ¶ù
+<naska21> ¤»¤»
+<Á¤ÈÆ> Çä..-_- À½..³Ü
+<Á¤ÈÆ> ¾ï? ½ºÅÃ¿¡?;;
+<mephist> ¤¾¤¾¤¾  Á¤ÈÆÀÌ.. ÇÏµåÆ®·¹ÀÌ´×~
+<Á¤ÈÆ> 8 ÀÌ¿ä ¤Ñ.¤Ñ
+<Á¤ÈÆ> ¿Ë..±Ùµ¥ ÀÌ°É ¿ìÂî ±×¸®Áö
+<[á¡Øª]¹Ì¸£> ´ÙÀ½ À§Ä¡·Î
+<naska21> m i r a b l e \0
+<[á¡Øª]¹Ì¸£> ¹Ð¸®°ÚÁÒ ¤Ñ.,¤Ñ
+<Á¤ÈÆ> [mira][ble\0]
+<Á¤ÈÆ> -_-....a
+<¾ßÀÎ¸®´ªÄÄ> ¾Æ..
+<mongii> ¾î¶ó
+<Á¤ÈÆ> ¾ï..¤Ñ.¤Ñ Àú·¡ ÇÏ¸é ¾ÈµÇ´Â°ÅÁ® -_-
+<mongii> µü 8¹ÙÀÌÆ®³× ÇªÈ÷..
+<mongii> ´Ù½Ã´Ù½Ã..
+<Á¤ÈÆ> À¸ÈåÈå 
+<mephist> ¤¾¤¾
+<mongii> mongii\0
+<mongii> ÇØºÁ
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> ¤Ñ.¤Ñ;
+<Á¤ÈÆ> ¤·¤»
+<prosager|ÇÐ±³> ¤»
+<naska21> ¾ï;;
+<Á¤ÈÆ> [mong][gil\0]
+<Á¤ÈÆ> -_-
+<Á¤ÈÆ> ¿ä°Íµµ 8 ¹ÙÀÌÆ®ÀÎµ¥¿© -_-..
+<¾ßÀÎ¸®´ªÄÄ> Çä..
+<[á¡Øª]¹Ì¸£> [mong][ii\0x]
+<naska21> ¤»¤»
+<Á¤ÈÆ> ¾ï
+<[á¡Øª]¹Ì¸£> ÀÏ±î?
+<[¦¬_¦¬]FiaDot> Àú..ÇØÇÇ°É ¤Ñ¤Ñ;
+<Á¤ÈÆ> ¾ï ´Ù½Ã´Ù½Ã
+<mongii> ÈåÈå
+<mongii> Á¦ ¸¶´©¶ó
+<¾ßÀÎ¸®´ªÄÄ> Á¤ÈÆ¾Æ.. gÇÏ³ª´õ µé¾î°«¶¡..
+<[¦¬_¦¬]FiaDot> ¤»¤»¤»
+<[á¡Øª]¹Ì¸£> ¾Ñ..¸øºÃ´Ù
+<[¦¬_¦¬]FiaDot> ¾ÆÀÌ *^^* ºÎ·¯ºÎ·¯
+<Á¤ÈÆ> [mong][il\0¾²·¹±â!!!!!!!!!!!!!!!!]
+<naska21> ¾îµð¾îµð
+<naska21> À¿..
+<Á¤ÈÆ> À¸ÈåÈå
+<naska21> ¸øºÃ´Ù
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<prosager|ÇÐ±³> ¤¾¤¾¤¾
+<naska21> ´Ù½¬
+<mephist> ¤¾¤¾
+<¾ßÀÎ¸®´ªÄÄ> mixxdollÀÎ°¡.. ;;
+<[á¡Øª]¹Ì¸£> ¾ÆÀÌµðµî·ÏÀ» ÇÏ´Â°Çµ¥
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<Á¤ÈÆ> ³»´Â ¿äÁò ÀüÈ­µµ ¾È¿ÍÁÖ°í ¤Ñ.¤Ñ
+<Á¤ÈÆ> -_-;
+<[á¡Øª]¹Ì¸£> misodoll
+<mephist> ¿À~
+<[á¡Øª]¹Ì¸£> ½ºÅäÅ·¸ðµå ¤Ñ,.¤Ñ
+<[á¡Øª]¹Ì¸£> ÇªÈ÷Èý
+<[¦¬_¦¬]FiaDot> ¤Ñ¤Ñ;;;;;;;
+<[¦¬_¦¬]FiaDot> ±×¸£´Ù
+<mephist> ÇØÇÇ°É~
+<prosager|ÇÐ±³> ±×·³Àú°Ç 12?
+<[¦¬_¦¬]FiaDot> ¸Û¸ÛÀÌ Çà´Ô.....ÇØ³© µé°¨
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<[¦¬_¦¬]FiaDot> Á¶½ÉÇØ¾ßµ©
+<¾ßÀÎ¸®´ªÄÄ> ¹Ì¼ÒÀÎÇü ^^~
+<mongii> ±×·³
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> Á¤ÈÆÀÌ²² ¸Â´ÂÁö
+<[á¡Øª]¹Ì¸£> ¿¥¿¡¼¾ µî·Ï ¤Ñ.,¤Ñ
+<naska21> ¿À..
+<naska21> »¡¸®
+<prosager|ÇÐ±³> Àú·±°Ç ¾îÄÉ µé¾î°¡³ª¿ä?
+<naska21> µî·Ï
+<mongii> È®ÀÎÇØ º¸°Ù¾¹´Ï´å~
+<Á¤ÈÆ> À¸Èå..+_+
+<naska21> µî·Ï½ÃÅ°Àã..¤»¤»
+<[¦¬_¦¬]FiaDot> ÀÚ...ÁýÁß ^^
+<Á¤ÈÆ> ÁýÁß +_+
+<[¦¬_¦¬]FiaDot> ºÐ»ê ¤Ñ¤Ñ;;
+<[á¡Øª]¹Ì¸£> ¹¹°¡ ³Ê¹«ÇÒ±î..°ú¿¬...
+<Á¤ÈÆ> À¸Èå..
+<[á¡Øª]¹Ì¸£> ¶Ñ±¸µÕ ¶Ñ±¸µÕ...¤»¤»
+<Á¤ÈÆ> ¾ï?
+<Á¤ÈÆ> Æ÷ÀÎÅÍ·Î ÇØµµ µÅ¿ä?
+<mongii> Çê
+<mongii> ´Ù½¬
+<mephist> (char *)
+<[á¡Øª]¹Ì¸£> Æ÷ÀÎÅÍ´Â 4¹ÙÀÌÆ®¾¿¸Ô´ø°¡
+<mephist> ³ß
+<Á¤ÈÆ> ¿ÀÈ£ +_+
+<Á¤ÈÆ> ¸Â¾Ò´ç
+<mongii> ¿ÀÄÉÀÌ ¾²·¹±â °ª µùµ¿´ó~~
+<Á¤ÈÆ> ¸¸¼¼~
+<mongii> ¿À¸¥ÂÊ ³¡ µùµ¿´ó~
+<naska21> ÈåÈå
+<prosager|ÇÐ±³> ¾²·¹±â°ª..
+<Á¤ÈÆ> ¸¸¼¼ ~ ¸¸¼¼ ~ 
+<[á¡Øª]¹Ì¸£> ¸ùÀÌ´ÔÀÇ ¶Ñ±¸µÕ¼Ò¸®°¡ ¿©±â±îÁö µé¸°´Ù
+<naska21> ¸Â¾Ò´ç..
+<Á¤ÈÆ> ÈåÈå
+<mongii> ¿ÀÅ°¿ÀÅ°
+<prosager|ÇÐ±³> ±×·³ Á¤È®È÷ 8±ÛÀÚ ³ÖÀ¸¸é¿ä?
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ.. Çä.. ¸øºÃ´Âµ­..;;
+<[á¡Øª]¹Ì¸£> \0°ªÀÌ ¹Ð¸®°ÚÁ®
+<Á¤ÈÆ> ±×·³ ¾Æ¸¶ 1 ¹ÙÀÌÆ®°¡ ¿À¹öÇÃ·Î¿ì
+<Á¤ÈÆ> À¸Èå
+<prosager|ÇÐ±³> 1¹ÙÀÌÆ®°¡ ¿À¹öÇÏ°Ô µÇ´Âµ¥¿ä..
+<prosager|ÇÐ±³> ±×·³ 1¹ÙÀÌÆ® ¿À¹öÇÏ³ª¿ä?
+<Á¤ÈÆ> ±×·¡¼­ ³Ë³ËÈ÷ Àâ¾ÆÁÖ´Â°Å ¾Æ´Ò±î¿ë.
+<mongii> ³×?
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ.. ¸Û¸Û´Ô ÇÑ¹ø¸¸ ´õ º¸¿©ÁÖ¼À.. ´«±ôÂ¦ÇÒ»çÀÌ¿¡ Áö³ª°¡¼­..;;
+<prosager|ÇÐ±³> 12¹ÙÀÌÆ® ¾ÈÀâ±¸¿ä?
+<[á¡Øª]¹Ì¸£> 1¹ÙÀÌÆ® ¿À¹öÇÏ°í, ±×¸¸Å­ µÚ¿¡ ½º·¹±â °¡°ÚÁÒ...
+<mongii> Ä¸ÃÄÇÏ¶ó²Ù! @.@
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ;;..
+<Á¤ÈÆ> ÈåÈå
+<[á¡Øª]¹Ì¸£> ´õ ³Ñ¾î°¡¸é ¼¼±×³ª·Á³ª
+<Á¤ÈÆ> ¿ì¿Õ ÇØºÁ¿ä +_+
+<mongii> ³×?
+<prosager|ÇÐ±³> º¯¼ö»çÀÌ¿¡ ±×·³ dummy °¡-_-
+<mongii> Áú¹® ´Ù½Ã¿ê
+<prosager|ÇÐ±³> 8¹®ÀÚ ³ÖÀ¸¸é¿ä?
+<mongii> ±×·³
+<prosager|ÇÐ±³> 12345678
+<mongii> µü ¸ÂÁÒ
+<[á¡Øª]¹Ì¸£> ¾Æ´ÏÁÒ
+<[á¡Øª]¹Ì¸£> 1¹Ù ¿À¹öÁö
+<Á¤ÈÆ> ¿Ë..³Î¹®ÀÚ ¹Ð¸±ÅÙµ­..
+<mongii> ³Î±îÁö 9¹®ÀÚ¿ä?
+<prosager|ÇÐ±³> \0 ´Â ¾îµð°¢ÁÒ?
+<[á¡Øª]¹Ì¸£> ²ô´ö
+<mongii> ±×·³
+<mongii> 12¹ÙÀÌÆ®ÁÒ
+<Á¤ÈÆ> ±×·¡¿ä?;;
+<mongii> Å×½ºÆ®?
+<Á¤ÈÆ> ³×~~
+<[á¡Øª]¹Ì¸£> ¿À?
+<prosager|ÇÐ±³> ¿ª½Ã³ª 12¹ÙÀÌÆ®?
+<[á¡Øª]¹Ì¸£> ¿Ö 12¹ÙÀÌÆ®·Î È®ÀåµÇ¿©?
+<prosager|ÇÐ±³> test ÇØºÁ¿è
+<Á¤ÈÆ> À½ ÇØºÁ¿ë +_+
+<[á¡Øª]¹Ì¸£> ½º·¹±â°© µå¶ó¼­ 4¹ÙÀÌÆ® Ã¤¿öÁ®¼­
+<mongii> ¿ÀÅ°?
+<Á¤ÈÆ> ¾ï
+<[á¡Øª]¹Ì¸£> 12µÇ´Â°Å¾Æ´Ñ°¡
+<prosager|ÇÐ±³> ÄÑ
+<Á¤ÈÆ> Á¤¸»ÀÌ´ç +_+
+<[á¡Øª]¹Ì¸£> ¾Èº¸ÀÓ
+<prosager|ÇÐ±³> ¿ÀÈ£..±×·¸±¸¸¸..
+<[á¡Øª]¹Ì¸£> ¿À
+<¾ßÀÎ¸®´ªÄÄ> ÈÄÇì~ Ä¸ÃÄ ¿Ï·á+_+
+<mongii> [root@test bof]# ./test4
+<Á¤ÈÆ> ÇÏ³ª ¹Ð·È´Âµ¥ µÚ¿¡ ¾²·¹±â°¡ ºÙ¾ú´Ù
+<mongii> 0xbffffa60  31 32 33 34 31 32 33 34 00 fa ff bf               12341234....
+<mongii> [root@test bof]#
+<Á¤ÈÆ> ¿ì¿À¿À +_+
+<[á¡Øª]¹Ì¸£> ´ç¿¬ÇÏÁÒ..
+<mongii> ¿ì¸® ´«¿¡ º¸ÀÌ´Â°Ç
+<¾ßÀÎ¸®´ªÄÄ> Çä.. ¤Ñ¤Ñ;;..
+<prosager|ÇÐ±³> Àú±â¼­ ±×·³¿ä.. 8 ¹ÙÀÌÆ®·Î º¯¼ö¸¦ Áà¹ö¸®¸é¿ä?
+<mongii> 8¹®ÀÚÁö¸¸
+<[á¡Øª]¹Ì¸£> ³Î¹®ÀÚ ¹Ð·Áµµ.....
+<mongii> ½ÇÁ¦·Î´Â 9¹®ÀÚ¿¡¿ä
+<prosager|ÇÐ±³> char[8] ·Î ±×·³ ¿¡·¯¶ß°ÚÁÒ?
+<[á¡Øª]¹Ì¸£> sfpÀ§Ä¡°¡
+<mongii> ±×·¯´Ï ´ç¿¬È÷ 3¹®ÀÚ°¡ Ãß°¡µÇ¡Ž
+<[á¡Øª]¹Ì¸£> ¹Ð¸±²¬¿ä
+<[á¡Øª]¹Ì¸£> µ¤Èù´Ù°íÇØ¾ßÇÏ³ª
+<Á¤ÈÆ> À¸Èå
+<Á¤ÈÆ> sfp °¡ ¸Ç ¸¶Áö¸· 1 ¹ÙÀÌÆ® ¹Ð¸®°ÚÁÕ ¤Ñ.¤Ñ
+<[á¡Øª]¹Ì¸£> [buffer][sfp][ret]¿¡¼­
+<Á¤ÈÆ> ¾ï..¾ÆÁ÷µµ
+<[á¡Øª]¹Ì¸£> ¹öÆÛ 8ÀÌ°í
+<Á¤ÈÆ> ÆøÁÖÁ·ÀÌ µ¹¾Æ´Ù´Ï½Ã³ª ¤Ñ.¤Ñ
+<prosager|ÇÐ±³> ¸Û¸Û´ÔÇÑÅ×µÎ Àú htppy girl..ÈåÈå
+<¾ßÀÎ¸®´ªÄÄ> Á¤ÈÆ//msnÁ¢¼ÓÇà~
+<[á¡Øª]¹Ì¸£> 9¹ÙÀÌÆ® °¡¸é
+<Á¤ÈÆ> ¤·¤»~
+<mongii> ´Ù ÀÌÇØ ³¡?
+<Á¤ÈÆ> ³× ÈåÈå
+<prosager|ÇÐ±³> ¸Û¸Û´Ô¾Æ..
+<mongii> ÀÇ¹®Á¡ ³²¾ÆÀÖ³ª¿ê?
+<mongii> ³Ü
+<prosager|ÇÐ±³> char[8]
+<mongii> ³×
+<[á¡Øª]¹Ì¸£> [12341234][0xxx][ret]
+<prosager|ÇÐ±³> ±×¸®°í 8°³ ¹®ÀÚ³ÖÀ½?
+<[á¡Øª]¹Ì¸£> ÀÏÄÉ µÇ´Â°Å¾Æ´Ñ°¡
+<prosager|ÇÐ±³> 1¹ÙÀÌÆ® ¿À¹ö?
+<mongii> À½~
+<mongii> ÇØºÁ¾ß ¾Ë°Ú³×¿ä
+<prosager|ÇÐ±³> 2.96¿¡¼± ´õ¹Ì¶¡½Ã ¿À¹ö ¾ÈµÇ·Á³ª..-_-
+<[á¡Øª]¹Ì¸£> ¾Æ¹« ¹®Á¦ ¾øÀÌ sfpÀ§Ä¡¿¡
+<[á¡Øª]¹Ì¸£> µ¤Çô ¹Ð¸®Áö¾Ê³ª¿ä
+<Á¤ÈÆ> ¾ï?
+<mongii> ¼±¾ðÇÒ ¶§
+<mongii> µÚ¿¡ 1¹ÙÀÌÆ®´Â ¾Æ¿¹ ¹«½ÃµÇ³×¿ä
+<Á¤ÈÆ> ¿ÀÈ«..
+<Á¤ÈÆ> ±×·¸±º¿ë +_+
+<[á¡Øª]¹Ì¸£> ¹«½ÃµÇ´Â°Ç°¡...
+<mephist> Àß¸®´Â°¡ºÐµ¥¿ä~
+<mongii> ³Ü
+<prosager|ÇÐ±³> Â©¸®³×¿ä..
+<mongii> À¸Èå
+<mephist> 123412345 ³Ö¾îÁÖ½Ç·¡¿ä?
+<mongii> ¿©ÀÚÄª±¸°¡ 
+<[á¡Øª]¹Ì¸£> ¿À....½Å±âÇÏ±º
+<mongii> ÀÚ²Ù ÂôÂôµ¥¼­
+<prosager|ÇÐ±³> ±×·³ Àú°É....ÀßÇÏ¸é..È÷È÷
+<[á¡Øª]¹Ì¸£> ³Î¹®ÀÚ·Î³ÖÁö¸»¾Æ¹Ù¿©
+<mephist> µÚ°¡ Â©¸®³ª~
+<mongii> ¿©±â±îÁö ÇØ¾ß°ÚÀ½ @.@
+<prosager|ÇÐ±³> -_-aa
+<[á¡Øª]¹Ì¸£> ¿©ÀÚÄ£±¸°¡ÂôÂô´ë¸é
+<Á¤ÈÆ> À¸Èå
+<mephist> Èì..
+<[¦¬_¦¬]FiaDot> ¿ì¸®µµ
+<[á¡Øª]¹Ì¸£> ¶§ÂîÇØÁÖ¸é ¤Ñ.,¤Ñ::
+<prosager|ÇÐ±³> ¿ª½Ã ¾ÖÀÎÇÑÅ× ¾àÇØ..¤¾¤¾¤¾¤¾
+<[¦¬_¦¬]FiaDot> ÂôÂô´ë¿© ¤Ñ¤Ñ;
+<mongii> ÇªÈ÷..
+<mephist> ±×·³.. °µÀûÀ¸·ç ÇØ¿ä~~ ¤¾¤¾
+<mongii> ÇÏÆ°
+<mongii> ±×·³
+<mongii> ¾îµð±îÁö °øºÎÇß´ÂÁö Á¤¸®ÇØº¼±î¿ä
+<prosager|ÇÐ±³> ¿ì¸®°¡ »ç¶÷ÀÌ ´õ ¸¹Àºµ¥..ÀüºÎ´Ù ÂôÂô´ë¸é-_-a
+<[á¡Øª]¹Ì¸£> 4ÆäÀÌÁö ¹Ý..
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> ¾Æ
+<mongii> ¸Þ¸ð¸® °³³ä°ú
+<[á¡Øª]¹Ì¸£> ¸Û¸Û´Ô ÀáÀÚ´ÂÃ´ÇÒ²¬¿©
+<mongii> ½ºÅÃ °³³ä
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> ±×¸®°í º¯¼ö°¡ ½ºÅÃ¿¡ µé¾î°¡´Â ¸ð½À
+<mongii> ±Ý ÁøÂ¥ ¸¶Áö¸·À¸·Î
+<prosager|ÇÐ±³> ³Ü
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ¹öÆÛ ¿À¹öÇÃ·Î¿ìÀÇ °³³ä¸¸ Àâ°í endÇÕ½Ã´ç
+<Á¤ÈÆ> ²ô´ö
+<mongii> =========================================
+<mongii> ½ºÅÃ³ôÀº°÷                    ½ºÅÃ³·Àº°÷
+<mongii> ================³­ ½ºÅÃÀÌ¾ß==============
+<mongii> sp buf2 buf1 sfp2 ret2 a b c sfp1 ret1  |
+<mongii> =========================================
+<mongii> 4   12   8    4    4   4 4 4  4   4     | 
+<mongii> =========================================
+<mongii> ÀÏ´Ü
+<mongii> ÄÚµå¸¦ ¼öÁ¤ÇÒ²²¿ä
+<Á¤ÈÆ> À¸ Ãß¿ö ¹® ´Ý¾Æ¾ßÁö
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii>    gets(buffer2);
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<mongii> ÀÌ·¸°Ô ¹Ù²Ù¾ú½À´Ï´Ù
+<mongii> gets <- Ãß°¡
+<mongii> ¿ÀÅ°?
+<Á¤ÈÆ> ³×~
+<prosager|ÇÐ±³> ¿ÀÄÉ
+<mongii> ±×·³
+<mongii> void function(int a, int b, int c) {
+<mongii>    char buffer1[5];
+<mongii>    char buffer2[10];
+<mongii>    gets(buffer2);
+<mongii> }
+<mongii> void main() {
+<mongii>   function(1,2,3);
+<mongii> }
+<mongii> =========================================
+<mongii> ½ºÅÃ³ôÀº°÷                    ½ºÅÃ³·Àº°÷
+<mongii> ================³­ ½ºÅÃÀÌ¾ß==============
+<mongii> sp buf2 buf1 sfp2 ret2 a b c sfp1 ret1  |
+<mongii> =========================================
+<mongii> 4   12   8    4    4   4 4 4  4   4     | 
+<mongii> =========================================
+<mongii> ¿¡¼­
+<mongii> ¸¸¾à buffer2·Î mirableÀÌ¶ó´Â °ªÀ» ³Ö¾îÁÖ¸é?
+<mongii> À½
+<mongii> ´Ù½Ã
+<¾ßÀÎ¸®´ªÄÄ> [12
+<mongii> Å¬·ÎÁî¾Ð~~
+<prosager|ÇÐ±³> È÷È÷
+<Á¤ÈÆ> ÈåÈå
+<[á¡Øª]¹Ì¸£> [mirablexxxxx]
+<prosager|ÇÐ±³> 10½Ã 38ºÐ..È÷È÷
+<[á¡Øª]¹Ì¸£> 1½Ã 38ºÐ
+<prosager|ÇÐ±³> ´Ùµé Àá¿À½ÃÁÒ? Àü ÀÌÁ¦ Á»ÀÖ´Ù°¡ Á¡½É¸Ô¾î¿ä...¤Ñ¤Ñ¤»
+<[á¡Øª]¹Ì¸£> µü ½Ã°£Â÷ ¶³¾îÁö³×¿© ¤Ñ.,¤Ñ
+<Á¤ÈÆ> -_-..
+<naska21> ¤»¤»
+<¾ßÀÎ¸®´ªÄÄ> ¤Ñ¤Ñ.. Àü ¸»¶Ë¸»¶Ë¸»¶Ë
+<[á¡Øª]¹Ì¸£> 9½Ã°£ÀÎ°¡? ¤Ñ.,¤Ñ
+<mephist> ÀúÈñ´Â ¾ß½Ä ¸Ô¾î¿ä.
+<mongii> =========== Å¬·ÎÁî¾ÐÀÌ¾ß~ =================
+<mongii> buf2(12)     buf1(8)     sfp2(4)    ret2(4)
+<mongii> ===========================================
+<prosager|ÇÐ±³> ¿©±â -15  ½Ã°£..¤Ñ¤Ñ¤»
+<mongii> ´Ù½Ã
+<Á¤ÈÆ> ÈåÈå
+<[á¡Øª]¹Ì¸£> Çä..-15
+<mongii> ¿©±â¼­ buf2ÀÇ °ªÀ¸·Î mirableÀ» ³Ö¾îÁÖ¸é? Á¤ÈÆ ±×¸²~~
+<Á¤ÈÆ> ²ô´ö ¤Ñ.¤Ña
+<mephist> ¤»¤»
+<Á¤ÈÆ> [mirablexxxx] [buf1 (8)] [sfp] [ret]
+<Á¤ÈÆ> ¿ìÈåÈå ¤Ñ.¤Ña
+<[á¡Øª]¹Ì¸£> [mirable00000][buf1(8)]
+<mongii> 1¹ø? 2¹ø?
+<Á¤ÈÆ> ¹¹°¡ ¸ÂÀ»±ø ¤Ñ.¤Ñ 
+<mephist> ³Î Ç¥½Ã ÇÏ±Ã...
+<mongii> Å×½ºÆ® ÇØº¾´Ï´Ù
+<prosager|ÇÐ±³> ²¨²Ù·Î µé¾î°¡´Â°Å ¾Æ´Ñ°¡¿ä?
+<[á¡Øª]¹Ì¸£> Á¤ÈÆÀÌ 11°³ÀÝ¾Æ...
+<Á¤ÈÆ> ¾ï..-_-
+<[á¡Øª]¹Ì¸£> ³­ ³Î±îÁö Ç¥½ÃÇÑ°Å ¤»¤»
+<mongii> °¹¼ö Â÷ÀÌ°¡ ¾Æ´Ï°í
+<prosager|ÇÐ±³> Á¤ÈÆ´Ô \0 ³Ö¾î¾ß..¤Ñ¤Ñ¤»
+<Á¤ÈÆ> ¾Æ..ÇÏ³ª °Á ¸Ô¾î¾Â ¤Ñ.¤Ñ
+<mongii> ³ÎÀÏÁö ¾²·¹±âÀÏÁö
+<mongii> ±×°ÍÀÌ °ü°Ç~
+<Á¤ÈÆ> Èå..³»´Â ¾²·¹±â ·Î Á¤ÇØ¾Â ¤Ñ.¤Ñ
+<[¦¬_¦¬]FiaDot> ÈåÈåÈå
+<[á¡Øª]¹Ì¸£> ³ÎÀÌ Àß¸®´Â°Ç°¡..
+<Á¤ÈÆ> °¡º£Áö!!
+<y2family> ¿¡Çô.. ¹ö¹÷µÇ³× ¤Ñ.¤Ñ¤»
+<[¦¬_¦¬]FiaDot> ¾²Ï!
+<[á¡Øª]¹Ì¸£> ¾Æ´ÒÅÙµ¥
+<Á¤ÈÆ> ¿À ±ÙÈ£Çü ÅëÇß´ç
+<[á¡Øª]¹Ì¸£> ³Î¿¡ ÇÑÇ¥
+<y2family> mirable0¾²·¹±â ¤Ñ.¤Ñ¤»
+<mongii> Àü
+<prosager|ÇÐ±³> ³ÎÀÏ°Å °°Àºµ¥¿ä?
+<mephist> ¹®ÀÚ¿­Àº ¹Ù·ç µé¾î°¡ÁÒ.. ¾Æ¸¶..
+<Á¤ÈÆ> ¾²·¹±â¿¡ ÇÑÇ¥ ¤Ñ.¤Ñ
+<mongii> ¿£ÅÍµÎ µé¾î°¥°Í °°Àºµ¥.. ¤Ñ.¤Ñ
+<Á¤ÈÆ> Çä..¤»¤»
+<[á¡Øª]¹Ì¸£> ¿£ÅÍ? ¤Ñ,.¤Ñ
+<[á¡Øª]¹Ì¸£> ¾Èµé°¥³¤µ¥
+<prosager|ÇÐ±³> gets ´Ï±ñ..
+<Á¤ÈÆ> ¿£ÅÍ µé¾î°¡¿ë
+<[á¡Øª]¹Ì¸£> ¿Ë?
+<mephist> ¾Èµé¾î°¥²¨ °°Àºµ­.
+<[¦¬_¦¬]FiaDot> ¿£ÅÍ Á¦²¸¾ß ÇÏÁö ¾Ê³ª?
+<Á¤ÈÆ> Àú¹ø¿¡ ¼¼½ÉÈ÷ dumpcode·Î ÇÒ ¶§ º¸´Ï±î
+<Á¤ÈÆ> ¿£ÅÍµµ µé¾î°¡´øµ­
+<[¦¬_¦¬]FiaDot> ¿À
+<[¦¬_¦¬]FiaDot> ±×·¡½á²Û
+<[á¡Øª]¹Ì¸£> \nÀ» ³ÖÀ¸¸é ±×·±°Å¾Æ´Ñ°¡
+<mongii> [root@test bof]# ./test5
+<mongii> mirable
+<mongii> 0xbffffa30  6d 69 72 61 62 6c 65 00 f4 97 04 08 7a 82 04 08   mirable.....z...
+<mongii> 0xbffffa40  3c 21 03 40 e4 19 15 40 64 6b 01 40               <!.@...@dk.@
+<mongii> [root@test bof]#
+<mongii> Á¤ÈÆÀÌ ¸Â¾Ò³×¿ä
+<Á¤ÈÆ> ¿À ¾²·¹±â´Ù +_+
+<[á¡Øª]¹Ì¸£> ¿Ë?
+<mongii> ±Ùµ¥ 100ÇÁ·Î ¸ÂÁø ¾ÊÀ½
+<Á¤ÈÆ> ¾Æ½Î~ ¤Ñ.¤Ña
+<mongii> ³ÎÀÌ ¾Èµé¾î°¡¼­
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<Á¤ÈÆ> Çä..¤»¤»
+<mephist> ¤¾¤¾
+<[á¡Øª]¹Ì¸£> ³Î¹®ÀÚ ¾îµø¾î¿ä?
+<Á¤ÈÆ> ±×·³ ¼¼ÀÌÀúÇüÀÌ ¸Â¾Ò³×¿ë
+<mongii> 00
+<[á¡Øª]¹Ì¸£> ¾Æ
+<mongii> 65 µÚ¿ä
+<prosager|ÇÐ±³> ÀÖÀÚ³ª¿ä..
+<y2family> 0 µé¾î°¡°í ¾²·¹±â ¾Æ³é¿ä?
+<mephist> 65 00
+<mongii> Èì
+<mongii> ±Ùµ¥
+<y2family> ¤»¤»
+<mongii> ´ç¿¬ÇÑ°Å³×¿ä »ý°¢ÇØº¸´Ï±î
+<[á¡Øª]¹Ì¸£> ³» ¸ÂÀÝ¾Æ ¤Ñ.,¤Ñ:: ¤»¤»
+<y2family> mirable0¾²·¹±â
+<prosager|ÇÐ±³> ÀúµÎ ¸Â´Â°Å °°Áö´Â ¾Ê³ª¿ä-_-;
+<mongii> ÀÔ·Â ¹ÞÀº ¹ÙÀÌÆ®¸¸Å­ º¹»çÇÏ´Ï±î¿ä
+<[á¡Øª]¹Ì¸£> mirable00000
+<mongii> µÚ¿¡²« ¾Æ¿¹ °ÇµéÁöµÎ ¾ÊÀ½~
+<[á¡Øª]¹Ì¸£> 0ÇÏ³­ ³Î¹®ÀÚ ¤»¤»
+<Á¤ÈÆ> À¸Èå
+<mongii> ±×ÁÒ?
+<[¦¬_¦¬]FiaDot> ¿£ÅÍ´Â À½³×
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ;
+<mongii> ³× 
+<[á¡Øª]¹Ì¸£> ²ô´ö
+<mongii> ÇªÈ÷
+<Á¤ÈÆ> À½..±×·±°¡ ¤Ñ.¤Ñ
+<[¦¬_¦¬]FiaDot> Á¤ÈÆ¾Æ ¿ìÂîµ§±â°í
+<[¦¬_¦¬]FiaDot> ¤Ñ,¤Ñ++
+<[¦¬_¦¬]FiaDot> ¹àÈ÷¶ó
+<mongii> Á¤ÈÆ ´Ù½Ã
+<prosager|ÇÐ±³> Èå~
+<mongii> =========== Å¬·ÎÁî¾ÐÀÌ¾ß~ =================
+<mongii> buf2(12)     buf1(8)     sfp2(4)    ret2(4)
+<mongii> ===========================================
+<Á¤ÈÆ> -_-.....
+<[¦¬_¦¬]FiaDot> ±î¹ß¸®¶ó
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<[á¡Øª]¹Ì¸£> µÚ¿¡²¨ ¾ÆÁÖ ¾È°Çµå´ÂÀÌÀ¯°¡...
+<mongii> naskaisbabohehe
+<Á¤ÈÆ> ³× ´Ù½Ã ÈåÈå
+<[á¡Øª]¹Ì¸£> µü¸¶Á®¼­ ±×·±°Å ¾Æ´Ñ°¡¿©?
+<mongii> ¶ó°í ³ÖÀ¸¸é? ±×¸²~!
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<Á¤ÈÆ> Çä....
+<Á¤ÈÆ> Àú·±°É ¾²¸é -_- ³×..Àá½Ã¸¸ ¤Ð¤Ð
+<[á¡Øª]¹Ì¸£> [naskaisbaboh][ehe³Îxxxx]
+<Á¤ÈÆ> [naskaisbaboh] [ehe0xxxx] [sfp] [ret]
+<Á¤ÈÆ> ÇäÇä ¤Ñ.¤Ñ
+<[á¡Øª]¹Ì¸£> ¿À~
+<mongii> ±»~~
+<Á¤ÈÆ> À¸ÈåÈå
+<¾ßÀÎ¸®´ªÄÄ> ^^~
+<mongii> (¸Â°ÚÁö)
+<Á¤ÈÆ> ±×·²²¬¿ä À¸Èå..
+<[á¡Øª]¹Ì¸£> Æ²·Á¿ä
+<Á¤ÈÆ> ¤Ñ.¤Ñ
+<[á¡Øª]¹Ì¸£> È®ÀÎÇØ¿ä ¤Ñ.,¤Ñ
+<[á¡Øª]¹Ì¸£> ÇªÈ÷Èý
+<naska21> Èå..
+<prosager|ÇÐ±³> È®ÀÎÇØºÁ¿è...È÷È÷
+<[á¡Øª]¹Ì¸£> ³²ÀÇ ºÒÇàÀº...
+<Á¤ÈÆ> -_-..´Ùµé ¸ø ¹ÏÀ¸½Ã³ß
+<[á¡Øª]¹Ì¸£> Æ¯È÷ ¿¬¾Ö¹®Á¦·Î ¤Ñ,.¤Ñ
+<[á¡Øª]¹Ì¸£> ³ªÀÇ Çàº¹...
+<prosager|ÇÐ±³> ¤¾¤¾¤¾
+<Á¤ÈÆ> ÈåÈå
+<prosager|ÇÐ±³> ¸Â´Â°Å´Â °°Àºµ¥..
+<[á¡Øª]¹Ì¸£> ¸ùÀÌ´Ô ¹°µå½Ã·¯°£µí ¤Ñ.,¤Ñ
+<Á¤ÈÆ> ÈåÈå
+<prosager|ÇÐ±³> gcc 2.96 ¿¡¼­´Â ¾Æ¸¶µÎ Á» ´Ù¸¦°Å °°Àºµ¥..
+<mephist> ±×·¯°Ô¿©~
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<Á¤ÈÆ> -_-...
+<[á¡Øª]¹Ì¸£> ½ÉÀûÀ¸·Î º¯È­°¡ÀÖÀ¸¸é ¹°µå½Ã´ÂµíÇÑ ¸ùÀÌ´Ô ¤Ñ.,¤Ñ
+<prosager|ÇÐ±³> dummy »çÀÌÁî Á¤ÇÏ´Â°Ô Á¤È®ÇÏ°Ô ¾î¶² ¹æ½ÄÀÎÁö Àß ¸ô°Ú¾î¿°
+<prosager|ÇÐ±³> ±×°É ¾Ë¸é µÉ°Å °°Àºµ¥..¤Ñ¤Ñ¤»
+<Á¤ÈÆ> 16ÀÇ ¹è¼ö·Î..;;
+<[á¡Øª]¹Ì¸£> ´õ¹Ì»çÀÌÁî ¸Å¹ø¹Ù³¢´øµ¥..
+<[á¡Øª]¹Ì¸£> ¹è¿­ Å©±â¿¡¸¶Ãç¼­
+<[¦¬_¦¬]FiaDot> ±Ùµ¥ ¸¸¾à¿¡ buf[7]ÀÌ¶ó¸é.....
+<prosager|ÇÐ±³> ¸Å¹ø ¹Ù²ñ~
+<mongii> ¾Æ
+<[á¡Øª]¹Ì¸£> ¾îÂ¼¸é ±×°Íµµ ¹è¿­À» ¿öµå´ÜÀ§·Î ²ö¾î¼­
+<mongii> ÀüÈ­¿Í¼­
+<mongii> ÈåÈå
+<prosager|ÇÐ±³> È÷~
+<[á¡Øª]¹Ì¸£> ¹è¼ö½ÃÅ°´Â°ÇÁöµµ
+<mephist> ¹Ì¼ÒÀÎÇü ÇÑÅ×¼­¿©?
+<[á¡Øª]¹Ì¸£> ¿ìÈ÷È÷
+<Á¤ÈÆ> ÈåÈå
+<y2family> ¹è°íÆÄ¶û ¤Ñ¤Ñ
+<[á¡Øª]¹Ì¸£> µû¸¥°É?
+<mongii> ³Ü
+<prosager|ÇÐ±³> ÇªÈ÷~
+<mongii> À½
+<[¦¬_¦¬]FiaDot> ´Ù½Ã ¹Ù¾ß°Ô¶¥
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<Á¤ÈÆ> ¾ï +_+ ÁøÂ¥³ß
+<mongii> Á¤ÈÆ
+<[á¡Øª]¹Ì¸£> [01:44] <[á¡Øª]¹Ì¸£> µû¸¥°É?
+<[á¡Øª]¹Ì¸£> [01:44] <mongii> ³Ü
+<mongii> Àß Çß³ª?
+<Á¤ÈÆ> ³×~
+<[á¡Øª]¹Ì¸£> ÀÌºÎºÐ¸¸
+<mongii> Âü ½Ç¼öÇÑ°Å ÀÖ´Âµ¥
+<[á¡Øª]¹Ì¸£> »©¼­ º¸¿©ÁÖ¸é
+<mongii> ¹öÆÛ´Â
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> 2.91·Î ÇÏ°Ú½À´Ï´Ù
+<mephist> ¿À~
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ¿ÀÄÉÀÌ?
+<Á¤ÈÆ> ¸¸¼¼~~
+<prosager|ÇÐ±³> ³Ü..¤Ñ¤Ñ¤»
+<[¦¬_¦¬]FiaDot> ¤»¤»
+<[á¡Øª]¹Ì¸£> È®ÀÎÅ¥ È®ÀÎÅ¥ ¤Ñ,.¤Ñ
+<mongii> =========== Å¬·ÎÁî¾ÐÀÌ¾ß~ =================
+<mongii> buf2(12)     buf1(8)     sfp2(4)    ret2(4)
+<mongii> ===========================================
+<Á¤ÈÆ> -_-
+<mongii> Á¤ÈÆ ±×·Á¶ó
+<Á¤ÈÆ> Çä.........
+<[á¡Øª]¹Ì¸£> [01:44] <[á¡Øª]¹Ì¸£> µû¸¥°É?
+<[á¡Øª]¹Ì¸£> [01:44] <mongii> ³Ü
+<Á¤ÈÆ> ¹®ÀÚ¿­Àº¿ä?
+<[á¡Øª]¹Ì¸£> Çä..½Ç¼ö
+<Á¤ÈÆ> µé¾î°¥ ¹®ÀÚ¿­ +_+
+<mongii> [root@test bof]# ./test5
+<mongii> naskaisbabohehe
+<mongii> 0xbffffa30  6e 61 73 6b 61 69 73 62 61 62 6f 68 65 68 65 00   naskaisbabohehe.
+<mongii> 0xbffffa40  3c 21 03 40 e4 19 15 40 64 6b 01 40               <!.@...@dk.@
+<mongii> [root@test bof]#
+<mongii> ¿ÀÄÉÀÌ?
+<Á¤ÈÆ> [buf2][buf1][sfp][ret]
+<[á¡Øª]¹Ì¸£> 0xbffffa30 6d 69 72 61 62 6c 65 00 f4 97 04 08 7a 82 04 08 mirable.....z...
+<[á¡Øª]¹Ì¸£> [01:41] <mongii> 0xbffffa40 3c 21 03 40 e4 19 15 40 64 6b 01 40 <!.@...@dk.@
+<[á¡Øª]¹Ì¸£> ÀÌ°Å¶û ºñ±³
+<[á¡Øª]¹Ì¸£> ±×¸¸Å­ ¹Ð·È³×...ÀÚ¸®°¡
+<mephist> ¾Æ.. ¾ß½Ä ¿Ô´ç..
+<Á¤ÈÆ> ¿ì¿Í +_+
+<[á¡Øª]¹Ì¸£> ±×·±°ÅÁÒ?
+<prosager|ÇÐ±³> Çä..¿ì¿Í!!!
+<Á¤ÈÆ> ¸À³ª°Ú´ç..-_-a
+<mongii> ¿Ö ¿ì¿Í¿¡¿ä?
+<mongii> ¾Æ
+<mongii> ¾ß½Ä
+<prosager|ÇÐ±³> ¿©±â±îÁö ¹è´Þ¿ä..~~!!
+<mongii> ¤Ñ.¤Ñ;;
+<[¦¬_¦¬]FiaDot> ¤Ð¤Ð
+<Á¤ÈÆ> À¸Èå..
+<[á¡Øª]¹Ì¸£> ¾ß½Ä!
+<[¦¬_¦¬]FiaDot> ºÎ·¯¿ì¤Ã
+<[¦¬_¦¬]FiaDot> ³ªµµ ¾ß½Ä
+<[á¡Øª]¹Ì¸£> ³­ µ¿»ýÀÌ °£½ÄÇØÁÖ´Âµ¥
+<[á¡Øª]¹Ì¸£> ÇªÈ÷Èý
+<[¦¬_¦¬]FiaDot> ¾Æµû..¶ó¸éÀÌ³ª »Ç»ç¹«¾ßÁö
+<mephist> ¶±ººÀÌ ±è¹ä~
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<prosager|ÇÐ±³> -_-
+<Á¤ÈÆ> ¿ì¿Í +_+
+<mongii> ÁýÁßÇÏ¼¼¿ê~
+<Á¤ÈÆ> ³× ÈåÈå
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<mongii> ±×·³
+<mongii> ÀÌÁ¦
+<mephist> ¾Ñ.. ÁË¼Û..
+<mephist> ¤¾¤¾
+<prosager|ÇÐ±³> ³Ü
+<mongii> ¸®ÅÏ ¾îµå·¹½º¿¡ ´ëÇØ¼­...
+<mongii> ¸®ÅÏ ¾îµå·¹½º ¼³¸íÇÏ½Ç ºÐ?
+<Á¤ÈÆ> ³ª½ºÄ«Çü ÃßÃµÀÌ¿ä~!
+<mongii> ÇÇ¾Æµ¾´Ô ¼³¸í ºÎÅ¹~
+<[á¡Øª]¹Ì¸£> ÇÁ·Î±×·¥ÀÌ³ª ÇÔ¼ö Á¾·á½Ã
+<mongii> ³ª½ºÄ«´Â ÀÜ´Ù
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<Á¤ÈÆ> ¾ÆÇÏ..ÈåÈå ±ÙÈ£Çü ¹Ù²Þ +_+
+<[á¡Øª]¹Ì¸£> µ¹¾Æ°¡¾ßÇÒ °÷ÀÇ ÁÖ¼Ò¸¦
+<Á¤ÈÆ> ¿ÀÈ«..±×·¸±¸³¶
+<naska21> È÷È÷;;
+<[¦¬_¦¬]FiaDot> ¸ô¶ó¿µ *^^*È«È«
+<prosager|ÇÐ±³> ±×·¸±¸³ª..¤Ñ¤Ñ¤»
+<Á¤ÈÆ> -_-..
+<[á¡Øª]¹Ì¸£> ¹ÝÈ¯½ÃÄÑÁÖ´Â°Ç°¡..
+<naska21> ¾ÆÁ÷ ØÀá..
+<[¦¬_¦¬]FiaDot> CALL ÇÔ¼ö¸í....ÇÒ¶§
+<Á¤ÈÆ> ¾ÈÀÚ³ß -_-
+<mongii> ³×
+<prosager|ÇÐ±³> ret 
+<[¦¬_¦¬]FiaDot> EIP¿¡ ´ÙÀ½¿¡ ½ÇÇàµÉ ¸í·É¾îÀÇ
+<[¦¬_¦¬]FiaDot> ÁÖ¼Ò°¡...´ã±â´Âµ¥
+<[¦¬_¦¬]FiaDot> ÀÌ³ðÀÌ RET¿¡ ÀúÀåÀÌ µÊ´Ù..
+<naska21> ³Ü
+<mongii> ¿ÀÅ°
+<Á¤ÈÆ> À¸Èå
+<[¦¬_¦¬]FiaDot> ¿Ö³Ä.... ÇÔ¼ö°¡ Á¾·áµÇ°í leave retÇÒ¶§~
+<mongii> ¹Ì¸£´Ô ¼³¸íÀÌ ´õ ½±³×¿ä
+<mongii> ¹Ì¸£´Ô ¼³¸í ´Ù½¬~
+<[¦¬_¦¬]FiaDot> ±×³ë¹« ÁÖ¼Ò¸¦ ¾Ë¾Æ¾ß....
+<Á¤ÈÆ> ÈåÈå -_-..
+<naska21> ¤»¤»
+<[¦¬_¦¬]FiaDot> ¿Ã¼ö°¡ ÀÖÀÀ²²...
+<[á¡Øª]¹Ì¸£> Á¦°¡ ¸Ó¶ó±×·¨ÁÒ? ¤Ñ,.¤Ñ::
+<Á¤ÈÆ> Å© -_-.;
+<mongii> ¿À ³ë¿ì~
+<mongii> ±×·³
+<[á¡Øª]¹Ì¸£> ÇÁ·Î±×·¥ÀÌ³ª ÇÔ¼ö Á¾·á½Ã
+<mongii> ¸®ÅÏ ¾îµå·¹¼­ °³³ä ¸ð¸£½Ã´Â ºÐ ¼Õ~~~~~
+<[á¡Øª]¹Ì¸£> µ¹¾Æ°¡¾ß ÇÒ °÷ÀÇ....
+<mongii> ·¹½º
+<prosager|ÇÐ±³> ¼Õ~
+<[á¡Øª]¹Ì¸£> ÁÖ¼Ò¸¦ ¹ÝÈ¯½ÃÄÑÁÖ´Â°Í
+<prosager|ÇÐ±³> Á¤È®ÇÏ°Ô ¾î¶² ÁÖ¼ÒÁÒ?
+<prosager|ÇÐ±³> gdb ·Î ¶ß´õÀ»¶§
+<mongii> Á¤È®ÇÏ°Ô
+<[á¡Øª]¹Ì¸£> ½©ÀÌ°ÚÁÒ
+<[á¡Øª]¹Ì¸£> ¿ø·¹ ÀÖ´ø½© È¤Àº
+<prosager|ÇÐ±³> printf ´ÙÀ½¿¡ ÁÖ¼Ò¸¦ °¡¸£Å°³ª¿ä? ¿¹¸¦µé¸é?
+<[á¡Øª]¹Ì¸£> ÇÔ¼öÀÇ°æ¿ì
+<mongii> gdb·Î º¸¿©µå¸±²²¿ä
+<[á¡Øª]¹Ì¸£> ´ÙÀ½ ½ÇÇà½ÃÅ³ °ÍÀÌ³ª
+<naska21> Èå..
+<mongii> Á¦ È­¸é º¸ÀÌ½Ã³ª?
+<Á¤ÈÆ> ¾Æ½Î +_+ ¿¹Á¦´Ù
+<[á¡Øª]¹Ì¸£> ¸ÞÀÎ ÇÁ·Î±×·¥ÀÇ ÁÖ¼Ò°°Àº°Å
+<prosager|ÇÐ±³> ³Ü
+<naska21> Á¤ÈÆÀÌ
+<Á¤ÈÆ> ¤·³×~?
+<mongii> 0x804872b <main+15>:    call   0x80486f4 <function>
+<naska21> ³»°¡ Ä¸ÃÄÇÏ¶û²².. ¹®¼­¿¡´Ù°¡
+<mongii> ¿©±â¼­ ÇÔ¼ö È£ÃâÇÏÀÝ¾Æ¿ä
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<prosager|ÇÐ±³> ³Ü
+<[á¡Øª]¹Ì¸£> ÂÐÅ© µè³Ä?
+<Á¤ÈÆ> ¾ï?;;
+<mongii> 0x804872b <main+15>:    call   0x80486f4 <function>
+<mongii> 0x8048730 <main+20>:    add    $0x10,%esp
+<Á¤ÈÆ> ÂÐÅ© ÇÐ±³ °¡¾Â
+<prosager|ÇÐ±³> ´ÙÀ½¶óÀÎ..
+<mongii> ±×¸®°í ¹Ù·Î ¾Æ·¡´Â ÇÔ¼ö È£ÃâÀÇ ´ÙÀ½ ¸í·ÉÀÌ±¸¿ä
+<[á¡Øª]¹Ì¸£> ¾ï..¹æÇÐ¾ÈÇÑµ¥ ¹Ì±¹Àº?
+<prosager|ÇÐ±³> Áï MAIN+20 ÀÌ RET ¸Â³ª¿ä?
+<mongii> ³Ü~~~
+<mongii> ¹Ù·Î ´ÙÀ½ ¶óÀÎÀÔ´Ï´å
+<y2family> 0x8048730
+<Á¤ÈÆ> ¹Ì±¹Àº °Ü¿ï¹æÇÐÀÌ 2ÁÖ·¡¿ë.
+<prosager|ÇÐ±³> 0x8048730 ÀÌ°Ô..
+<Á¤ÈÆ> À½..
+<mongii> ¿ÀÅ°?
+<prosager|ÇÐ±³> ±×·³¿ä..
+<mephist> ¤·¤»
+<mongii> ³×
+<Á¤ÈÆ> ³×
+<y2family> ok
+<prosager|ÇÐ±³> sfp ret ÀÌ·¸°Ô ¼³¸íÇÏ¸é¿ä?
+<[á¡Øª]¹Ì¸£> °Ü¿ï¹æÇÐ 2ÁÖ ¤Ñ.,¤Ñ
+<prosager|ÇÐ±³> ¾Æ±î..±×..¹¹´õ¶ó..
+<mongii> ³×
+<[á¡Øª]¹Ì¸£> ¸ÚÁö´Ù....
+<prosager|ÇÐ±³> ±î¸Ô¾ú¶¢..¤Ñ¤Ñ¤»
+<[¦¬_¦¬]FiaDot> ÈåÈå
+<mongii> ¤Ñ.¤Ñ
+<mongii> ±×·³ 
+<Á¤ÈÆ> ¾ï -_-¤»
+<mongii> Á¤ÈÆ
+<mongii> ÀÌÁ¦
+<prosager|ÇÐ±³> function ¿¡¼­ÀÇ
+<Á¤ÈÆ> ³×~?
+<mongii> wiseguysisforeverpuhaha
+<mongii> ³Ö¾îºÁ¶ù
+<Á¤ÈÆ> -_-.....
+<mongii> ÇªÈ÷..
+<naska21> À¹
+<naska21> ¸ùÀÌ´Ô
+<prosager|ÇÐ±³> [sp][buf2][buf1][sfp][ret][a][b][c][sfp][ret]
+<mongii> ³×
+<naska21> ¿©ÀÚÄ£±¸°¡ °Å½Ã°¡ ÇÏ½Å´ã¼­
+<prosager|ÇÐ±³> ¿©±â¼­¿ä
+<mongii> ÈåÈå
+<naska21> ¾ÆÁ¨ ¾È±×·¡¿ä? ÈåÈå
+<mongii> Á¤ÈÆ¾Æ
+<prosager|ÇÐ±³> ret ¿¡ ±× ÁÖ¼Ò°¡ µé¾î°¡³ª¿ä?
+<mongii> ½î¸®
+<Á¤ÈÆ> [wiseguysisfo] [reverpuh] [aha0] [ret]
+<mongii> wiseguysforeverwiseguysforever
+<Á¤ÈÆ> À¸ÇÏÇÏÇÏ 
+<mongii> ÀÌ°É ³ÖÀÚ ¿ìÇìÇì
+<Á¤ÈÆ> Çä.........-_-
+<prosager|ÇÐ±³> ¤Ñ¤Ñ¤»
+<[á¡Øª]¹Ì¸£> [function][sfp(function's)][ret(function's -> main)][main][sfp][ret]
+<Á¤ÈÆ> ³Ü Å©Å© ÇÏ´ÂÁß
+<[á¡Øª]¹Ì¸£> ÀÌ·¸°Ô µÇ´Â°Å ¾Æ´Ñ°¡....
+<prosager|ÇÐ±³> ¿ÀÄÉ
+<mongii> ³»°¡ ÇÒ²²
+<mongii> =========== Å¬·ÎÁî¾ÐÀÌ¾ß~ =================
+<mongii> buf2(12)     buf1(8)     sfp2(4)    ret2(4)
+<mongii> ===========================================
+<mongii> wiseguysfore  verwiseg    isef      orever
+<Á¤ÈÆ> [wiseguysfore] [...-_-¤±
+<mongii> ¿ÀÅ°?
+<Á¤ÈÆ> ÇÏ°í ÀÖ¾ú´Âµ­ ÈåÈå
+<mongii> ¾û
+<mongii> gets() ÇÔ¼ö´Â
+<mephist> ¤·¤»
+<prosager|ÇÐ±³> ret2 °¡ ¿À¹ö?
+<mongii> »ç¿ëÀÚ°¡ ÀÔ·ÂÇÑ ¸¸Å­ ¹«Á¶°Ç ¹Þ±â ¶§¹®¿¡
+<mongii> À§Ã³·³ buf2 º¯¼ö¸¦ Áö³ª °è¼Ó ³»¿ëÀ» µ¤¾î ¾º¿ö ¹ö¸³´Ï´Ù
+<[á¡Øª]¹Ì¸£> ¿À¹öµÈ°Ç buf2ÁÒ
+<mongii> ±×·¡¼­ °á±¹ ¸®ÅÏ ¾îµå·¹½º ¿µ¿ª±îÁö µ¤¾î¾º¿ü½À´Ï´Ù
+<prosager|ÇÐ±³> ret ±îÁö µ¤¾î¹ö¸²..
+<mongii> ±×ÁÒ?
+<Á¤ÈÆ> ³×
+<mongii> ¾Æ±î
+<[á¡Øª]¹Ì¸£> buf2°¡ ¿À¹öµÇ¼­ ret±îÁö µ¤Àº°Å
+<mongii> ¹Ì¸£´ÔÀÌ ¼³¸íÇÏ½Ã±æ
+<prosager|ÇÐ±³> ±×¸®°í Áö³ª¼­ ÀÖ´Â ÁÖ¼Ò±îÁö µ¤¾î¹ö¸®ÁÒ?
+<mongii> ret(¸®ÅÏ ¾îµå·¹½º)´Â ÇÔ¼ö°¡ Á¾·áÇÑ ÈÄ ÀÌµ¿ÇÒ ÁÖ¼Ò¶ó°í
+<mongii> Çß´Âµ¥
+<[á¡Øª]¹Ì¸£> ret = ±ÍÈ¯ÁÖ¼Ò
+<[á¡Øª]¹Ì¸£> Åð±ÙÇÒ ÁÖ¼Ò....
+<mongii> ±× ÁÖ¼Ò°¡ orev °¡ µÇ¾î ¹ö·ÈÀ¸´Ï
+<[á¡Øª]¹Ì¸£> ÀÏ³¡³µ´Ù.....¾ó·ç°¥±î?
+<[á¡Øª]¹Ì¸£> ¿©±â·Î °¡¶ó...¶ó´Â 
+<mongii> ÇÁ·Î±×·¥ÀÇ ÀÌ orev Áï.. 0x???????? o, r, e, v°¡ 16Áø¼ö·Î ¸ðÁÒ?? =_=
+<[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ
+<[á¡Øª]¹Ì¸£> ¾Æµ·³ë...
+<mongii> ÀÓÀÇ·Î ÁöÁ¤ÇÕ½Ã´Ù
+<prosager|ÇÐ±³> arbitrary execute..
+<[á¡Øª]¹Ì¸£> a°¡ 65¾Æ½ºÅ°·Î
+<mongii> o = 41
+<mongii> r = 42
+<mongii> e = 43
+<mongii> v = 44
+<mongii> ¿ÀÄÉÀÌ?
+<Á¤ÈÆ> ÈåÈå
+<Á¤ÈÆ> ³×
+<prosager|ÇÐ±³> ¿ÀÄÉ..¤»¤»
+<mongii> ÇÁ·Î±×·¥ÀÇ ÀÌ orev Áï.. 0x41424344 ¿©±â¼­
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ½ºÅÃ¿¡ µé¾î°£ °ª°ú
+<mongii> ½ÇÁ¦ ÁÖ¼ÒÀÇ ¼ø¼­´Â
+<mongii> ¹Ý´ëÀÓÀ¸·Î
+<prosager|ÇÐ±³> ¹Ý´ë
+<[á¡Øª]¹Ì¸£> ²ô´ö
+<mongii> 0x44434241
+<mongii> ¿©±â·Î ³¯¶ó°¡¼­ ÀÌ °÷¿¡ ÀÖ´Â ¾î¼À ¸í·ÉÀ» °è¼ÓÇØ¼­ ½ÇÇàÇÕ´Ï´Ù
+<mongii> ±×·±µ¥
+<mongii> ¾Õ¼­ ¹è¿üµíÀÌ
+<mephist> Èì...
+<mongii> 0x44434241 ÁÖ¼Ò´Â
+<mongii> ÅØ½ºÆ® ¿µ¿ªÀÌÁÒ
+<prosager|ÇÐ±³> text
+<mongii> ¶Ç ¹®¼­¿¡ ³ª¿À±æ
+<mongii> ÇÁ·Î±×·¥ÀÌ ÀÌ ¿µ¿ªÀ» Ä§¹üÇÏ¸é
+<[á¡Øª]¹Ì¸£> °øÀ¯º¸È£
+<mongii> segmentation fault°¡ ¿¡·¯¿Í ÇÔ²² ºñÁ¤»ó Á¾·á°¡ µÈ´Ù°í Çß½À´Ï´Ù
+<mephist> ¼¼±×¸ÕÆ®
+<mongii> ½ÇÁ¦ ±×·±Áö ÇÔ º¸ÁÒ~
+<Á¤ÈÆ> ³×
+<mongii> ÄÀ ¤Ñ.¤Ñ
+<[á¡Øª]¹Ì¸£> ¿À?..¾ÆÁÖ ²¨¹ö·È´Ù..
+<[á¡Øª]¹Ì¸£> ÇØÇÇµ¹
+<mongii> ¾Æ~~~
+<Á¤ÈÆ> ÈåÈå
+<[á¡Øª]¹Ì¸£> ´Ù½Ã³ª¿Ô¤§
+<mongii> ¼¼±× ¾È³­ ÀÌÀ¯ ¾Æ´Â ºÐ?
+<Á¤ÈÆ> ¾û? ¸óºÃ¾î¿ä
+<mongii> ÀÌÀ¯´Â
+<prosager|ÇÐ±³> ¸øºÃ¾î¿©-_-
+<[á¡Øª]¹Ì¸£> Àúµµ ¸ó“R´Âµ¥
+<Á¤ÈÆ> À¸Èå
+<prosager|ÇÐ±³> ÇÔ´õ~
+<[á¡Øª]¹Ì¸£> ¿©ÀÚÄ£±¸¶«½Ã ±ÞÇØÁø ¸Û´Ô ¤Ñ.,¤Ñ::
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<[á¡Øª]¹Ì¸£> ºÁµå¸®ÁÒ~
+<mongii> e v e r ÀÌ°Ô 16Áø¼ö·Î 41.. ÀÌ ¾Æ´Ï±¸.. 76.. ÀÌ±â ¶§¹®ÀÓ´Ù
+<mephist> ¤¾¤¾¤¾
+<prosager|ÇÐ±³> ¤¾¤¾¤¾¤¾¤¾
+<mongii> 76Àº Ä§¹üÇØµµ µÇ³ªº¸³×¿ä À¸ÈåÈå
+<¾Æ±â·¦ÆÛ> ¿ì¿Õ ¿À·¡ ÇÑ´ã..........
+<mongii> ±×·³
+<Á¤ÈÆ> Çä ¤»¤»
+<prosager|ÇÐ±³> ¤»
+<¾Æ±â·¦ÆÛ> ¿­¶í 
+<mongii> 41Àº È®½ÇÈ÷ aÀÌ´Ï±î
+<prosager|ÇÐ±³> ±×·³ 41·Î
+<prosager|ÇÐ±³> aaa
+<Á¤ÈÆ> ³×
+<mephist> ¾Æ..
+<mongii> a·Î µ¤¾îº¸°Ú½À´Ï´Ù
+<mongii> ¿ÀÅ°
+<Á¤ÈÆ> ²ô´ö..ÈåÈå
+<y2family> ¤·¤»
+<mongii> ÄÀ
+<Á¤ÈÆ> ÀÌ¹ø¿¡µµ ¤Ñ.¤Ñ?
+<mongii> eoan
+<mongii> ´ë¹®ÀÚ°¡ 41ÀÌ³×¿ä
+<mongii> [root@test bof]# ./test5
+<mongii> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+<mongii> 0xbffffa30  41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41   AAAAAAAAAAAAAAAA
+<mongii> 0xbffffa40  41 41 41 41 41 41 41 41 41 41 41 41               AAAAAAAAAAAA
+<mongii> Segmentation fault (core dumped)
+<[á¡Øª]¹Ì¸£> 41ÀÌ ¿¡ÀÌ¿¡¿ä?
+<mongii> [root@test bof]#
+<[á¡Øª]¹Ì¸£> ²ô´ö
+<Á¤ÈÆ> ¸¸¼¼
+<mongii> ¿ÀÄÉÀÌ??
+<[á¡Øª]¹Ì¸£> Á» ´Ù¸£±¸³ª..
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mongii> ÀÌÁ¦
+<prosager|ÇÐ±³> ¿ÀÄÉ
+<mongii> AAAA °¡ ¾Æ´Ñ
+<mongii> ´Ù¸¥ ¿ì¸®°¡ ¿øÇÏ´Â °÷À¸·Î
+<prosager|ÇÐ±³> ³Ü
+<mongii> ¸®ÅÏ ¾îµå·¹½º¸¦ Á¶ÀÛÇÏ¸é
+<mongii> ±×°÷ÀÇ ¸í·ÉÀÌ ½ÇÇàµÇ°ÙÁÒ~~~~
+<[¦¬_¦¬]FiaDot> ²ÞÀÇ BOF ¾îÅÃ~
+<prosager|ÇÐ±³> ³Ü
+<[á¡Øª]¹Ì¸£> ¤·¤»
+<mephist> ¿ÀÄÉÀÌ..
+<[á¡Øª]¹Ì¸£> ¿ÁÄÉÀÌ~
+<prosager|ÇÐ±³> BOF ³ª°£´å..È÷È÷
+<mongii> ¸¸¾à ±×°÷¿¡ ¿¹¸¦µé¾î ¹¹ format c: ¶ó´Â°Ô ÀÖ´Ù¸é À¸Èå
+<mephist> ¸Þ¸ð¸® ±¸Á¶»óÀÇ... ºóÆ´..
+<mongii> ÇÏµå°¡ ¸ù¶¥ ³¯¶ó°Ú¡Ž~~~
+<[á¡Øª]¹Ì¸£> ³ë³ë
+<mongii> ¿¡ÀÌ
+<Á¤ÈÆ> ¿Ë..;;
+<mongii> ¸»ÀÌ ±×·¸´Ù´Â°ÅÁÒ
+<[á¡Øª]¹Ì¸£> formatÇÏ¸é ¹°¾îº¸´Â°ÔÀÖÀÝ¾Æ¿©
+<[á¡Øª]¹Ì¸£> ¤»¤»
+<prosager|ÇÐ±³> ¤¾¤¾¤¾
+<mongii> µýÁö°ÉÁø`~~~
+<Á¤ÈÆ> ÈåÈå¤Ñ.¤Ña
+<mongii> ÀÌ·Ð~~
+<mongii> ÇÏÆ°
+<[á¡Øª]¹Ì¸£> y¤Ì
+<Á¤ÈÆ> -_- Áö±Ý ¹Ù»Ý ¤»¤»
+<[á¡Øª]¹Ì¸£> n
+<mongii> ¿©±â±îÁö ÇÕ½Ã´Ù ¸ðµÎ ¼ö°íÇÏ¼Ì¾î¿ä

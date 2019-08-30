@@ -1,0 +1,528 @@
+- 웜에서 쓰이는 API 함수 
+
+
+
+forc1 [at]gmail.com
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 파일, 디렉토리 관련
+
+//////////////////////
+
+
+
+HANDLE CreateFile(		// 파일을 연다
+
+  LPCTSTR lpFileName,		// 생성하거나 open 할 파일명의 포인터
+
+  DWORD dwDesiredAccess,	// 읽을것이냐 쓸것이냐 둘다 할것이냐
+
+  DWORD dwShareMode,		// 음음..
+
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes,	// 차일드에 상속어쩌고하는거. null일경우 상속할 수 없음
+
+  DWORD dwCreationDisposition,	// 파일의 존재유무에 따른 행동
+
+  DWORD dwFlagsAndAttributes, 	// 속성과 플래그
+
+  HANDLE hTemplateFile);	// template file 어쩌고 핸들
+
+
+
+
+
+BOOL ReadFile(
+
+  HANDLE hFile,			// 읽을 파일의 핸들
+
+  LPVOID lpBuffer,		// 저장할 버퍼
+
+  DWORD nNumberOfBytesToRead,	// 읽을 최대 바이트 수
+
+  LPDWORD lpNumberOfBytesRead,	// 읽을 바이트수의 포인터
+
+  LPOVERLAPPED lpOverlapped);	// OVERLAPPED 구조체 포인터
+
+
+
+
+
+BOOL WriteFile(
+
+  HANDLE hFile,
+
+  LPCVOID lpBuffer,			// 파일에 쓸 데이타가 들어있는 버퍼의 포인터
+
+  DWORD nNumberOfBytesToWrite,		// 얼마나 쓸꺼냐
+
+  LPDWORD lpNumberOfBytesWritten,	// 의 포인터
+
+  LPOVERLAPPED lpOverlapped);		// OVERLAPPED 구로체 포인터
+
+ 
+
+
+
+DWORD SetFilePointer( 
+
+  HANDLE hFile, 
+
+  LONG   lDistanceToMove, 	// 파일 포인터를 이동시킬 바이트 수
+
+  PLONG  lpDistanceToMoveHigh,	// 제공되지 않음. 0을 넣음
+
+  DWORD  dwMoveMethod); 	// 시작 포인트
+
+
+
+
+
+BOOL CopyFile(			// 파일 복사
+
+  LPCTSTR lpExistingFileName,	// [in] 복사할 파일
+
+  LPCTSTR lpNewFileName, 	// [in] 새로운 파일
+
+  BOOL bFailIfExists);		// [in] TRUE : 파일이 존재할경우 복사하지 않음
+
+				//     FALSE : 파일이 존재할경우 덮어씀
+
+
+
+
+
+DWORD GetFileAttributes(	// 파일이나 디렉토리의 속성을 저장
+
+  LPCTSTR lpFileName);		// [in] 파일이나 디렉토리 문자열
+
+  // 리턴 = 성공 ? attributes : INVALID_FILE_ATTRIBUTES
+
+
+
+
+
+BOOL SetFileAttributes(		// 파일이나 디렉토리의 속성을 설정
+
+  LPCTSTR lpFileName,		// [in] 설정할 파일 문자열
+
+  DWORD dwFileAttributes);	// [in] 설정할 속성
+
+  // 리턴 = 성공 ? nonzero : zero
+
+
+
+
+
+HANDLE FindFirstFile(
+
+  LPCTSTR lpFileName,			// 찾을 파일
+
+  LPWIN32_FIND_DATA lpFindFileData);	// WIN32_FIND_DATA 구조체의 포인터
+
+
+
+
+
+BOOL FindNextFile(
+
+  HANDLE hFindFile,
+
+  LPWIN32_FIND_DATA lpFindFileData);	// WIN32_FIND_DATA 구조체의 포인터
+
+
+
+
+
+DWORD WINAPI GetModuleFileName(	// 파일의 fully-qualified path를 저장.
+
+  HMODULE hModule,	// [in] 로드된 모듈의 핸들
+
+  LPTSTR lpFilename,	// [out] 경로를 저장할 버퍼
+
+  DWORD nSize);		// [in] 버퍼의 크기
+
+  // 리턴 = 성공 ? 복사한 문자열 길이 : 0
+
+
+
+
+
+UINT GetSystemDirectory(	// 윈도우가 깔린 디렉토리 저장
+
+  LPTSTR lpBuffer,		// [out] 경로를 저장할 버퍼
+
+  UINT uSize);			// [in] 버퍼 사이즈
+
+  // 리턴 = 성공 ? 버퍼에 복사한 문자열 크기 : 0
+
+
+
+
+
+UINT GetWindowsDirectory(	// windows가 깔린 디렉토리를 알아냄
+
+  LPTSTR lpBuffer,		// 저장할 버퍼
+
+  UINT uSize);			// 최대 크기
+
+  // 리턴 = 저장된 문자 갯수
+
+
+
+
+
+LPTSTR WINAPI GetCommandLine(void);	// 현재 프로세스의 command-line 문자열을 저장
+
+  // 리턴 = command-line string 포인터
+
+
+
+
+
+BOOL SetCurrentDirectory(	// 현재 프로세스에 대해 현제 디렉토리를 바꿈
+
+  LPCTSTR lpPathName);		// 바꿀 디렉토리
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 레지스트리 관련
+
+//////////////////
+
+
+
+LONG RegCreateKey(	// Creates the specified registry key. 만약 존재한다면 open it.
+
+  HKEY hKey,		// [in] 핸들
+
+  LPCTSTR lpSubKey,	// [in] 열거나 생성할 키 이름
+
+  PHKEY phkResult);	// [out] 열거나 생성된 핸들을 저장할 변수
+
+  // 리턴 = 성공 ? ERROR_SUCCESS : non zero error code
+
+
+
+
+
+LONG RegOpenKeyEx(	// Opens the specified registry key
+
+  HKEY hKey,		// [in] 열 레지스트리키 핸들.(ex. HKEY_CURRENT_USER)
+
+  LPCTSTR lpSubKey,	// [in] 레지스트리 서브키 이름
+
+  DWORD ulOptions,	// [in] must be zero
+
+  REGSAM samDesired,	// [in] access 권한
+
+  PHKEY phkResult);	// [out] 핸들을 저장할 변수
+
+
+
+
+
+LONG RegSetValueEx(	// data and type of a specified value 를 설정
+
+ HKEY hKey,		// 핸들
+
+ LPCTSTR lpValueName,	// 설정할 값의 이름
+
+ DWORD Reserved,	// 예약된거. 그냥 0을 넣음
+
+ DWORD dwType,		// lpData가 가리키는 포인터의 데이타 타입
+
+ const BYTE* lpData,	// 저장될 데이타
+
+ DWORD cbData);		// 사이즈
+
+
+
+
+
+LONG RegQueryValueEx(	// 타입과 데이타를 저장함
+
+ HKEY hKey,
+
+ LPCTSTR lpValueName,	// 레지스트리 이름. null일경우 (기본값) 사용.
+
+ LPDWORD lpReserved,	// NULL 이여야 한다
+
+ LPDWORD lpType,
+
+ LPBYTE lpData,	// 저장할 버퍼
+
+ LPDWORD lpcbData);
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 네트워크 관련
+
+////////////////
+
+
+
+int WSAStartup(			// WS2_32.DLL를 사용하기위해 초기화함
+
+  WORD wVersionRequested,	// windows socket version
+
+  LPWSADATA lpWSAData);		// WSADATA 데이타 구조체의 포인터(이 구조에 정보를 저장)
+
+  // 리턴 = 성공시 0을 리턴
+
+
+
+
+
+SOCKET WSAAPI socket(	// 소켓 생성
+
+  int af,		// [in] address family specification (대부분 AF_INET)
+
+  int type,		// [in] Type specification (SOCK_STREAM or SOCK_DGRAM)
+
+  int protocol);	// [in] 사용할 프로토콜 (IPPROTO_TCP)
+
+  // 리턴 = 성공 ? 소켓 디크스립터 : INVALID_SOCKET
+
+
+
+
+
+int recv(	// 연결되거나 bound 소켓으로부터 데이타를 받음
+
+  SOCKET s,	// 소켓 디스크립터
+
+  char* buf,	// 저장할 버퍼 포인터
+
+  int len,	// 저장할 길이
+
+  int flags);
+
+
+
+
+
+int send(		// 연결된 소켓으로 데이타를 보냄
+
+  SOCKET s,
+
+  const char* buf,	// 전송할 데이타가 있는 버퍼
+
+  int len,
+
+  int flags);
+
+
+
+
+
+int listen(	// listening for an incoming connection
+
+  SOCKET s,	// [in] 소켓 디스크립터
+
+  int backlog);	// [in] Maximum length of the queue of pending connections
+
+  // 리턴 = 성공 ? zero : SOCKET_ERROR 
+
+
+
+
+
+SOCKET accept(		// permits an incoming connection attempt on a socket
+
+  SOCKET s,		// [in] socket descriptor
+
+  struct sockaddr* addr,// [in] address of the connecting entity
+
+  int* addrlen);	// [in, out] length of addr
+
+  // 리턴 = 성공 ? SOCKET : INVALID_SOCKET
+
+
+
+
+
+struct hostent* FAR gethostbyname(	// 호스트 정보를 저장
+
+  const char* name);	// [in] 분석할 호스트 이름
+
+  // 리턴 = 성공 ? hostent structure : NULL pointer
+
+
+
+
+
+u_short ntohs(		// network byte order를 host byte order로 변환
+
+  u_short netshort);	// [in] 16-bit number in TCP/IP network byte order
+
+  // 리턴 : 성공 ? host byte order
+
+
+
+
+
+unsigned long inet_addr(	// Internet Protocol dotted address -> proper address for IN_ADDR struct
+
+  const char* cp);		// [in] number expressed in the Internet standard ".'' (dotted) notation
+
+
+
+
+
+DWORD WNetOpenEnum(		// starts an enumeration of network resources or existing connections
+
+  DWORD dwScope,		// [in] enumeration의 범위
+
+  DWORD dwType,			// [in] Resource types to be enumerated
+
+  DWORD dwUsage,		// [in] Resource usage type to be enumerated
+
+  LPNETRESOURCE lpNetResource,	// [in] NETRESOURCE structure 포인터
+
+  LPHANDLE lphEnum);		// [out] enumeration handle
+
+  // 리턴 = 성공 ? NO_ERROR : system error code
+
+
+
+
+
+DWORD WNetEnumResource(	// continues an enumeration of network resources
+
+  HANDLE hEnum,		// [in] 핸들
+
+  LPDWORD lpcCount,	// [in, out] number of entries requested
+
+  LPVOID lpBuffer,	// [out] enumeration 결과를 저장할 버퍼
+
+  LPDWORD lpBufferSize);// [in, out] size of the lpBuffer parameter
+
+
+
+
+
+BOOL InternetGetConnectedState(	// 로컬시스템의 연결 상태를 저장
+
+  LPDWORD lpdwFlags,		// [out] 커넥션 설명을 저장할 변수
+
+  DWORD dwReserved);		// [in] must be zero
+
+
+
+
+
+BOOL InternetGetConnectedState(	// 로컬시스템의 연결 상태를 저장
+
+  LPDWORD lpdwFlags,		// [out] 커넥션 설명을 저장할 변수
+
+  DWORD dwReserved);		// [in] must be zero
+
+
+
+
+
+int ioctlsocket(// 소켓의 입출력 모드를 제어
+
+  SOCKET s,	// 
+
+  long cmd,	// [in] Command to perform on the socket s
+
+  u_long* argp);// [in, out] Pointer to a parameter for cmd
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 메모리 관련
+
+//////////////
+
+
+
+VOID RtlZeroMemory(			// 한 메모리 블록은 0으로 채움
+
+    IN VOID UNALIGNED  *Destination,	// 0으로 채울 메모리의 포인터
+
+    IN SIZE_T  Length);
+
+
+
+
+
+HGLOBAL GlobalAlloc(	// 힙 메모리 할당
+
+  UINT uFlags,		// [in] 메모리 할당 속성
+
+  SIZE_T dwBytes);	// [in] 할당할 바이트 수
+
+  // 리턴 = 성공 ? 핸들 : NULL
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 기타
+
+///////
+
+
+
+HINSTANCE ShellExecute(		// Performs an operation on a specified file
+
+    HWND hwnd,
+
+    LPCTSTR lpOperation,	// [in] (null terminated) string. edit, explore, find, open, print, NULL
+
+    LPCTSTR lpFile,		// [in] (null terminated) 실행할 파일명
+
+    LPCTSTR lpParameters,	// [in] (null terminated) lpFile 에 넘겨줄 파라미터
+
+    LPCTSTR lpDirectory,	// [in] 기본 디렉토리
+
+    INT nShowCmd);		// [in] 어떻게 보여질것인지
+
+  // 리턴 = 32보다 크냐 ? 성공 : 실패
+
+
+
+
+
+FARPROC WINAPI GetProcAddress(	// DLL로부터 익스포트된 함수의 주소를 저장
+
+  HMODULE hModule,		// [in] DLL module 핸들
+
+  LPCSTR lpProcName);		// [in] function or variable name
+
+  // 리턴 = 성공 ? 익스포트된 함수의 주소 : NULL
+
+
+
+
+

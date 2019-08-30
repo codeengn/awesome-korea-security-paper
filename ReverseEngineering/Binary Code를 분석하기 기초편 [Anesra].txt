@@ -1,0 +1,803 @@
++===============================================================+
+|               Binary Code를 분석하기 기초편                   |
+|                      2002.08.20.   -Anesra in Null@Root-      |
+|                                       anesra@null2root.org    |
++===============================================================+
+
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-85)               
+
+Linux willcan 2.4.3-12 #1 Fri Jun 8 15:05:56 EDT 2001 i686 unknown       
+
+        ---index---
+
+	1. main()
+	2. if문
+               -  if문& 비교문 정리
+	3. for문
+               -  단일for문&비교문 정리
+	4. while문
+               -  while문 정리 
+
+
+1. main()
+
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     pop    %ebp
+0x8048434 <main+4>:     ret
+0x8048435 <main+5>:     lea    0x0(%esi),%esi      
+
+main()
+{
+
+}   
+------------------------------------------------
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     pop    %ebp
+0x8048434 <main+4>:     ret
+0x8048435 <main+5>:     lea    0x0(%esi),%esi    
+
+int main()
+{
+
+}   
+
+------------------------------------------------
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     pop    %ebp
+0x8048434 <main+4>:     ret
+0x8048435 <main+5>:     lea    0x0(%esi),%esi               
+
+int main(int argc, char *argv[])
+{
+
+}                   
+
+------------------------------------------------
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     sub    $0x4,%esp
+0x8048436 <main+6>:     leave
+0x8048437 <main+7>:     ret
+
+main()
+{
+        int i;
+}                    
+
+------------------------------------------------
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     sub    $0x8,%esp
+0x8048436 <main+6>:     leave
+0x8048437 <main+7>:     ret                   
+
+main()
+{
+        int i,j;
+}    
+
+------------------------------------------------
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     sub    $0x4,%esp
+0x8048436 <main+6>:     leave
+0x8048437 <main+7>:     ret   
+
+main()
+{
+        long addr;
+}          
+
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+0x8048466 <main+6>:     sub    $0xc,%esp
+0x8048469 <main+9>:     push   $0x0
+0x804846b <main+11>:    call   0x8048348 <exit>
+    
+main()
+{
+        exit(0);
+}          
+                 
+----------------------------------------------------------------
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     mov    $0x0,%eax
+0x8048438 <main+8>:     pop    %ebp
+0x8048439 <main+9>:     ret
+0x804843a <main+10>:    mov    %esi,%esi  
+
+int main()
+{
+        return 0;
+}              
+
+----------------------------------------------------------------
+0x8048430 <main>:       push   %ebp
+0x8048431 <main+1>:     mov    %esp,%ebp
+0x8048433 <main+3>:     mov    $0x1,%eax
+0x8048438 <main+8>:     pop    %ebp
+0x8048439 <main+9>:     ret
+0x804843a <main+10>:    mov    %esi,%esi 
+
+main()
+{
+        return 1;
+}           
+
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+
+0x8048466 <main+6>:     cmpl   $0x1,0x8(%ebp)
+0x804846a <main+10>:    jg     0x8048478 <main+24> 
+	if(argc < 2)
+	
+0x804846c <main+12>:    sub    $0xc,%esp
+0x804846f <main+15>:    push   $0x0
+0x8048471 <main+17>:    call   0x8048348 <exit>
+0x8048476 <main+22>:    mov    %esi,%esi
+	exit(0);
+
+0x8048478 <main+24>:    leave
+0x8048479 <main+25>:    ret
+0x804847a <main+26>:    mov    %esi,%esi           
+
+#include<stdio.h>
+
+int main(int argc, char *argv)
+{
+        if(argc < 2) 
+		exit(0);
+}               
+
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+
+0x8048466 <main+6>:     cmpl   $0x2,0x8(%ebp)
+0x804846a <main+10>:    jg     0x8048478 <main+24>
+	if(argc <= 2 )	
+
+0x804846c <main+12>:    sub    $0xc,%esp
+0x804846f <main+15>:    push   $0x1
+0x8048471 <main+17>:    call   0x8048348 <exit>
+0x8048476 <main+22>:    mov    %esi,%esi
+
+0x8048478 <main+24>:    leave
+0x8048479 <main+25>:    ret
+0x804847a <main+26>:    mov    %esi,%esi    
+
+main(int argc, char *argv[])
+{
+        if(argc <= 2)
+                exit(1);
+}                     
+
+
+----------------------------------------------------
+
+
+2. if문
+
+
+0x8048490 <main>:       push   %ebp
+0x8048491 <main+1>:     mov    %esp,%ebp
+0x8048493 <main+3>:     sub    $0x8,%esp
+
+0x8048496 <main+6>:     cmpl   $0x2,0x8(%ebp)
+0x804849a <main+10>:    jle    0x80484a8 <main+24>
+	// if(argc > 2)
+
+0x804849c <main+12>:    sub    $0xc,%esp
+0x804849f <main+15>:    push   $0x0
+0x80484a1 <main+17>:    call   0x804837c <exit>
+0x80484a6 <main+22>:    mov    %esi,%esi
+	// exit(0);
+
+0x80484a8 <main+24>:    sub    $0xc,%esp
+0x80484ab <main+27>:    push   $0x8048528
+0x80484b0 <main+32>:    call   0x804835c <printf>
+0x80484b5 <main+37>:    add    $0x10,%esp
+	// printf("Input Arg\n");
+
+0x80484b8 <main+40>:    leave
+0x80484b9 <main+41>:    ret
+0x80484ba <main+42>:    mov    %esi,%esi    
+
+(gdb) x/s 0x8048528
+0x8048528 <_IO_stdin_used+4>:    "Input Arg\n"    
+
+main(int argc, char *argv[])
+{
+        if(argc > 2)
+                exit(0);
+
+        printf("Input Arg\n");
+}                
+              
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+
+0x8048466 <main+6>:     cmpl   $0x1,0xfffffffc(%ebp)
+0x804846a <main+10>:    jle    0x804847c <main+28>
+
+0x804846c <main+12>:    sub    $0xc,%esp
+0x804846f <main+15>:    push   $0x80484e8
+0x8048474 <main+20>:    call   0x804833c <printf>
+0x8048479 <main+25>:    add    $0x10,%esp
+
+0x804847c <main+28>:    leave
+0x804847d <main+29>:    ret
+0x804847e <main+30>:    mov    %esi,%esi    
+
+0x80484e8 <_IO_stdin_used+4>:    "I >=2\n"  
+
+main()
+{
+        int i;
+        if(i >= 2)
+                printf("I >=2\n");
+
+}            
+----------------------------------------------------
+0x8048490 <main>:       push   %ebp
+0x8048491 <main+1>:     mov    %esp,%ebp
+0x8048493 <main+3>:     sub    $0x8,%esp
+0x8048496 <main+6>:     cmpl   $0x2,0x8(%ebp)
+0x804849a <main+10>:    jne    0x80484a8 <main+24>
+0x804849c <main+12>:    sub    $0xc,%esp
+0x804849f <main+15>:    push   $0x0
+0x80484a1 <main+17>:    call   0x804837c <exit>
+0x80484a6 <main+22>:    mov    %esi,%esi
+0x80484a8 <main+24>:    sub    $0xc,%esp
+0x80484ab <main+27>:    push   $0x8048528
+0x80484b0 <main+32>:    call   0x804835c <printf>
+0x80484b5 <main+37>:    add    $0x10,%esp
+0x80484b8 <main+40>:    leave
+0x80484b9 <main+41>:    ret
+0x80484ba <main+42>:    mov    %esi,%esi       
+
+main(int argc, char *argv[])
+{
+        if(argc == 2)
+                exit(0);
+
+        printf("Input Arg\n");
+}  
+
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+
+0x8048466 <main+6>:     cmpl   $0x2,0x8(%ebp)
+0x804846a <main+10>:    je     0x8048478 <main+24>
+	if(argc !=2 )
+
+0x804846c <main+12>:    sub    $0xc,%esp
+0x804846f <main+15>:    push   $0x0
+0x8048471 <main+17>:    call   0x8048348 <exit>
+0x8048476 <main+22>:    mov    %esi,%esi
+
+0x8048478 <main+24>:    leave
+0x8048479 <main+25>:    ret
+0x804847a <main+26>:    mov    %esi,%esi   
+
+main(int argc, char *argv[])
+{
+        if(argc !=2 )
+                exit(0);
+}                             
+
+   
+=============================================================
+             if문& 비교문 정리
++-----------------------------------------------------------+
+| if(argc < n )  |  cmpl   $0xn-1,0x8(%ebp)                 |
+|                |  jg     0x8048478 <main+n>   if문 밖으로 |
++-----------------------------------------------------------+ 
+| if(argc <= n)  |  cmpl   $0xn,0x8(%ebp)                   |
+|                |  jg     0x8048478 <main+24>  if문 밖으로 |
++-----------------------------------------------------------+
+| if(argc >  n)  |  cmpl   $0xn,0x8(%ebp)                   |
+|                |  jle    0x80484a8 <main+24>  if문 밖으로 |
++-----------------------------------------------------------+
+| if(argc >= n)  |  cmpl   $0xn-1,0x8(%ebp)                 |
+|                |  jle    0x80484a8 <main+24>  if문 밖으로 |
++-----------------------------------------------------------+
+| if(argc == n)  |  cmpl   $0xn,0x8(%ebp)                   |
+|                |  jne    0x80484a8 <main+24>  if문 밖으로 |
++-----------------------------------------------------------+
+| if(argc != n)  |  cmpl   $0xn,0x8(%ebp)                   |
+|                |  je     0x80484a8 <main+24>  if문 밖으로 |
++-----------------------------------------------------------+
+=============================================================
+
+3. for문
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+0x8048466 <main+6>:     nop
+0x8048467 <main+7>:     movl   $0x1,0xfffffffc(%ebp)
+0x804846e <main+14>:    mov    %esi,%esi
+	for(i = 1
+
+0x8048470 <main+16>:    cmpl   $0x9,0xfffffffc(%ebp)
+0x8048474 <main+20>:    jle    0x8048478 <main+24>
+0x8048476 <main+22>:    jmp    0x8048494 <main+52>
+	// i값이 9보다 작거나 같으면 for문 내부로
+	// 그렇지 않으면(10보다 크면) for문 밖으로
+
+0x8048478 <main+24>:    sub    $0x8,%esp
+0x804847b <main+27>:    pushl  0xfffffffc(%ebp)
+0x804847e <main+30>:    push   $0x8048508
+0x8048483 <main+35>:    call   0x804833c <printf>
+0x8048488 <main+40>:    add    $0x10,%esp
+	// printf("%d\t",i); i값을 출력
+
+0x804848b <main+43>:    lea    0xfffffffc(%ebp),%eax
+0x804848e <main+46>:    incl   (%eax)
+	i++)
+
+0x8048490 <main+48>:    jmp    0x8048470 <main+16>
+0x8048492 <main+50>:    mov    %esi,%esi
+	back to the for(main+16)
+
+0x8048494 <main+52>:    leave
+0x8048495 <main+53>:    ret
+0x8048496 <main+54>:    mov    %esi,%esi    
+
+0x8048508 <_IO_stdin_used+4>:    "%d\t"   
+
+main()
+{
+        int i;
+        for(i = 1; i < 10; i++)
+                printf("%d\t",i);
+}                           
+
+
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+0x8048466 <main+6>:     movl   $0x1,0xfffffffc(%ebp)
+	// 첫번째 변수 int i;
+
+0x804846d <main+13>:    movl   $0xa,0xfffffff8(%ebp)
+	// 두번째 변수 int j;
+
+0x8048474 <main+20>:    mov    0xfffffffc(%ebp),%eax
+	// i를 %eax에 넣음
+
+0x8048477 <main+23>:    cmp    0xfffffff8(%ebp),%eax
+	// j값과 %eax(i의 값)을 비교.
+
+0x804847a <main+26>:    jle    0x8048480 <main+32>
+	// i 값이 j값보다 작거나 같으면 for내부로
+
+0x804847c <main+28>:    jmp    0x804849c <main+60>
+0x804847e <main+30>:    mov    %esi,%esi
+
+0x8048480 <main+32>:    sub    $0x8,%esp
+0x8048483 <main+35>:    lea    0xfffffffc(%ebp),%eax
+0x8048486 <main+38>:    push   %eax
+0x8048487 <main+39>:    push   $0x8048508
+0x804848c <main+44>:    call   0x804833c <printf>
+0x8048491 <main+49>:    add    $0x10,%esp
+	// printf 함수 호출
+
+0x8048494 <main+52>:    lea    0xfffffffc(%ebp),%eax
+0x8048497 <main+55>:    incl   (%eax)
+0x8048499 <main+57>:    jmp    0x8048474 <main+20>
+	// i값 증가시키고 for문의 처음으로 
+
+0x804849b <main+59>:    nop
+0x804849c <main+60>:    leave
+0x804849d <main+61>:    ret                  
+0x804849e <main+62>:    mov    %esi,%esi     
+
+main()
+{
+        int i,j;
+        i = 1;
+        j = 10;
+        for( ; i <= j ; i++)
+                printf("%d\n",&i);
+}                                         
+
+----------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+0x8048466 <main+6>:     nop
+0x8048467 <main+7>:     movl   $0xa,0xfffffffc(%ebp)
+0x804846e <main+14>:    mov    %esi,%esi
+0x8048470 <main+16>:    cmpl   $0x0,0xfffffffc(%ebp)
+0x8048474 <main+20>:    jg     0x8048478 <main+24>
+	// i값이 0보다 크면 for문 내부로
+
+0x8048476 <main+22>:    jmp    0x8048494 <main+52>
+	// i값이 0보다 작거나 같으면 for문 밖으로
+
+0x8048478 <main+24>:    sub    $0x8,%esp
+0x804847b <main+27>:    pushl  0xfffffffc(%ebp)
+0x804847e <main+30>:    push   $0x8048508
+0x8048483 <main+35>:    call   0x804833c <printf>
+0x8048488 <main+40>:    add    $0x10,%esp
+
+0x804848b <main+43>:    lea    0xfffffffc(%ebp),%eax
+0x804848e <main+46>:    decl   (%eax)
+
+
+0x8048490 <main+48>:    jmp    0x8048470 <main+16>
+0x8048492 <main+50>:    mov    %esi,%esi
+
+0x8048494 <main+52>:    leave
+0x8048495 <main+53>:    ret
+0x8048496 <main+54>:    mov    %esi,%esi         
+
+main()
+{
+        int i;
+        for(i = 10; i > 0 ; i--)
+                printf("%d\n",i);
+}                     
+
+-------------------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+0x8048466 <main+6>:     nop
+0x8048467 <main+7>:     movl   $0xa,0xfffffffc(%ebp)
+0x804846e <main+14>:    mov    %esi,%esi
+0x8048470 <main+16>:    cmpl   $0x0,0xfffffffc(%ebp)
+0x8048474 <main+20>:    jns    0x8048478 <main+24>
+0x8048476 <main+22>:    jmp    0x8048494 <main+52>
+
+0x8048478 <main+24>:    sub    $0x8,%esp
+0x804847b <main+27>:    pushl  0xfffffffc(%ebp)
+0x804847e <main+30>:    push   $0x8048508
+0x8048483 <main+35>:    call   0x804833c <printf>
+0x8048488 <main+40>:    add    $0x10,%esp
+
+0x804848b <main+43>:    lea    0xfffffffc(%ebp),%eax
+0x804848e <main+46>:    decl   (%eax)
+0x8048490 <main+48>:    jmp    0x8048470 <main+16>
+0x8048492 <main+50>:    mov    %esi,%esi
+
+0x8048494 <main+52>:    leave
+0x8048495 <main+53>:    ret
+0x8048496 <main+54>:    mov    %esi,%esi     
+
+main()
+{
+        int i;
+        for(i = 10; i >= 0 ; i--)
+                printf("%d\n",i);
+}             
+
+====================================================================
+	     	      단일for문&비교문 정리 
++------------------------------------------------------------------+
+|                                 nop                              |
+|  int i = n;                     movl  $0xn,  0xfffffffc(%ebp)    |
+|                                 mov   %esi,  %esi                |
+|  for(i = n ; i < k ; i++)       cmpl  $0xk-1,0xfffffffc(%ebp)	   |
+|                                 jle   0x0804....(for문 안으로)   |
+|                                 jmp   0x0804....(for문 밖으로)   |
+|                                 for문안에 있는 내용              |
+|                                 lea   0xfffffffc(%ebp),%eax      |
+|                                 lncl  (%eax)                     |
+|                                 jmp   0x0804....(for문 처음으로) |
+|                                 mov   %esi, %esi                 |
++------------------------------------------------------------------+
+|                                 nop                              |
+|  int i=1,                       movl  $0x1,0xfffffffc(%ebp)      |
+|  j=10;                          movl  $0xa,0xfffffff8(%ebp)      |
+|                                 mov   0xfffffffc(%ebp),%eax      |
+|  for(i = 1 ; i <= 10 ; i++)     cmpl   0xfffffff8(%ebp),%eax      |
+|                                 jle   0x0804....(for문 안으로)   |
+|                                 jmp   0x0804....(for문 밖으로)   |
+|                                 for문안에 있는 내용              |
+|                                 lea   0xfffffffc(%ebp),%eax      |
+|                                 lncl  (%eax)                     |
+|                                 jmp   0x0804....(for문 처음으로) |
+|                                 mov   %esi, %esi                 |
++------------------------------------------------------------------+
+|                                 nop                              |
+|  int i = k;                     movl  $0xk, 0xfffffffc(%ebp)     |
+|                                 mov   %esi, %esi                 |
+|  for(i = k ; i > n ; i--)       cmpl  $0xn, 0xfffffffc(%ebp)     |
+|                                 jg    0x0804....(for문 안으로)   |
+|                                 jmp   0x0804....(for문 밖으로)   |
+|                                 for문안에 있는 내용              |
+|                                 lea   0xfffffffc(%ebp), %eax     |
+|                                 decl  (%eax)                     |
+|                                 jmp   0x0804....(for문 처음으로) |
+|                                 mov   %esi, %esi                 |
++------------------------------------------------------------------+
+|                                 nop                              |
+|  int i = 10;                    movl  $0xa,0xfffffffc(%ebp)      |
+|                                 mov   %esi, %esi                 |
+|  for(i = k ; i >= n ; i--)      cmpl  $0xn, 0xfffffffc(%ebp)     |
+|                                 jns   0x0804....(for문 안으로)   |
+|                                 jmp   0x0804....(for문 밖으로)   |
+|                                 for문안에 있는 내용              |
+|                                 lea   0xfffffffc(%ebp), %eax     |
+|                                 decl  (%eax)                     |
+|                                 jmp   0x0804....(for문 처음으로) |
+|                                 mov   %esi, %esi                 |
++------------------------------------------------------------------+
+=====================================================================
+-------------------------------------------------------------
+
+4. while문
+
+
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+0x8048466 <main+6>:     movl   $0xa,0xfffffffc(%ebp)
+0x804846d <main+13>:    lea    0x0(%esi),%esi
+	// int i = 10;
+
+0x8048470 <main+16>:    cmpl   $0x0,0xfffffffc(%ebp)
+0x8048474 <main+20>:    jg     0x8048478 <main+24>
+0x8048476 <main+22>:    jmp    0x8048494 <main+52>
+	// i와 0을 비교, i값이 0보다 크면 while문 안으로
+	// 0보다 작거나 같으면 while문 밖으로
+	// while(i > 0)
+
+0x8048478 <main+24>:    sub    $0x8,%esp
+0x804847b <main+27>:    pushl  0xfffffffc(%ebp)
+0x804847e <main+30>:    push   $0x8048508
+0x8048483 <main+35>:    call   0x804833c <printf>
+0x8048488 <main+40>:    add    $0x10,%esp
+	// printf("%d\n",i);
+	
+0x804848b <main+43>:    lea    0xfffffffc(%ebp),%eax
+0x804848e <main+46>:    decl   (%eax)
+	// i--;
+
+0x8048490 <main+48>:    jmp    0x8048470 <main+16>
+	// } while의 처음으로
+
+0x8048492 <main+50>:    mov    %esi,%esi
+
+0x8048494 <main+52>:    leave
+0x8048495 <main+53>:    ret
+0x8048496 <main+54>:    mov    %esi,%esi  
+
+0x8048508 <_IO_stdin_used+4>:    "%d\n"   
+
+main()
+{
+        int i = 10;
+        while(i > 0)
+        {
+                printf("%d\n",i);
+                i--;
+        }
+}        
+
+
+-------------------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+
+0x8048466 <main+6>:     movl   $0xa,0xfffffffc(%ebp)
+0x804846d <main+13>:    lea    0x0(%esi),%esi
+	// int i = 10;
+
+0x8048470 <main+16>:    cmpl   $0x0,0xfffffffc(%ebp)
+0x8048474 <main+20>:    jns    0x8048478 <main+24>
+0x8048476 <main+22>:    jmp    0x8048494 <main+52>
+	// i값과 0을 비교, i값이 크거나 같으면 while안으로
+	// i < 0 이면 while문 밖으로
+
+0x8048478 <main+24>:    lea    0xfffffffc(%ebp),%eax
+0x804847b <main+27>:    decl   (%eax)
+	// i --;
+
+0x804847d <main+29>:    sub    $0x8,%esp
+0x8048480 <main+32>:    pushl  0xfffffffc(%ebp)
+0x8048483 <main+35>:    push   $0x8048508
+0x8048488 <main+40>:    call   0x804833c <printf>
+0x804848d <main+45>:    add    $0x10,%esp
+	// printf("%d\n", i);
+
+0x8048490 <main+48>:    jmp    0x8048470 <main+16>
+	// while문의 처음으로 }
+
+0x8048492 <main+50>:    mov    %esi,%esi
+0x8048494 <main+52>:    leave
+0x8048495 <main+53>:    ret
+0x8048496 <main+54>:    mov    %esi,%esi       
+
+main()
+{
+        int i = 10;
+        while(i >= 0)
+        {
+                i--;
+                printf("%d\n",i);
+        }
+}                   
+
+-------------------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+
+0x8048466 <main+6>:     movl   $0xa,0xfffffffc(%ebp)
+0x804846d <main+13>:    lea    0x0(%esi),%esi
+	// int i = 10
+
+0x8048470 <main+16>:    cmpl   $0x13,0xfffffffc(%ebp)
+0x8048474 <main+20>:    jle    0x8048478 <main+24>
+0x8048476 <main+22>:    jmp    0x8048494 <main+52>
+	// i값이랑 19랑 비교
+	// 같거나 작으면 main+24 i<=19 == i<20
+	// i >= 20 이면 while문을 빠져나감
+
+0x8048478 <main+24>:    sub    $0x8,%esp
+0x804847b <main+27>:    pushl  0xfffffffc(%ebp)
+0x804847e <main+30>:    push   $0x8048508
+0x8048483 <main+35>:    call   0x804833c <printf>
+0x8048488 <main+40>:    add    $0x10,%esp
+	// printf("%d\n",i);
+
+0x804848b <main+43>:    lea    0xfffffffc(%ebp),%eax
+0x804848e <main+46>:    addl   $0x2,(%eax)
+	// i += 2;
+
+0x8048491 <main+49>:    jmp    0x8048470 <main+16>
+	// while문의 처음으로 }
+
+0x8048493 <main+51>:    nop
+0x8048494 <main+52>:    leave
+0x8048495 <main+53>:    ret
+0x8048496 <main+54>:    mov    %esi,%esi      
+
+main()
+{
+        int i = 10;
+        while(i < 20)
+        {
+                printf("%d\n",i);
+                i = i+2;
+        }
+}            
+
+
+-------------------------------------------------------------------
+0x8048460 <main>:       push   %ebp
+0x8048461 <main+1>:     mov    %esp,%ebp
+0x8048463 <main+3>:     sub    $0x8,%esp
+
+0x8048466 <main+6>:     movl   $0x1,0xfffffffc(%ebp)
+0x804846d <main+13>:    lea    0x0(%esi),%esi
+	// int i = 1;
+
+0x8048470 <main+16>:    cmpl   $0xa,0xfffffffc(%ebp)
+0x8048474 <main+20>:    jle    0x8048478 <main+24>
+0x8048476 <main+22>:    jmp    0x8048490 <main+48>
+	// i랑 10이랑 비교
+	// i값이 10이랑 같거나 작으면 while문 안으로
+	// i값이 10보다 크면 while문 밖으로
+	// while( i <= 10)
+
+0x8048478 <main+24>:    sub    $0xc,%esp
+0x804847b <main+27>:    pushl  0xfffffffc(%ebp)
+0x804847e <main+30>:    call   0x8048494 <print>
+0x8048483 <main+35>:    add    $0x10,%esp
+	// print(i);
+
+0x8048486 <main+38>:    lea    0xfffffffc(%ebp),%eax
+0x8048489 <main+41>:    incl   (%eax)
+	// i ++;
+
+0x804848b <main+43>:    jmp    0x8048470 <main+16>
+	// while문의 처음으로 }
+
+0x804848d <main+45>:    lea    0x0(%esi),%esi
+0x8048490 <main+48>:    leave
+0x8048491 <main+49>:    ret
+0x8048492 <main+50>:    mov    %esi,%esi     
+
+(gdb) disass print
+Dump of assembler code for function print:
+0x8048494 <print>:      push   %ebp
+0x8048495 <print+1>:    mov    %esp,%ebp
+0x8048497 <print+3>:    sub    $0x8,%esp
+	// int k;	
+
+0x804849a <print+6>:    sub    $0x8,%esp
+0x804849d <print+9>:    pushl  0x8(%ebp)
+0x80484a0 <print+12>:   push   $0x8048528
+0x80484a5 <print+17>:   call   0x804833c <printf>
+0x80484aa <print+22>:   add    $0x10,%esp
+	// printf("%d\n", k);
+
+0x80484ad <print+25>:   mov    0x8(%ebp),%eax
+0x80484b0 <print+28>:   mov    %eax,%eax
+0x80484b2 <print+30>:   leave
+0x80484b3 <print+31>:   ret  
+ 	// return k;                 
+
+0x8048528 <_IO_stdin_used+4>:    "%d\n"    
+
+int print(int k);
+
+main()
+{
+        int i = 1;
+        while( i <= 10)
+        {
+                print(i);
+                i++;
+        }
+}
+
+int print(int k)
+{
+        printf("%d\n",k);
+        return k;
+}                           
+-------------------------------------------------------------------
+====================================================================
+	     	      while문 정리 
++-------------------------------------------------------------------+
+|  int i = n;           movl   $0xn,0xfffffffc(%ebp) i값을 대입	    |
+|                       lea    0x0(%esi),%esi                       |
+|  while( i > k)        cmpl   $0xk,0xfffffffc(%ebp) i값과k비교     |
+|                       jg     0x8048478 <main+24> 크면 whlle안으로 |
+|                       jmp    0x8048494 <main+52> while 밖으로     |  
+|                         while문안에 있는 내용                     |
+|                       jmp    0x8048470 <main+16> while문 처음으로 |
+|                       mov    %esi,%esi                            |
++-------------------------------------------------------------------+
+|  int i = n;           movl   $0xn,0xfffffffc(%ebp) i값을 대입	    |
+|                       lea    0x0(%esi),%esi                       |
+|  while( i >= k)       cmpl   $0xk,0xfffffffc(%ebp) i값과k비교     |
+|                       jns    0x8048478 <main+24> 크면 whlle안으로 |
+|                       jmp    0x8048494 <main+52> while 밖으로     |  
+|                         while문안에 있는 내용                     |
+|                       jmp    0x8048470 <main+16> while문 처음으로 |
+|                       mov    %esi,%esi                            |
++-------------------------------------------------------------------+
+|  int i = n;           movl   $0xn,0xfffffffc(%ebp) i값을 대입	    |
+|                       lea    0x0(%esi),%esi                       |
+|  while( i < k)        cmpl   $0xk-1,0xfffffffc(%ebp) i값과k-1비교 |
+|                       jle    0x8048478 <main+24> whlle안으로      |
+|                       jmp    0x8048494 <main+52> while 밖으로     |  
+|                         while문안에 있는 내용                     |
+|                       jmp    0x8048470 <main+16> while문 처음으로 |
+|                       nop                                         |
++-------------------------------------------------------------------+
+|  int i = n;           movl   $0xn,0xfffffffc(%ebp) i값을 대입	    |
+|                       lea    0x0(%esi),%esi                       |
+|  while( i <= k)       cmpl   $0xk,0xfffffffc(%ebp) i값과k비교     |
+|                       jle    0x8048478 <main+24> whlle안으로      |
+|                       jmp    0x8048494 <main+52> while 밖으로     |  
+|                         while문안에 있는 내용                     |
+|                       jmp    0x8048470 <main+16> while문 처음으로 |
+|                       lea    0x0(%esi),%esi                       |
++-------------------------------------------------------------------+
+
+어셈명령어들 참고 링크
+http://www.izirobotics.co.kr/source/sa9.htm	

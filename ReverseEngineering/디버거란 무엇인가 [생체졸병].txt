@@ -1,0 +1,370 @@
+이 강좌는 나우누리 리눅스 동호회의 생체졸병(유수행)님의 gdb 강좌를 참고해서 
+제(oprix@hanmail.net)가 재구성한 것입니다. 
+저자와 출처를 밝히시고 사용하시기 바랍니다. 
+
+- http://security.xmecca.com - 
+
+[말머리 : 디버거란 무엇인가?] 
+디버거(Debugger)란 프로그램 개발 도구로써, 프로그램을 개발하다가 
+에러가 발생하면 발생 위치 및 발생이유를 쉽게 찾을 수 있도록 도와 줍니다. 
+
+[gdb] 명령 요약 
+프로그램 실행과 추적(trace)에 관련된 명령들 
+--------------------------------------------------------- 
+run                현재의 인수를 사용하여 프로그램을 실행 
+run                새로운 <인수>를 가지고 프로그램을 실행 
+continue        현재 위치에서 프로그램을 계속 실행시킵니다. 
+                break 명령이 작동 된 다음에 사용합니다. (약자) c, cont 
+next                한 줄씩 실행 시킵니다. 
+                이 때 함수를 포함하고 있으면 함수를 수행시킵니다. (약자) n 
+next                줄을 실행 시킵니다. 
+step                한 줄씩 실행 시킵니다. 
+                이 때 함수를 포함하고 있으면 함수 내부로 들어가서 
+                한 줄씩 실행합니다. (약자) s 
+step                줄을 실행시킵니다. 
+break                라인 번호에서 프로그램 실행을 멈추게 합니다. 
+                   (dbx) stop at   (약자) b 
+break <함수 명>        함수 내부의 첫번째 라인에서 프로그램의 실행을 멈추게 합니다. 
+                    (dbx) stop in <함수명>   
+quit                gdb를 종료 시킵니다. 
+------------------------------------------------------------ 
+
+데이타에 관련된 명령들 
+----------------------------------------------------------- 
+whatis                지정한 <변수>에 관련된 정보를 보여줍니다. 
+print                 지정된 식의 값을 보여줍니다. (약자) p 
+display         현재 지정된 display 명령의 목록을 보여줍니다. 
+list            현재 위치에서 소스 파일의 내용을 10줄 보여줍니다. 
+list , <시작줄>과 <끝줄>사이의 소스파일 내용을 보여줍니다. 
+----------------------------------------------------------- 
+
+gdb 사용법을 알기 위해서 우선 bug가 있는 프로그램을 작성해보죠. 
+$ vi bugprogram1.c 
+
+---------------< bugprogram1.c 내용>-------------- 
+1 #include < stdio.h > 
+2 
+3 int main(void) 
+4 { 
+5         int        i; 
+6        double j; 
+7       char   *bug = NULL; 
+8 
+9 
+10 /* 다음은 i/2 + i 의 값을 출력 시키는 문이다.       */ 
+11 /* i 가 1 이면, j 는 1.5 가 되도록 짠 것이다.       */ 
+12 /* 그러나 실제로 그렇지 않다.                       */ 
+13 
+14        for( i = 0; i < 5; i++) { 
+15                j = i/2 + i; 
+16                printf(" j is %lf \n", j ); 
+17        } 
+18 
+19/* 다음은 bug 변수에 hi를 copy하려는 것이다.          */ 
+20/* 변수명 bug에서 느끼겠지만, 일부려 bug를 만들었다.  */ 
+21/* 무엇일까 ?                                         */ 
+22 
+23      strcpy(bug,"hi"); 
+24      printf("bug is %s \n", bug); 
+25 
+26        return 0; 
+27 } 
+--------------------------------------------- 
+
+위의 내용을 저장하고 나서, 
+$ gcc bugprogram1.c -g -o bugprogram1 
+$ gcc bugprogram1.c -o bugprogram1_g 
+
+$ ls -l 
+total 32 
+-rwxr-xr-x   1 oprix    staff       16375 Apr  5 15:53 bugprogram1* 
+-rw-r--r--   1 oprix    staff         578 Apr  5 15:52 bugprogram1.c 
+-rwxr-xr-x   1 oprix    staff       11927 Apr  5 15:53 bugprogram1_g* 
+
+<설명>------------------ 
+-g option 은 형성된 실행화일을 가지고 debug될 수 있게 compile 해 
+달라는 일종의 부탁하는 option입니다. 
+gdb를 작동시키려면 이렇게 compile을 해야 합니다. 
+-g 옵션을 주고 한 것과 안 한 것을 비교하면 -g 옵션을 준게 파일 크기가 큽니다. 
+debug를 위해서 여러 코드가 삽입되고, 실제 소스도 들어가 있습니다. 
+-o option은 -o 뒤의 화일 이름을 가진 실행화일을 만들어 달라라는 것으로 
+이 옵션을 생략할 경우에 a.out 이라는 실행파일이 생성됩니다. 
+위의 bugprogram1.c를 compile하면 error 메세지가 없습니다.. 
+------------------------------------------------------------ 
+
+$ ./bugprogram1 
+j is 0.000000 
+j is 1.000000 
+j is 3.000000 
+j is 4.000000 
+j is 6.000000 
+Segmentation fault 
+$ 
+
+<설명>----------------------------------------------------- 
+bugprogram1 실행화일을 실행시켰더니 작동되다가 
+Segmentation fault를 일으키는 군요. 
+프로그램은 에러없이 컴파일이 잘 되었는데... 
+어디서 문제가 일어난 걸까요? 
+----------------------------------------------------------- 
+
+$ gdb ./bugprogram1 
+GNU gdb 4.18 
+Copyright 1998 Free Software Foundation, Inc. 
+GDB is free software, covered by the GNU General Public License, and you are 
+welcome to change it and/or distribute copies of it under certain conditions. 
+Type "show copying" to see the conditions. 
+There is absolutely no warranty for GDB.  Type "show warranty" for details. 
+This GDB was configured as "i386-redhat-linux"... 
+(gdb) 
+
+--<설명>------------------------------------------------------ 
+프로그램 이름이 bugprogram1이고 현재 디렉토리에 있으니 이렇게 설정합니다. 
+그냥 쉘에서 gdb를 치시고 
+(gdb) file ./bugprogram1 이렇게 하는 방법도 있습니다. 
+편한대로 사용하세요. 
+----------------------------------------------------------------- 
+
+(gdb) list 
+1       #include < stdio.h > 
+2         
+3       int main(void) 
+4       { 
+5               int     i; 
+6               double j; 
+7                char   *bug = NULL; 
+8 
+9 
+10      /* 다음은 i/2 + i 의 값을 출력 시키는 문이다.       */ 
+(gdb) 
+
+--< 설명 > ---------------------------------------------------- 
+list는 소스 내용을 보여줍니다.  l 이라고 간단하게 쳐도 작동이 됩니다. 
+-------------------------------------------------------------- 
+
+(gdb) l 4,16 
+4       { 
+5               int     i; 
+6               double j; 
+7                char   *bug = NULL; 
+8 
+9 
+10      /* 다음은 i/2 + i 의 값을 출력 시키는 문이다.       */ 
+11      /* i 가 1 이면, j 는 1.5 가 되도록 짠 것이다.       */ 
+12      /* 그러나 실제로 그렇지 않다.                       */ 
+13 
+14              for( i = 0; i < 5; i++) { 
+15                      j = i/2 + i; 
+16                      printf(" j is %lf \n", j ); 
+
+--<설명> -------------------------------------------------------- 
+list <첫번째 줄번호>, <끝줄번호>를 치면 위처럼 보입니다.   
+--------------------------------------------------------------- 
+
+(gdb) break 14 
+Breakpoint 1 at 0x804840d: file bugprogram1.c, line 14. 
+(gdb) run 
+Starting program: /tmp/gdbproject/bugprogram1 
+
+Breakpoint 1, main () at bugprogram1.c:14 
+14              for( i = 0; i < 5; i++) { 
+
+--<설명>----------------------------------------------------- 
+먼저 가장 의심되는 곳 부터 찾기로 했습니다. for 문이 의심스럽군요. 
+그래서 for 문의 줄번호인 14에서 break를 걸어두었습니다. 
+break는 b라는 명령으로 사용할 수 있습니다. 
+run으로 실행을 시키니 작동되다가 14 줄에서 멈추었습니다. 
+--------------------------------------------------------------- 
+
+(gdb) step 
+15                      j = i/2 + i; 
+(gdb) step 
+16                      printf(" j is %lf \n", j ); 
+(gdb) step 
+j is 0.000000 
+j is 1.000000 
+j is 3.000000 
+j is 4.000000 
+j is 6.000000 
+
+Program received signal SIGSEGV, Segmentation fault. 
+0x400787a4 in strcpy () at ../sysdeps/generic/strcpy.c:43 
+43      ../sysdeps/generic/strcpy.c: 그런 파일이나 디렉토리가 없음. 
+
+----<설명>---------------------------------------- 
+이런 갑자기 프로그램이 종료가 되었군요. 
+16 번째 줄 다음에 step을 하면 안 되겠군요. 
+step은 s명령으로도 쓸 수 있습니다. 
+다시 시작해서 해보죠. 
+이번에는 15번째 줄에 break를 넣어 보죠. 
+-------------------------------------------------- 
+
+(gdb) quit 
+The program is running.  Exit anyway? (y or n) y 
+$ gdb ./bugprogram1 
+GNU gdb 4.18 
+Copyright 1998 Free Software Foundation, Inc. 
+GDB is free software, covered by the GNU General Public License, and you are 
+welcome to change it and/or distribute copies of it under certain conditions. 
+Type "show copying" to see the conditions. 
+There is absolutely no warranty for GDB.  Type "show warranty" for details. 
+This GDB was configured as "i386-redhat-linux"... 
+(gdb) b 15 
+Breakpoint 1 at 0x8048420: file bugprogram1.c, line 15. 
+(gdb) print i 
+$1 = 0 
+(gdb) print j 
+$2 = 4.8699524093964861e-270 
+
+----<설명>---------------------------------------- 
+내용을 볼때 print 라는 명령을 사용합니다. 
+아직 j는 쓰레기 값을 가지고 있군요. 
+print는 p라는 명령으로도 쓰셔도 됩니다. 
+계속해 보지요. 
+-------------------------------------------------- 
+
+(gdb) s 
+16                      printf(" j is %lf \n", j ); 
+(gdb) s 
+j is 0.000000 
+
+Breakpoint 1, main () at bugprogram1.c:15 
+15                      j = i/2 + i; 
+(gdb) print i 
+$3 = 1 
+(gdb) print j 
+$4 = 0 
+(gdb) s 
+16                      printf(" j is %lf \n", j ); 
+(gdb) print i 
+$5 = 1 
+(gdb) print j 
+$6 = 1 
+(gdb) s 
+j is 1.000000 
+
+Breakpoint 1, main () at bugprogram1.c:15 
+15                      j = i/2 + i; 
+(gdb) print i   
+$7 = 2 
+(gdb) print j 
+$8 = 1 
+(gdb) s 
+16                      printf(" j is %lf \n", j ); 
+(gdb) print i 
+$9 = 2 
+(gdb) print j 
+$10 = 3 
+
+----<설명>---------------------------------------- 
+자세히 보면 실제로 값이 적용되는 건 그 문장이 실행된 다음에 
+값이 적용되고 있지요. 
+즉 15번째 문장에서 멈추었으면 15문장은 실행이 안 된 상태입니다. 
+그 다음에 step 명령이 작동되어야 값이 바뀌지요. 
+그런데 값을 잘 관찰해 보면 j는 1.0000 이 아니라 1.50000가 될 
+때도 있어야 되는데 없군요. 계속 정수값을 가지고 있군요. 
+j = i/2 + i ; 이 부분이 문제가 있군요. 
+이 부분을 이렇게 수정해 보지요. j = (double)/2 + (double)i; 
+-------------------------------------------------- 
+
+$ gcc bugprogram1.c -g -o bugprogram1 
+$ gdb ./bugprogram1 
+GNU gdb 4.18 
+Copyright 1998 Free Software Foundation, Inc. 
+GDB is free software, covered by the GNU General Public License, and you are 
+welcome to change it and/or distribute copies of it under certain conditions. 
+Type "show copying" to see the conditions. 
+There is absolutely no warranty for GDB.  Type "show warranty" for details. 
+This GDB was configured as "i386-redhat-linux"... 
+(gdb) b 15 
+Breakpoint 1 at 0x8048420: file bugprogram1.c, line 15. 
+(gdb) r 
+Starting program: /tmp/gdbproject/./bugprogram1 
+
+Breakpoint 1, main () at bugprogram1.c:15 
+15                      j = (double)i/2 + (double)i; 
+(gdb) s 
+16                      printf(" j is %lf \n", j ); 
+(gdb) s 
+j is 0.000000 
+
+Breakpoint 1, main () at bugprogram1.c:15 
+15                      j = (double)i/2 + (double)i; 
+(gdb) s 
+16                      printf(" j is %lf \n", j ); 
+(gdb) s 
+j is 1.500000 
+
+----<설명>---------------------------------------- 
+자! 원하는 결과가 나왔지요. 값의 변화를 천천히 추적해서 
+문제점을 파악하는 방법입니다. 
+하나의 문제는 해결 되었고 continue 문을 이용해서 break를 나와 보지요. 
+break 가 15번째 줄에 있었으니 continue 15라고 입력합니다. 
+-------------------------------------------------- 
+
+(gdb) continue 15 
+Will ignore next 14 crossings of breakpoint 1.  Continuing. 
+j is 0.000000 
+j is 1.500000 
+j is 3.000000 
+j is 4.500000 
+j is 6.000000 
+
+Program received signal SIGSEGV, Segmentation fault. 
+0x400787a4 in strcpy () at ../sysdeps/generic/strcpy.c:43 
+43      ../sysdeps/generic/strcpy.c: 그런 파일이나 디렉토리가 없음. 
+
+----<설명>---------------------------------------- 
+전에 봤던 에러가 나왔군요. 자 이건 어떻게 할까요? 
+에러 메시지가 strcpy를 가리키고 있으니 strcpy라고 대략 예측을 해보지요. 
+23번째 줄에 break를 걸어보지요. 
+에러가 나므로 gdb를 다시 시작해서 break를 겁니다. 
+-------------------------------------------------- 
+
+$ gdb ./bugprogram1 
+GNU gdb 4.18 
+Copyright 1998 Free Software Foundation, Inc. 
+GDB is free software, covered by the GNU General Public License, and you are 
+welcome to change it and/or distribute copies of it under certain conditions. 
+Type "show copying" to see the conditions. 
+There is absolutely no warranty for GDB.  Type "show warranty" for details. 
+This GDB was configured as "i386-redhat-linux"... 
+(gdb) b 23 
+Breakpoint 1 at 0x8048456: file bugprogram1.c, line 23. 
+(gdb) r 
+Starting program: /tmp/gdbproject/./bugprogram1 
+j is 0.000000 
+j is 1.500000 
+j is 3.000000 
+j is 4.500000 
+j is 6.000000 
+
+Breakpoint 1, main () at bugprogram1.c:23 
+23              strcpy(bug,"hi"); 
+(gdb) p bug 
+$1 = 0x0 
+(gdb) p *bug 
+Cannot access memory at address 0x0. 
+
+---<설명>--------------------------------------- 
+음 버그를 찾은 거 같군요. 
+bug의 주소가 0x0인데 여기에 값을 복사하려고 
+했으니 작동이 안 되는 거지요. 
+0x0주소는 access 할 수 없는 주소인데.. 
+그래서 프로그램이 제대로 작동하려면 bug에 메모리주소를 할당해주고 
+사용하면 됩니다. 
+
+bug = (char *)calloc(3, sizeof(char)); 
+bug 선언 다음에 이렇게 설정해주면 되겠지요. 
+-------------------------------------------------------- 
+
+$ ./bugprogram1 
+j is 0.000000 
+j is 1.500000 
+j is 3.000000 
+j is 4.500000 
+j is 6.000000 
+bug is hi 
+
+자 배운 걸 복습해 보세요. break, continue, step, file, print, list ,run 
+저자와 출처를 밝히시고 사용하시기 바랍니다. 

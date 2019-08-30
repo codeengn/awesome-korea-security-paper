@@ -1,0 +1,506 @@
+Format String Attacks
+
+
+ by Tim Newsham <tim.newsham@guardent.com>, Guardent Inc.  Mon Sep 11 2000
+                                            Format String Attacks
+                                                Tim Newsham
+                                                Guardent, Inc.
+                                               September 2000
+                                   Copyright (c) 2000. All Rights Reserved
+
+ format string 취약점의 원인과 영향에 대해서 알아봅니다. 실제 예제를 사용하여 원리를
+구현해 보았습니다.
+
+
+  INTRODUCTION
+
+ 나는 이것이 당신에게 일어나고 있다는것을 알고 있습니다. 이것은 어떻게든 우리 모두에게
+일어나고 있습니다. 당신은 저녁파티에 와있습니다. 격양된 친구의 목소리중에서, 당신은
+"format string attack." 이란 말을 듣습니다. "Format string attack? Format string attack 이 뭐여?" 라고
+당신은 의문을 가집니다.  동료들에게는 당신의 무지가 드러날까봐 불편한 웃음을 지으며 고개를
+끄덕거리고 잘 알고 있는 화제거리가 나오기를 기다립니다. 그런대로 마무리가 되면
+칵테일이 몇잔 돌고 화제는 다른것으로 바뀌고, 누구에게도 발전은 없게 됩니다.
+자~ 더이상 걱정하지 마세요. 이 문서는 당신이 알고싶어했던, 그러나 질문하지 못했던
+format string attack 에대한 모든것을 알려줄것입니다.
+
+
+  WHAT IS A FORMAT STRING ATTACK?
+
+ format string 버그가 생긴 이유는 다른 security hole 들과 다를게 없습니다. 바로 프로그래머의
+게으름이죠. 당신이 이 글을 읽고 있는 지금도 어디선가는 프로그래머가 코드를 작성하고 있
+습니다. 그가 할일은 스트링을 출력하거나 그것을 버퍼에 복사해넣는 것 입니다. 그가 하려고
+하는 일은 다음과 같을 겁니다:
+
+      printf("%s", str);
+
+ 그러나 그는 이렇게 하는 대신에 시간, 노력 그리고 6바이트 분량의 소스코드 타이핑을
+줄이기로 결정했습니다:
+
+      printf(str);
+
+ 왜 안될까요? 왜 여분의 printf 인자로 우리가 수고를 해야할까요? 그 멍청한 format 으로 분석해
+내는데는 시간이 걸립니다. 어쨌든! printf 의 첫번째 인자(argument) 만으로도 스트링은 출력됩니다.
+왜냐하면 프로그래머는 security hole 이 생긴다는것을 모르고 이것은 공격자가 프로그램의 실행을
+제어할수 있도록 할 수 있습니다. 이것이 그 이유입니다.
+
+ 프로그래머가 잘못한 것은 무엇입니까? 그는 출력하고자하는 스트링을 간략하게 넘겨주었습니다.
+그 스트링은 printf 함수에 의해 format string 으로 간주되어 interpret 됩니다. "%d" 같은 특별한 format
+문자를 감시하다가 format 이 나오게 되면 인자의 값을 스택에서 가져오게 됩니다. 공격자는
+스택에 저장되어 있는 값을 이런식으로 출력함으로서 프로그램의 메모리를 들여다볼 수 있게됩니다.
+이 간단한 실수가 실행중인 프로그램의 메모리에 임의의 값을 쓸수 있도록 만들지도 모릅니다.
+
+
+  PRINTF - WHAT THEY FORGOT TO TELL YOU IN SCHOOL
+
+ 우리의 목적에 printf 를 어떻게 악용할 수 있는지에대해서 자세히 들어가기 전에, printf 가 제공하는
+기능에대해 확실히 알아야 합니다. 이 글을 읽는 독자는 printf 함수를 사용해 보았고, 어떻게
+정수와 스트링(문자열)을 출력하는지, 또 어떻게 스트링의 최대, 최소 폭을 지정하는지 같은
+기본적인 formatting 기능들에 대해 알고있다고 가정합니다. 이런 보통의 기능들에, 잘 알려지지 않은
+기능들이 몇개 있습니다.
+
+ format string 의 어느 지점에서건 출력된 문자의 수를 얻는 것이 가능합니다. format string 에서
+"%n" format 이 나오게 되면 %n 이 나오기 전에 출력된 문자의 수가 다음에 나오는 인자의 주소에
+저장됩니다. 예에서는,  두 format 된 수의 offset 을 구할 수 있습니다:
+
+             int pos, x = 235, y = 93;
+
+             printf("%d %n%d\n", x, &pos, y);
+             printf("The offset was %d\n", pos);
+
+ "%n" format 은 실제로 출력된 문자의 수가 아닌 출력되려고 했던 문자의 수를 리턴해줍니다.
+스트링을 고정된 크기의 버퍼에 formatting 한다면, 스트링은 버퍼의 크기에 맞게 뒷부분은 잘려
+나갈것입니다. 이렇게 잘려나가더라도 "%n" format 이 리턴하는 offset 은 스트링이 잘려나가지
+않았다고 가정하고 그 길이를 반영합니다. 이부분의 예제를 보겠습니다. 다음 코드의 출력값은
+"20" 이 아니고 "100" 이 될 것입니다:
+
+             char buf[20];
+             int pos, x = 0;
+
+             snprintf(buf, sizeof buf, "%.100d%n", x, &pos);
+             printf("position: %d\n", pos);
+
+
+  A SIMPLE EXAMPLE
+
+ 이런 추상적인 예기말고, 이제는 앞에서 논의 됐던 원리들을 보여줄수 있는 구체적인 예제를
+사용하도록 하겠습니다.  아래에 나오는 간단한 프로그램으로도 충분합니다:
+
+      /*
+       * fmtme.c
+       *       Format a value into a fixed-size buffer
+       */
+
+      #include <stdio.h>
+
+      int
+      main(int argc, char **argv)
+      {
+          char buf[100];
+          int x;
+          if(argc != 2)
+              exit(1);
+          x = 1;
+          snprintf(buf, sizeof buf, argv[1]);
+          buf[sizeof buf - 1] = 0;
+          printf("buffer (%d): %s\n", strlen(buf), buf);
+          printf("x is %d/%#x (@ %p)\n", x, x, &x);
+          return 0;
+      }
+
+ 이 프로그램에 대해 몇가지 알아보겠습니다. 먼저, 사용법은 간단합니다: 커맨드 라인을
+통해서 전달된 값은 고정된 길이의 버퍼에 format 됩니다. 버퍼는 넘치지 않도록 해 놓았습
+니다. 버퍼가 format 된 후에 그것을 출력합니다. 인자(argument)를 formating 한 다음에
+정수형 변수를 설정하고 후에 이것을 출력합니다. 이 변수는 후에 공격의 대상으로 사용됩니다.
+지금은 출력되는 값이 항상 1일 것입니다.
+
+ 이 글에 있는 모든 예제들은 x86 BSD/OS 4.1 박스에서 수행이 됩니다. 만약 당신이 최근
+20년동안 모잠비크 선교활동을 하느라고 x86 이 친숙하지 않다면, x86 은 리틀엔디안(littel-endian)
+머신입니다.  이것은 예제상에서 multi-precision number 가 바이트값의 연속으로 표현될 때
+반영될 것입니다. 여기의 사용된 실제의 숫자는 다른 아키텍처, OS, 환경 그리고 커맨드라인의 길이등
+시스템에 따라 다를것입니다. 예제들은 조금만 손보면 x86 머신에서 동작하도록 할 수 있습니다.
+약간의 노력과 생각으로  다른 아키텍처에서도 잘 동작하도록 만들수 있을것입니다.
+
+
+  FORMAT ME!
+
+ 이제 우리의 검은모자(black hat) 를 쓰고 공격자의 입장에서 생각해야 할 때입니다.
+우리에게는 테스트 프로그램이 있습니다. 우리는 이것이 취약하다는 것을 알고있고 프로그
+래머가 어디서 이런 실수를 저지르는지 알고있습니다. 우리는 printf 함수에 대한 지식을 가
+지고 있고 그것이 우리에게 무엇을 해줄지 알고 있습니다. 자 이제 이 프로그램으로
+삽질(ㅡㅡ;;)을 해봅시다.
+
+ 시작은 간단하게, 정상적인 인자(argument) 로 프로그램을 실행해 봅시다:
+
+      % ./fmtme "hello world"
+      buffer (11): hello world
+      x is 1/0x1 (@ 0x804745c)
+
+ 특별한것은 없습니다. 프로그램은 우리가 입력한 스트링을 버퍼에 format 하였고
+그것의 길이와 값을 출력하였습니다. 또 1의 값(10진수와 16진수로 출력이됐죠) 을
+가지고 있는 변수 x 도 출력이 되었고, 그것은 0x804745c 에 저장이 되있습니다.
+
+ 이번에는 format 명령들을 넣어봅시다. 이 예제에서는 format string 이 아니라 스택에있는
+정수들이 출력될것입니다:
+
+      % ./fmtme "%x %x %x %x"
+      buffer (15): 1 f31 1031 3133
+      x is 1/0x1 (@ 0x804745c)
+
+ 프로그램을 잠깐만 분석해 보면 sprintf 가 호출됐을때 스택상의 레이아웃을 알 수 있을것입니다.
+
+      Address  Contents       Description
+      fp+8     Buffer         pointer 4-byte address
+      fp+12    Buffer         length 4-byte integer
+      fp+16    Format         string 4-byte address
+      fp+20    Variable x     4-byte integer
+      fp+24    Variable buf   100 characters
+
+ 이전의 테스트에서 출력된 4개의 값은 스택에서 format string 의 뒤에 있는 네개의 인자 입니다:
+변수 x, 그리고 초기화되지않은 buf 로부터 가져온 정수 3개.
+
+ 이제 정리를 할 시간입니다. 자~ 공격자라고 생각을 합시다. 우리는 버퍼에  저장될 값들을
+마음대로 할 수 있습니다. 이 값들은 sprintf 호출의 인자로 사용됩니다. 잠시 확인을 해 봅시다:
+
+      % ./fmtme "aaaa %x %x"
+      buffer (15): aaaa 1 61616161
+      x is 1/0x1 (@ 0x804745c)
+
+ 옙! 우리가 입력한 'a' 네개가 버퍼로 복사되었고 sprintf 에의해 0x61616161 ('a' 의 아스키 값이
+0x61 입니다) 값을 갖는 정수형 인자로 interpret 되었습니다.
+
+
+  X MARKS THE SPOT
+
+ 모든 조각들이 제자리를 찾아가고 았습니다! 이제 수동적인 테스트보다는 좀더 능동적
+으로 프로그램의 상태를 변경해볼 시간입니다. 변수 'x' 를 기억하시죠? 자 이것의 값을
+바꿔봅시다. 이걸 할려면 먼저 x 의 주소를 sprintf 의 인자로 입력해 주어야 합니다. 그다음
+sprintf 의 인자하나(이건 변수 x) 를 건너 뛰어야 겠죠. 그리고 마지막으로 "%n" format 을
+사용하여 우리가 지장한 주소에 쓰기를 합니다. 지금은 어렵게 들리겠지만 예제를 보면
+이해가 될것입니다.
+[Note: 우리가 필요한 값을 커맨드 라인의 인자로 에서 쉽게 입력 할 수 있도록 PERL  을
+사용해서 프로그램을 실행하겠습니다.]:
+
+      % perl -e 'system "./fmtme", "\x58\x74\x04\x08%d%n"'
+      buffer (5): X1
+      x is 5/x05 (@ 0x8047458)
+
+ x의 값이 바뀌었습니다. 근데 정확히 무슨일이 일어난걸까요? sprintf 의 인자는 다음과 같
+을것입니다:
+
+      snprintf(buf, sizeof buf, "\x58\x74\x04\x08%d%n", x, 4 bytes from buf)
+
+ 먼저 sprintf 는 처음 네바이트를 버퍼에 복사합니다. 다음 "%d" format 을 읽어와서 x 의
+값을 출력합니다. 끝으로 "%n" 명령에 이르게 되면 스택에서 다음값을 가지고 오게 되죠.
+그 값은 buf 의 처음 4바이트가 될것입니다. 이 4바이트는 전에 "\x58\x74\x04\x08" 로
+채워 졌죠(정수값으로 한면 0x08047458). sprintf 는 출력된바이트 의 수 를 그곳에다가
+저장합니다. 그 값은 5가되겠죠. 좀 돌려서 생각해봅시다. 그 주소는 변수 x 의 주소입니다.
+이것은 우연의 일치가 아닙니다. 이전의 테스트를 참고해서  0x08047458 이라는 사용하게
+되었습니다. 이 경우에는 프로그램이 우리에게 필요한 주소를 출력해줘서 도움이 되었습니다만
+보통은 디버거를 사용하여 그 값을 찾아내야 합니다.
+
+ 자~ 멋지죠! 임의의 주소값 (주소값이 널문자를 포함하지 않는한) 을 찾아내서 그곳에 값을 쓸
+수 있습니다. 그런데 그곳에 유용한 값을 쓸 수 있을까요? Sprintf 로는 출력된 문자의 길이만을
+쓸수 있습니다. 만약 쓸려고 하는 값이 4보다 작은 값이라면 방법은 아주 간단합니다. 우리가
+원하는 값이 될때까지 format string 으로 채워 넣으면 될것입니다. 그러나 큰값은? "%n" 이 문자의
+갯수를 헤아릴때는 출력할때 잘려나간 것이 없다고 가정합니다. 우리는 이것을 이용할 수 있습니다:
+
+      % perl -e 'system "./fmtme", "\x54\x74\x04\x08%.500d%n"
+      buffer (99): %0000000 ... 0000
+      x is 504/x1f8 (@ 0x8047454)
+
+ "%n" 에 의해 쓰여진 x 의 값 504는 실제로 buf 로 보내진 99 바이트보다 훨씬 큰값입니다.
+우리는 필드폭을 크게 지정해서 임의크기의 값을 넣을 수 있습니다 [1]. 그러면 작은 값은
+어떻게? 이건 부분쓰기를 여러번 함으로써 원하는 값(0 까지도)을 만들어 낼 수 있습니다.
+1바이트 offset 으로 네개의 숫자를 write 한다면, 네개의 최하위 바이트로 이루어진 원하는
+값을 만들어낼 수 있을것입니다. 이것을 표로 만들어보았습니다. 아래의 표를 보고 잘 생각
+해 보세요:
+
+      Address        A   A+1  A+2  A+3  A+4  A+5  A+6
+      Write to A:   0x11 0x11 0x11 0x11
+      Write to A+1:      0x22 0x22 0x22 0x22
+      Write to A+2:           0x33 0x33 0x33 0x33
+      Write to A+3:                0x44 0x44 0x44 0x44
+      Memory:       0x11 0x22 0x33 0x44 0x44 0x44 0x44
+
+ 네번의 write가 끝난후 메모리 주소 A 의 정수형 값은, 네번 쓰여진 값의 마지막 바이트로
+이루어진 0x44332211 이 되어있을겁니다. 이 테크닉으로 우리는 유연성 있게 값을 write
+할 수 있습니다. 그러나 이 방법에도 문제가 좀 있습니다:  이 방법은 원하는 값을 넣기 위해
+네번이나 write를 해야합니다. 그러면 대상 주소의 주변 3바이트를 건드리게 됩니다.
+또 세번의 unaligned write 를 해야하는데, 최근 몇몇 아키텍쳐들은 unaligned write 를 지원하지
+않습니다. 그래서 이 테크닉을 모든 곳에 적용할 수 는 없습니다.
+
+
+  SO WHAT?
+
+ 그래서 뭐? 뭐? 어쩌라고? 그래서 당신이 원하는 (거의 대부분의) 매모리 주소에다가
+임의의 값을 쓸 수 있습니다!! 당신은 이걸 어디다 유용하게 사용할지 생각해낼 수 있을것입
+니다. 다음을 봅시다:
+
+	저장된 UID 를 overwrite 프로그램이 높은 권한을 주도록 할 수 있습니다.
+	실행된 명령을 overwrite 할 수 있습니다.
+	리턴어드레스를 overwrite 하여 그것이 쉘코드가 있는 버퍼를 가리키도록 할 수 있습니다.
+
+ 간단하게 말하면: 당신은 그 프로그램을 지배할 수 있습니다.
+
+ 좋습니다. 그럼 오늘 우리가 배운것은?
+
+	printf 는 당신이 이전에 생각했던것보다 훨씬 강력하다.
+	귀퉁이가 잘려나간 것은 결코 값을 받을 수 없다.
+	무해해보이는 생략은 공격자가 당신의 하루를 망치게 할수도 있다.
+	충분한 시간과 노력이 있다면, 지난 obfuscated-C contest 의 입상작처럼 보이는 input string
+	으로 누군가의 작은 실수를 연합뉴스거리로 만들 수 있습니다.
+
+
+[1] 현재 나와있는 glibc 의 printf 는 구현상에 문제가 있습니다.
+필드폭을 큰 값으로 설정하면 printf 는 내부 버퍼에 underflow 가 발생하여 프로그램이
+정지하게 됩니다. 그래서 현재 버전의 리눅스상에서 프로그램을 공격할때
+수천 (several thousand) 보다 큰 값을 필드폭으로 지정하는 것은 불가능합니다.
+예를들면, 다음과 같은 코드는  이문제로 segmentation fault 를 일으킵니다:
+printf("%.9999d", 1);
+
+
+
+* 이 글(english ver. 과 korean ver. 모두) 의 저작권(copyright) 은 Guardent 의
+Tim Newsham 에게 있습니다. *
+
+-------------------------------------------------------------------
+- 이해가 안되는부분은 언제나처럼 원문을 참고 하시고 그래도 이해가 안되시면
+한번 더 읽어보시고 그래도 이해가 안될경우 다른 포맷스트링관련 글을 훑어 본
+다음 읽어 보시고 그래도 이해가 안되시면 버퍼오버플로우 관련글들을 마스터하신
+다음 읽어보시고.. 그래도 이해가 안되신다면.. 헉..  ㅡㅡ;;삐질
+
+- 수정할 부분있으면 멜주세요.. 고칠데 많을것 같은데..<a0happy@hanmir.com>
+-------------------------------------------------------------------
+
+
+
+- 원문을 첨부합니다.
+
+
+
+Format String Attacks
+ by Tim Newsham <tim.newsham@guardent.com>, Guardent Inc.  Mon Sep 11 2000
+                                            Format String Attacks
+                                                Tim Newsham
+                                                Guardent, Inc.
+                                               September 2000
+                                   Copyright (c) 2000. All Rights Reserved
+
+   The cause and implications of format string vulnerabilities are discussed. Practical examples are given to illustrate the principles
+   presented.
+
+  INTRODUCTION
+
+  I know it has happened to you. It has happened to all of us, at one point or another. You're at a trendy dinner party, and amidst the
+  frenzied voices of your companions you hear the words "format string attack." "Format string attack? What is a format string attack?"
+  you ask. Afraid of having your ignorance exposed among your peers you decide instead to break an uncomfortable smile and nod in
+  hopes of appearing to be in the- know. If all goes well, a few cocktails will pass and the conversation will move on, and no one will be
+  the wiser. Well fear no more! This paper will cover everything you wanted to know about format string attacks but were afraid to ask!
+
+  WHAT IS A FORMAT STRING ATTACK?
+
+  Format string bugs come from the same dark corner as many other security holes: The laziness of programmers. Somewhere out
+  there right now, as this document is being read, there is a programmer writing code. His task: to print out a string or copy it to some
+  buffer. What he means to write is something like:
+
+      printf("%s", str);
+
+  but instead he decides that he can save time, effort and 6 bytes of source code by typing:
+
+      printf(str);
+
+  Why not? Why bother with the extra printf argument and the time it takes to parse through that silly format? The first argument to
+  printf is a string to be printed anyway! Because the programmer has just unknowingly opened a security hole that allows an
+  attacker to control the execution of the program, that's why!
+
+  What did the programmer do that was so wrong? He passed in a string that he wanted printed verbatim. Instead, the string is
+  interpreted by the printf function as a format string. It is scanned for special format characters such as "%d". As formats are
+  encountered, a variable number of argument values are retrieved from the stack. At the least, it should be obvious that an attacker
+  can peek into the memory of the program by printing out these values stored on the stack. What may not be as obvious is that this
+  simple mistake gives away enough control to allow an arbitrary value to be written into the memory of the running program.
+
+  PRINTF - WHAT THEY FORGOT TO TELL YOU IN SCHOOL
+
+  Before getting into the details of how to abuse printf for our own purposes, we should have a firm grasp of the features printf
+  provides. It is assumed that the reader has used printf functions before and knows about its normal formatting features, such as
+  how to print integers and strings, and how to specify minimum and maximum string widths. In addition to these more mundane
+  features, there are a few esoteric and little-known features. Of these features, the following are of particular relevance to us:
+
+       It is possible to get a count of the number of characters output at any point in the format string. When the "%n" format is
+       encountered in the format string, the number of characters output before the %n field was encountered is stored at the address
+       passed in the next argument. As an example, to receive the offset to the space between two formatted numbers:
+
+             int pos, x = 235, y = 93;
+
+             printf("%d %n%d\n", x, &pos, y);
+             printf("The offset was %d\n", pos);
+
+       The "%n" format returns the number of characters that should have been output, not the actual count of characters that were
+       output. When formatting a string into a fixed-size buffer, the output string may be truncated. Despite this truncation, the offset
+       returned by the "%n" format will reflect what the offset would have been if the string was not truncated. To illustrate this point,
+       the following code will output the value "100" and not "20":
+
+             char buf[20];
+             int pos, x = 0;
+
+             snprintf(buf, sizeof buf, "%.100d%n", x, &pos);
+             printf("position: %d\n", pos);
+
+  A SIMPLE EXAMPLE
+
+  Rather than talking in vagaries and abstractions, we will use a concrete example to illustrate the principles as they are discussed. The
+  following simple program will suffice for this purpose:
+
+      /*
+       * fmtme.c
+       *       Format a value into a fixed-size buffer
+       */
+
+      #include <stdio.h>
+
+      int
+      main(int argc, char **argv)
+      {
+          char buf[100];
+          int x;
+          if(argc != 2)
+              exit(1);
+          x = 1;
+          snprintf(buf, sizeof buf, argv[1]);
+          buf[sizeof buf - 1] = 0;
+          printf("buffer (%d): %s\n", strlen(buf), buf);
+          printf("x is %d/%#x (@ %p)\n", x, x, &x);
+          return 0;
+      }
+
+  A few notes about this program are in order. First, the general purpose is quite simple: A value passed on the command line is
+  formatted into a fixed-length buffer. Care is taken to make sure the buffer limits are not exceeded. After the buffer is formatted, it is
+  output. In addition to formatting the argument, a second integer value is set and later output. This variable will be used as the target
+  of attacks later. For now, it should be noted that its value should always be one.
+
+  All examples in this document were actually performed on an x86 BSD/OS 4.1 box. If you have been on a mission to Mozambique for
+  the last 20 years and are unfamiliar with the x86, it is a little-endian machine. This will be reflected in the examples when
+  multi-precision numbers are expressed as a series of byte values. The actual numbers used here will vary from system to system with
+  differences in architecture, operating system, environment and even command line length. The examples should be easily adjusted to
+  work on other x86 machines. With some effort and thought, they may be made to work on other architectures as well.
+
+  FORMAT ME!
+
+  It is now time to put on our black hats and start thinking like attackers. We have in our hands a test program. We know that it has a
+  vulnerability and we know where the programmer made his mistake. We are also armed with a thorough knowledge of the printf
+  function and what it can do for us. Let's get to work by tinkering with our program.
+
+  Starting off simple, we invoke the program with normal arguments. Let's begin with this:
+
+      % ./fmtme "hello world"
+      buffer (11): hello world
+      x is 1/0x1 (@ 0x804745c)
+
+  There's nothing special going on here. The program formatted our string into the buffer and then printed its length and the value out.
+  It also told us that the variable x has the value one (shown in decimal and hex) and that it was stored at the address 0x804745c.
+
+  Next lets try providing some format directives. In this example we'll print out the integers on the stack above the format string:
+
+      % ./fmtme "%x %x %x %x"
+      buffer (15): 1 f31 1031 3133
+      x is 1/0x1 (@ 0x804745c)
+
+  A quick analysis of the program will reveal that the stack layout of the program when the snprintf function is called is:
+
+      Address  Contents       Description
+      fp+8     Buffer         pointer 4-byte address
+      fp+12    Buffer         length 4-byte integer
+      fp+16    Format         string 4-byte address
+      fp+20    Variable x     4-byte integer
+      fp+24    Variable buf   100 characters
+
+  The four values output in the previous test were the next four arguments on the stack after the format string: the variable x, then
+  three 4-byte integers taken from the uninitialized buf variable.
+
+  Now it is time for an epiphany. As an attacker, we control the values stored in the buffer. These values are also used as arguments to
+  the snprintf call! Let's verify this with a quick test:
+
+      % ./fmtme "aaaa %x %x"
+      buffer (15): aaaa 1 61616161
+      x is 1/0x1 (@ 0x804745c)
+
+  Yup! The four 'a' characters we provided were copied to the start of the buffer and then interpreted by snprintf as an integer
+  argument with the value 0x61616161 ('a' is 0x61 in ASCII).
+
+  X MARKS THE SPOT
+
+  All the pieces are falling into place! It is time to step up our attack from passive probes to actively altering the state of the program.
+  Remember that variable "x"? Let's try to change its value. To do this, we will have to enter its address into one of snprintf's
+  arguments. We will then have to skip over the first argument to snprintf, which is the variable x, and finally, use a "%n" format to
+  write to the address we specified. This sounds more complicated than it actually is. An example should clarify things. [Note: We're
+  using PERL here to execute the program which allows us to easily place arbitrary characters in the command line arguments]:
+
+      % perl -e 'system "./fmtme", "\x58\x74\x04\x08%d%n"'
+      buffer (5): X1
+      x is 5/x05 (@ 0x8047458)
+
+  The value of x changed, but exactly what is going on here? The arguments to snprintf look something like this:
+
+      snprintf(buf, sizeof buf, "\x58\x74\x04\x08%d%n", x, 4 bytes from buf)
+
+  At first snprintf copies the first four bytes into buf. Next it scans the "%d" format and prints out the value of x. Finally it reaches the
+  "%n" directive. This pulls the next value off the stack, which comes from the first four bytes of buf. These four bytes have just been
+  filled with "\x58\x74\x04\x08", or, interpreted as an integer, 0x08047458. Snprintf then writes the amount of bytes output so far,
+  five, into this address. As it turns out, that address is the address of the variable x. This is no coincidence. We carefully chose the
+  value 0x08047458 by previous examination of the program. In this case, the program was helpful in printing out the address we were
+  interested in. More typically, this value would have to be discovered with the aid of a debugger.
+
+  Well, great! We can pick an arbitrary address (well, almost arbitrary; as long as the address contains no NUL characters) and write a
+  value into it. But can we write a useful value into it? Snprintf will only write out the number of characters output so far. If we want to
+  write out a small value greater than four then the solution is quite simple: Pad out the format string until we get the right value. But
+  what about larger values? Here is where we take advantage of the fact that "%n" will count the number of characters that should have
+  been output if there was no truncation:
+
+      % perl -e 'system "./fmtme", "\x54\x74\x04\x08%.500d%n"
+      buffer (99): %0000000 ... 0000
+      x is 504/x1f8 (@ 0x8047454)
+
+  The value that "%n" wrote to x was 504, much larger than the 99 characters actually emitted to buf. We can provide arbitrarily large
+  values by just specifying a large field width [1]. And what about small values? We can construct arbitrary values (even the value zero),
+  by piecing together several writes. If we write out four numbers at one-byte offsets, we can construct an arbitrary integer out of the
+  four least-significant bytes. To illustrate this, consider the following four writes:
+
+      Address        A   A+1  A+2  A+3  A+4  A+5  A+6
+      Write to A:   0x11 0x11 0x11 0x11
+      Write to A+1:      0x22 0x22 0x22 0x22
+      Write to A+2:           0x33 0x33 0x33 0x33
+      Write to A+3:                0x44 0x44 0x44 0x44
+      Memory:       0x11 0x22 0x33 0x44 0x44 0x44 0x44
+
+  After the four writes are completed, the integer value 0x44332211 is left in memory at address A, composed of the least-significant
+  byte of the four writes. This technique gives us flexibility in choosing values to write, but it does have some drawbacks: It takes four
+  times as many writes to set the value. It overwrites three bytes neighboring the target address. It also performs three unaligned write
+  operations. Since some architectures do not support unaligned writes, this technique is not universally applicable.
+
+  SO WHAT?
+
+  So what? So what!? SO WHAT!#@?? So you can write arbitrary values to (almost any) arbitrary addresses in memory!!! Surely you
+  can think of a good use for this. Let's see:
+
+       Overwrite a stored UID for a program that drops and elevates privleges.
+       Overwrite an executed command.
+       Overwrite a return address to point to some buffer with shell code in it.
+
+  Put into simpler terms: you OWN the program.
+
+  Ok, so what have we learned today?
+
+       printf is more powerful than you previously thought.
+       Cutting corners never pays off.
+       An innocent looking omission can provide an attacker with just enough leverage to ruin your day.
+       With enough free time, effort, and an input string that looks like the winning entry in last year's obfuscated-C contest, you can
+       turn someone's simple mistake into a nationally syndicated news story.
+
+  [1] There is an implementation flaw in printf in certain versions of glibc. When large field widths are specified, printf will underflow
+  an internal buffer and cause the program to crash. Because of this, it is not possible to use field widths larger than several thousand
+  when attacking programs on certain versions of Linux. As an example, the following code will cause a segmentation fault on systems
+  with this flaw: printf("%.9999d", 1);
+
+
+* 이 글(english ver. 과 korean ver. 모두) 의 저작권(copyright) 은 Guardent 의
+Tim Newsham 에게 있습니다. *

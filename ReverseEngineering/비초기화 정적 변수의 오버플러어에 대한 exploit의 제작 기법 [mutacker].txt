@@ -1,0 +1,758 @@
+               비초기화 정적 변수의 오버플러어에 대한 exploit의 제작 기법(1)
+             
+                                             mutacker in Null@Root 
+                                             mutacker@null2root.org, dbyeom@mail.hangkong.ac.kr
+                                             (http://mutacker.null2root.org)
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 1. 글 쓰기에 앞서
+
+먼저 글 쓰기에 앞서 항상 저를 도와주시는 많은 분들에게 감사드린다.
+해킹의 새로운 기술이나 기법을 발견하고 생각해 내는 작업은 분명 혼자서 해나가기에는 
+지치고 힘이 들 때가 많다. 하지만, 항상 곁에서 지켜봐주고, 도와주고 조언을 아끼지 않는 수많은
+분들이 있기에 가능한 일이 아닌가 싶다.
+다시 한번 그 분들에게 감사를 표한다.
+우리의 null@root 가족들(에구 다 열거하기 힘드니.. 가족들로 ^^;), 
+amadoh4ck, truefinder(frog ^^;), black, mat, and so on...
+
+본 문서에 대한 판권은 없는 것으로 하며, 단지 편집만은 금했으면 한다.
+틀린 부분이나 오탈자 등은 본인에게 메일이나 주서식지(irc.null2root.org)에서 알려주시면, 
+고맙겠습니다.
+단지 본 문서에서는 방향만을 제시할 뿐 실제 특정 어플리케이션에 관련된 exploit을 제공하지는 않는다.
+아무쪼록, 이 글이 한국 보안 전문가들이나 열심히 노력하는(? 뚫기위해가 아닌 기술발전을 위해) 해커들에게,
+그리고 프로그램을 개발하는 개발자들에게 조그마한 도움이 되었으면 하는 바램에서 글을 적어본다.
+
+이 문서의 최고 공개지는 http://mutacker.null2root.org이며, 
+최초 문서 개제 장소는 http://www.khdp.org이다.
+만일 다른 곳에 본 문서를 개제할 경우에는 그 출처를 정확히 밝혀주었으면 하는 바램이다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 2. 소개
+
+우리는 buffer overflow 하면 stack overflow를 이용한 return address변경이나, 
+data section overflow를 이용한 got영역의 변경, 
+heap영역의 데이터 변경이나 chunk변경을 통한 방법 등을 생각한다.
+
+본 문서에서 소개하고자 하는 것은 static형태의 변수가 오버플로어 될 때 발생하는 문제를 다루고자 한다.
+이미 이에 대해 __atexit in memory bugs (By Pascal Bouchareine <pb@hert.org>) 문서가 존재하지만,
+실제로 현재의 시스템에 적용이 되질 않는 관계로 새롭게 접근해 보고자 한다.
+Pascal의 문서에서 사용되던 atexit 자료구조가 glibc가 버젼업 되면서 상당부분 변경이 된 것같다. 
+즉, 현재의 시스템과 맞지 않는 부분이 대부분이다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 3. 문제 설정 및 배경지식
+
+<-- copy from here 
+
+#include <stdring.h>
+
+int main(int argc,char *argv[])
+{
+  static char buf[128];
+
+  if(argc > 1)
+    strcpy(buf,argv[1]);
+}
+-- to here -->
+
+위의 예는 main()함수 내에 정적변수(static variable)을 두고, 인자값으로 들어온 것을 복사하고 있다.
+아주 이해하기 쉬운 예제이며, 누구나 "아! 오버플로어가 발생하겠다"라고 할 것같은 예제이다.
+
+하지만, 실제로 정적변수에 overflow가 발생하였다고 하여서 exploit이 작성이 가능한 것은 아니다.
+만일 buf[]변수가 초기화가 이루어진 상황이라면, 위의 문제는 got영역을 변경하는 것으로 
+바뀔 것이다. 
+하지만, 위의 예는 비초기화된 정적변수로 메모리 구조상 오버플로어가 발생한다할지라도 
+함수들의 포인터 값을 가지고 있는 got영역을 변경할 수는 없다.
+
+아래의 그림은 실제 프로그램이 사용하는 메모리의 구조를 보이고 있다.
+
+           +---------------------------------+
+           |            Text 영역            |
+           +---------------------------------+
+           |        초기화된 전역변수        |
+           +---------------------------------+
+           |        초기화된 정적변수        |
+           +---------------------------------+
+           |              GOT                |
+           +---------------------------------+
+           |       비초기화된 정적변수       |
+           +---------------------------------+
+           |       비초기화된 전역변수       |
+           +---------------------------------+
+           |            Heap 영역            |
+           +---------------------------------+
+           |                                 |
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~        
+           |                                 |
+           +---------------------------------+
+           |            Stack 영역           |
+           +---------------------------------+
+
+위의 예제에서는 단지 정적변수 하나만 존재하는 것으로 만일 오버플로어가 발생하였을 경우, 
+변경 가능한 영역은 비초기화된 전역변수와 힙영역이 되겠다. 
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 4. 문제 분석
+
+자! 프로그램을 먼저 분석을 해보도록 하자.
+일단, Heap을 사용하는 부분이 코드상에 보이지 않는다. 그렇다고 비초기화된 전역변수도 없다.
+스택영역이 아닌 이유로 return address 영역도 없다. 힙을 사용하는 것같지도 않다. 
+그러면 우리는 어디를 공격할 것인가?
+그저 공격지점도 없이 망설이고 앉아만 있을 것인가? 
+
+여기에서 우리는 우리의 프로세스가 생성이 되면서 main()함수가 시작되기 전에 무슨 일이 발생하는가를
+먼저 살펴보자.
+
+이를 위해 glibc 를 분석해 본다.
+/glibc라이브러리/sysdeps/generic/libc-start.c
+이 파일을 유심히 살펴보자.
+
+이중에서 우리는 재미있는 내용을 발견할 수 있다.
+
+---- glibc의 libc-start.c내의 __libc_start_main함수의 일부 내용 -----------
+
+  /* Register the destructor of the dynamic linker if there is any.  */
+  if (__builtin_expect (rtld_fini != NULL, 1))
+    __cxa_atexit ((void (*) (void *)) rtld_fini, NULL, NULL);
+
+  /* Call the initializer of the libc.  This is only needed here if we
+     are compiling for the static library in which case we haven't
+     run the constructors in `_dl_start_user'.  */
+#ifndef SHARED
+  __libc_init_first (argc, argv, __environ);
+#endif
+
+  /* Register the destructor of the program, if any.  */
+  if (fini)
+    __cxa_atexit ((void (*) (void *)) fini, NULL, NULL);
+
+  /* Call the initializer of the program, if any.  */
+#ifdef SHARED
+  if (__builtin_expect (_dl_debug_mask & DL_DEBUG_IMPCALLS, 0))
+    _dl_debug_printf ("\ninitialize program: %s\n\n", argv[0]);
+#endif
+  if (init)
+    (*init) ();
+
+#ifdef SHARED
+  if (__builtin_expect (_dl_debug_mask & DL_DEBUG_IMPCALLS, 0))
+    _dl_debug_printf ("\ntransferring control: %s\n\n", argv[0]);
+#endif
+
+  exit ((*main) (argc, argv, __environ));
+}
+--------------------------------------------------------------------------
+
+위에서 보면 libc-start.c 는 먼저 내부적으로 fini함수의 주소값이 NULL이 아니라면, 
+__cxa_atexit ((void (*) (void *)) fini, NULL, NULL); 를 호출하고 있음을 볼수 있다.
+
+그리고, (*init) (); 호출이 된 후에, 
+(init 섹션을 변경해서 거기에 바이러스 넣어두면 딱이겠다. 꾸울꺽!! 왠 헛소리ㅡㅡ;)
+
+exit ((*main) (argc, argv, __environ)); 이 부분이 호출되어 지고 있다.
+이때 우리의 친숙한 main()함수가 호출이 되는 것이다.
+main()함수에서 설령 exit()을 하지 않았다고 할지라도, libc-start.c 내에 있는 
+(*__libc_start_main)()에서 exit()를 호출하고 있음을 알 수 있다.
+즉, main()함수의 리턴값이 exit()의 인자로 작용하고 있다.
+
+위에서 우리가 주의깊게 보아야 할 부분이 바로 __cxa_atexit 함수의 호출 부분이다.
+
+저 함수는 과연 무엇하는 함수인가? 
+
+먼저 atexit.c 파일을 살펴보자.
+
+----------------------- exit.h ---------------------------------------
+#ifndef	_EXIT_H
+#define _EXIT_H 1
+enum
+{
+  ef_free,	/* `ef_free' MUST be zero!  */
+  ef_us,
+  ef_on,
+  ef_at,
+  ef_cxa
+};
+
+struct exit_function
+  {
+    /* `flavour' should be of type of the `enum' above but since we need
+       this element in an atomic operation we have to use `long int'.  */
+    long int flavor;
+    union
+      {
+	void (*at) (void);
+	struct
+	  {
+	    void (*fn) (int status, void *arg);
+	    void *arg;
+	  } on;
+	struct
+	  {
+	    void (*fn) (void *arg, int status);
+	    void *arg;
+	    void *dso_handle;
+	  } cxa;
+      } func;
+  };
+struct exit_function_list
+  {
+    struct exit_function_list *next;
+    size_t idx;
+    struct exit_function fns[32];
+  };
+extern struct exit_function_list *__exit_funcs;
+extern struct exit_function *__new_exitfn (void);
+#endif	/* exit.h  */
+----------------------------------------------------------------------
+
+--------------------- cxa_atexit.c -----------------------------------
+#include <bits/libc-lock.h>
+#include <stdlib.h>
+#include "exit.h"
+
+/* Register a function to be called by exit or when a shared library
+   is unloaded.  This function is only called from code generated by
+   the C++ compiler.  */
+int
+__cxa_atexit (void (*func) (void *), void *arg, void *d)
+{
+  struct exit_function *new = __new_exitfn ();
+
+  if (new == NULL)
+    return -1;
+
+  new->flavor = ef_cxa;
+  new->func.cxa.fn = (void (*) (void *, int)) func;
+  new->func.cxa.arg = arg;
+  new->func.cxa.dso_handle = d;
+  return 0;
+}
+
+
+/* We change global data, so we need locking.  */
+__libc_lock_define_initialized (static, lock)
+
+
+static struct exit_function_list initial;
+struct exit_function_list *__exit_funcs = &initial;
+
+struct exit_function *
+__new_exitfn (void)
+{
+  struct exit_function_list *l;
+  size_t i = 0;
+
+  __libc_lock_lock (lock);
+
+  for (l = __exit_funcs; l != NULL; l = l->next)
+    {
+      for (i = 0; i < l->idx; ++i)
+	if (l->fns[i].flavor == ef_free)
+	  break;
+      if (i < l->idx)
+	break;
+
+      if (l->idx < sizeof (l->fns) / sizeof (l->fns[0]))
+	{
+	  i = l->idx++;
+	  break;
+	}
+    }
+
+  if (l == NULL)
+    {
+      l = (struct exit_function_list *)
+	malloc (sizeof (struct exit_function_list));
+      if (l != NULL)
+	{
+	  l->next = __exit_funcs;
+	  __exit_funcs = l;
+
+	  l->idx = 1;
+      	  i = 0;
+	}
+    }
+
+  /* Mark entry as used, but we don't know the flavor now.  */
+  if (l != NULL)
+    l->fns[i].flavor = ef_us;
+
+  __libc_lock_unlock (lock);
+
+  return l == NULL ? NULL : &l->fns[i];
+}
+----------------------------------------------------------------------
+
+------------------ atexit.c ------------------------------------------
+#include <stdlib.h>
+#include "exit.h"
+
+/* This is defined by newer gcc version unique for each module.  */
+extern void *__dso_handle __attribute__ ((__weak__));
+
+
+/* Register FUNC to be executed by `exit'.  */
+int
+atexit (void (*func) (void))
+{
+  return __cxa_atexit ((void (*) (void *)) func, NULL,
+		       &__dso_handle == NULL ? NULL : __dso_handle);
+}
+
+/* Hide the symbol so that no definition but the one locally in the
+   executable or DSO is used.  */
+#ifdef HAVE_DOT_HIDDEN
+asm (".hidden\tatexit");
+#endif
+----------------------------------------------------------------------
+
+그렇다. 우리가 atexit으로 사용하고 있는 함수는 실제 __cxa_atexit을 호출하고 있음을 알 수 있다.
+즉, __cxa_atexit ((void (*) (void *)) fini, NULL, NULL); 이 말은 fini함수를 atexit 리스트에
+추가하라는 의미가 되겠다.
+
+__cxa_atexit() 내부에서는 struct exit_function *new = __new_exitfn (); 을 통해 저장 공간을 만들고
+그곳에 우리가 등록하고자 하는 함수의 주소를 기록하고 있음을 볼 수 있다.
+처음으로 fini함수가 등록이 되는 것이라는 것은 이제 쉽게 알 수 있을 것이다.
+여기에서 우리는 한가지 주목해야 할 부분이 있다.
+
+static struct exit_function_list initial;
+struct exit_function_list *__exit_funcs = &initial;
+
+__new_exitfn ()은 위의 __exit_funcs것의 값을 이용하여 그 이후에 저장공간을 마련함을 알 수 있다.
+만일 저장공간이 초기화가 되어있지 않은 상태라면(NULL)이라면, 
+힙공간에 데이터가 생성되고 있음을 알수 있다.
+
+l = (struct exit_function_list *)
+	malloc (sizeof (struct exit_function_list));
+
+자!! 어떤가? 우리는 우리의 프로그램이 설령 malloc()를 전혀 사용하지 않는 프로그램이라 할지라도
+처음에 한번은 malloc()에 의해 데이터 공간이 생성되고 있음을 확인할 수 있다.
+free() bug를 공부해 본 사람이라면, 눈이 번쩍 뜨일 내용이다.
+
+실제로 exit()함수를 살펴보자. free()가 일어나고 있음을 우리는 보지 않고도 상상이 되리라 본다.
+
+----------------------------- exit.c ------------------------------------
+void
+exit (int status)
+{
+  /* We do it this way to handle recursive calls to exit () made by
+     the functions registered with `atexit' and `on_exit'. We call
+     everyone on the list and use the status value in the last
+     exit (). */
+  while (__exit_funcs != NULL)
+    {
+      struct exit_function_list *old;
+
+      while (__exit_funcs->idx > 0)
+	{
+	  const struct exit_function *const f =
+	    &__exit_funcs->fns[--__exit_funcs->idx];
+	  switch (f->flavor)
+	    {
+	    case ef_free:
+	    case ef_us:
+	      break;
+	    case ef_on:
+	      (*f->func.on.fn) (status, f->func.on.arg);
+	      break;
+	    case ef_at:
+	      (*f->func.at) ();
+	      break;
+	    case ef_cxa:
+	      (*f->func.cxa.fn) (f->func.cxa.arg, status);
+	      break;
+	    }
+	}
+
+      old = __exit_funcs;
+      __exit_funcs = __exit_funcs->next;
+      if (__exit_funcs != NULL)
+	/* Don't free the last element in the chain, this is the statically
+	   allocate element.  */
+	free (old);
+    }
+
+#ifdef	HAVE_GNU_LD
+  RUN_HOOK (__libc_atexit, ());
+#else
+  {
+    extern void _cleanup (void);
+    _cleanup ();
+  }
+#endif
+
+  _exit (status);
+}
+----------------------------------------------------------------------
+
+자!! 어떤가 free()가 호출되고 있음을 알 수 있다. 
+      old = __exit_funcs;
+      __exit_funcs = __exit_funcs->next;
+      if (__exit_funcs != NULL)
+	/* Don't free the last element in the chain, this is the statically
+	   allocate element.  */
+	free (old);
+
+여기에서 우리는 __exit_funcs->next 부분에 어떤 특정 값을 넣어놓았다면,
+그곳이 또한 free() 될 것이라는 것도 예상이 될 것이라 본다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 5. 실험
+
+실험환경은 Linux kernel 2.4.2-2 intelx86상에서 수행하였으며, 
+실험에 사용한 glibc 버젼은 glibc-2.2.2-10이다.
+
+우리는 위에서 얻은 지식을 통하여 실험을 통해 알아보도록 하자.
+우리는 위에서 __cxa_atexit() 내부에서 __exit_funcs포인터가 가리키는 어떤 주소공간(initial이라는 변수)에 
+atexit()에 의해 등록이 되는 함수의 포인터가 저장이 되고 있음을 알 수 있다.
+또한, exit()함수는 __exit_funcs의 내용을 근거로해서 atexit에 의해 등록되어졌던 함수들이 순서대로
+실행이 됨을 알았다.
+
+이제 __exit_funcs은 어느 곳에 생겨나며, 우리가 어떻게 제어할 수 있는가에 대해 생각해 볼 필요가 있다.
+
+우리는 아래의 두 라인을 이미 cxa_atexit.c의 내용에서 보았었다.
+
+static struct exit_function_list initial;
+struct exit_function_list *__exit_funcs = &initial;
+이 두개의 변수를 잘 살펴보자. 이 두개의 변수를 이용하여 우리는 실제 공격을 감행할 것이기 때문이다.
+
+####################################################################
+### 5.1 공유라이브러리를 사용하는 경우. 실패를 두려워 하지말자!! ###
+####################################################################
+
+자! 실험을 해보도록 하자.
+첫번째 공유라이브러리를 사용하는 경우를 살펴보겠다.
+
+[mutacker@int static]$ cat > vul.c
+#include <stdio.h>
+int main(int argc, char*argv[]) {
+        static char buf[128];
+        if(argc > 1) strcpy(buf, argv[1]);
+}
+[mutacker@int static]$ gcc -o vul vul.c
+
+[mutacker@int static]$ gdb vul -q
+(gdb) b *(main+3)
+Breakpoint 1 at 0x8048463
+(gdb) r
+Starting program: /home/mutacker/static/vul
+
+Breakpoint 1, 0x08048463 in main ()
+
+(gdb) p &initial
+$1 = (struct exit_function_list *) 0x4014d9e0
+(gdb) p &__exit_funcs
+$2 = (struct exit_function_list **) 0x40149cbc
+(gdb) x  0x40149cbc
+0x40149cbc <__exit_funcs>:      0x4014d9e0
+
+(gdb) x/32  &initial
+0x4014d9e0 <initial>:           0x00000000      0x00000002      0x00000004      0x4000e184
+0x4014d9f0 <initial+16>:        0x00000000      0x00000000      0x00000004      0x080484d0
+0x4014da00 <initial+32>:        0x00000000      0x00000000      0x00000000      0x00000000
+0x4014da10 <initial+48>:        0x00000000      0x00000000      0x00000000      0x00000000
+0x4014da20 <initial+64>:        0x00000000      0x00000000      0x00000000      0x00000000
+0x4014da30 <initial+80>:        0x00000000      0x00000000      0x00000000      0x00000000
+0x4014da40 <initial+96>:        0x00000000      0x00000000      0x00000000      0x00000000
+0x4014da50 <initial+112>:       0x00000000      0x00000000      0x00000000      0x00000000
+(gdb) x/i 0x4000e184
+0x4000e184 <_dl_fini>:  push   %ebp
+(gdb) x/i 0x080484d0
+0x80484d0 <_fini>:      push   %ebp
+
+위의 내용을 기준으로 상황을 정리해 보자.
+현재, initial과 __exit_funcs 두 변수는 모두 공유라이브러리 영역에 해당하는 주소 공간에
+생성되어 있음을 확인할 수 있다.
+penguin문서를 보면 initial은 static 영역에 생성되는 것처럼 설명되어 있으나,
+glibc-2.2.2-10 기준으로 보면, 두 변수 모두 공유라이브러리 영역에 생성됨을 알 수 있다.
+
+즉, 실험을 해보면, static 변수 이후의 어느 부분의 값을 변경하더라도 어떠한 종류의 에러도 
+발생하지 않음을 알 수 있다.
+
+흠.. 그러면 우리는 저 두값을 바꿀 수 있을까? @@;
+아무리 봐도 어려울 것같다. 이대로 무너지는가?
+우리의 마지막 희망이었던 변수들이 우리가 건드릴 수 있는 영역이 아닌 곳에 존재하는 것이다.
+
+############################################################
+### 5.2 -static 옵션을 사용하여 컴파일 하면 어떻게 될까? ###
+############################################################
+
+우리는 5.1에서 공유라이브러리를 사용할 경우 핵심이 되는 두 변수가 공유라이브러리 영역에 생성되어져
+있음을 확인할 수 있었다. 만일 공유라이브러리를 이용하지 않은 경우에는 어떻게 될까?
+우리의 변수들은 아마도 공유영역이 아닌 우리의 프로세스의 변수 영역으로 옮겨올 것이다.
+자! 그러면 어디에 생겨날까? 
+
+우리는 이들 변수들이 생겨나는 위치를 확인하기 위해 프로그램을 약간만 변경하도록 하겠다.
+
+[mutacker@int static]$ cat vul.c
+#include <stdio.h>
+#include <stdlib.h>
+
+char  noninitglob;
+extern struct exit_function_list *__exit_funcs;
+
+int main(int argc, char*argv[]) {
+        static char buf[128];
+        if(argc > 1) strcpy(buf, argv[1]);
+
+        printf("__exit_funcs : %p\n", &__exit_funcs);
+        printf("initial : 0x%x\n", __exit_funcs);
+        printf("noninitglob : %p\n", &noninitglob);
+        printf("static noninit : %p\n", buf);
+}
+
+[mutacker@int static]$ gcc -o vul vul.c -static
+[mutacker@int static]$ ./vul aaaaaaaaaaaaaaaaa
+__exit_funcs : 0x809ce70
+initial : 0x809eea0
+noninitglob : 0x809f8a4
+static noninit : 0x809ee00
+
+자! 이들 변수들의 위치를 살펴보자.
+
+[__exit_funcs] [static noninit] [initial] [noninitglob]
+이런 순이 되겠다.
+
+우리의 희망이 보인다. 
+공유라이브러리를 이용했을 경우에는 실제 우리가 의도하는 목표를 세우기는 힘들다.
+하지만, -static 옵션을 사용하여, 정적라이브러리를 이용할 경우에는 이들 변수들인
+위와 같은 형태의 배치로 생겨남을 알 수 있다.
+
+우리는 비초기화된 전역변수를 이용해서는 atexit()에 의해 생성된 테이블을 변경할 수 
+없지만, 비초기화된 static 변수를 이용해서는 그 값을 변경할 수 있음을 알 수 있다.
+
+이제 실험을 해보도록 하자.
+
+[mutacker@int static]$ ./vul `perl -e 'print "A"x160'`
+[mutacker@int static]$ ./vul `perl -e 'print "A"x161'`
+Segmentation fault (core dumped)
+[mutacker@int static]$
+[mutacker@int static]$ gdb -q vul core
+Core was generated by `./vul AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'.
+Program terminated with signal 11, Segmentation fault.
+#0  0x0804c25f in __libc_free (mem=0x809eda0) at malloc.c:3043
+3043    malloc.c: No such file or directory.
+        in malloc.c
+(gdb) bt
+#0  0x0804c25f in __libc_free (mem=0x809eda0) at malloc.c:3043
+#1  0x00000001 in ?? ()
+#2  0x08048520 in exit (status=134868224) at exit.c:70
+(gdb)
+
+위에서 보면 갑자기 eip()값이 엉뚱한 곳을 향했음을 알 수 있다.
+
+[mutacker@int static]$ ./vul `perl -e 'print "A"x160, "\xff\xff\xff\xff"'`
+Segmentation fault (core dumped)
+[mutacker@int static]$ !gdb
+gdb -q vul core
+Core was generated by `./vul AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'.
+Program terminated with signal 11, Segmentation fault.
+#0  0x0804c25f in __libc_free (mem=0x809eda0) at malloc.c:3043
+3043    malloc.c: No such file or directory.
+        in malloc.c
+(gdb) x/16 &initial
+0x809eda0 <initial>:    0xffffffff      0x00000000      0x00000004      0x0808e260
+0x809edb0 <initial+16>: 0x00000000      0x00000000      0x00000000      0x00000000
+0x809edc0 <initial+32>: 0x00000000      0x00000000      0x00000000      0x00000000
+0x809edd0 <initial+48>: 0x00000000      0x00000000      0x00000000      0x00000000
+
+(gdb) bt
+#0  0x0804c25f in __libc_free (mem=0x809eda0) at malloc.c:3043
+#1  0x00000000 in ?? ()
+(gdb) p __exit_funcs
+$1 = (struct exit_function_list *) 0xffffffff
+
+__exit_funcs함수의 포인터 값이 우리가 넣은 0xffffffff로 설정되어 있음을 확인할 수 있다.
+어떻게 그렇게 되었을까? 
+
+자!! 분석을 시작해보자.  exit() 부분을 보자.
+
+  while (__exit_funcs != NULL)
+    {
+      struct exit_function_list *old;
+
+      while (__exit_funcs->idx > 0)
+	{
+      	  const struct exit_function *const f =
+	    &__exit_funcs->fns[--__exit_funcs->idx];
+	  switch (f->flavor)
+	    {
+	    case ef_free:
+	    case ef_us:
+	      break;
+	    case ef_on:
+	      (*f->func.on.fn) (status, f->func.on.arg);
+	      break;
+	    case ef_at:
+	      (*f->func.at) ();
+	      break;
+	    case ef_cxa:
+	      (*f->func.cxa.fn) (f->func.cxa.arg, status);
+	      break;
+	    }
+	}
+
+      old = __exit_funcs;
+      __exit_funcs = __exit_funcs->next;
+      if (__exit_funcs != NULL)
+	/* Don't free the last element in the chain, this is the statically
+	   allocate element.  */
+	free (old);
+    }
+ 
+
+에러난 부분을 보면 free()를 하는 시점에서 에러가 났음을 알 수 있다.
+즉, free(old); 부분에 old 값이 0xffffffff값을 갖고 있기 때문에 에러가 발생한 것이다.
+
+0x809eda0 <initial>:    0xffffffff      0x00000000      0x00000004      0x0808e260 
+
+위의 내용을 순서대로 살펴보면 
+__exit_funcs은 초기 0x809eda0을 갖는다.
+따라서, __exit_funcs->next = 0xffffffff, __exit_funcs->idx = 0을 갖게된다.
+위의 흐름에 따라 idx값이 0이 되어버렸으므로, while (__exit_funcs->idx > 0) 조건에 만족하지 못하고
+     old = __exit_funcs;
+      __exit_funcs = __exit_funcs->next;
+      if (__exit_funcs != NULL)
+	/* Don't free the last element in the chain, this is the statically
+	   allocate element.  */
+	free (old);
+
+__exit_funcs에 0xffffffff가 저장되고 있음을 알 수 있다.
+그리고, 다시 루프가 돌아 돌아왔을 때, 0xffffffff가 free()가 되려고 하게 되고, 이로 인해 
+오류가 발생할 것으로 예상된다.
+
+우리는 여기에서 exploit을 만드는데 있어서 두가지 방법이 존재할 것으로 예상된다.
+첫번째는 __exit_funcs을 위한 fake frame을 하나 만들어서 풀이하는 방법이다.
+두번째는 free() bug를 이용해 보는 것이다.
+
+이 문서에서는 먼저 첫번째 방법을 이용하여 해보고, 이후에 두번째 방법을 이용하여 해결해 보려한다.
+
+먼저 __exit_funcs을 위한 fake frame을 하나 만들어서 해결하는 방법을 통해 해결해 보도록 하자.
+이를 위해서는 우리는 아래와 같은 설정 필요할 것이다.
+
+(1) __exit_funcs->idx의 값을 0보다 큰 수를 저장
+(2) f->flavor에 ef_at에 해당하는 수를 저장
+(3) f->func.at 부분에 쉘코드 주소를 저장
+
+이를 위해서는 __exit_funcs의 fake frame이 다음과 같은 형태를 취할 것으로 예상된다.
+
+[next를 위한 어떤 값] [0보다 큰수] [flavor를 위해 0x00000003] [shellcode주소] [주소] ...
+
+헌데, 위에서 우리는 문제가 하나 발생했다.
+0x00000003 부분에 우리가 아규먼트로는 넘길수 없는 0x00값이 너무 많이 들어간다는 것이다.
+
+흠!!! 첫번째 방법으로 해결이 어렵다는 것인가?
+여기에서 우리는 주저앉을 필요는 없다.
+
+첫번째 루프에서 안되면 두번째 루프에서 가능하도록 하면 되는 것이다.
+이를 위해 우리는 __exit_funcs = __exit_funcs->next; 이 라인을 이용해 볼 것이다.
+만일 __exit_funcs->next 이 주소에 위에서 설정한 것과 비슷한 형태의 내용이 메모리에 존재한다면 
+그곳의 주소를 __exit_funcs->next에 설정하면 될 것이라는 것이다.
+여기에서 우리는 절대로 \x00을 입력으로 넣을 수 없음에 주의하자!!
+
+자 그러면 먼저 위에서 설정한 형태와 비슷한 곳이 있는가를 먼저 찾아보자!! 없으면 끝장이다.
+
+어딘가에서 저런 형태를 구할수 있을까?
+우리는 main(int argc, char* argv[]) 에서 main의 매개변수가 어떻게 구성되어있을까에 주목해 보자.
+
+[mutacker@int static]$ ./vul AAAAA AAAAA
+argc : 0xbffffcd0
+
+0xbffffcc0  00 00 00 00 40 e9 08 08 08 fd ff bf 82 87 04 08   ....@...........
+                                    ~~~~~~~~~~~~~~~~~~~~~~~
+0xbffffcd0  03 00 00 00 34 fd ff bf 44 fd ff bf 00 00 00 00   ....4...D.......
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0xbffffce0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0xbffffcf0  40 e9 08 08 b4 80 04 08 50 86 04 08 00 00 00 00   @.......P.......
+0xbffffd00  03 00 00 00 00 00 00 00 00 00 00 00 01 81 04 08   ................
+0xbffffd10  50 86 04 08 03 00 00 00 34 fd ff bf b4 80 04 08   P.......4.......
+0xbffffd20  40 e9 08 08 00 00 00 00 2c fd ff bf 00 00 00 00   @.......,.......
+0xbffffd30  03 00 00 00 ec fd ff bf f2 fd ff bf f8 fd ff bf   ................
+0xbffffd40  00 00 00 00 fe fd ff bf 18 fe ff bf 31 fe ff bf   ............1...
+0xbffffd50  44 fe ff bf 5c fe ff bf 7e fe ff bf 8a fe ff bf   D...\...~.......
+0xbffffd60  98 fe ff bf a3 fe ff bf c2 fe ff bf e0 fe ff bf   ................
+0xbffffd70  f5 fe ff bf 15 ff ff bf 20 ff ff bf 31 ff ff bf   ........ ...1...
+0xbffffd80  39 ff ff bf 49 ff ff bf 57 ff ff bf 68 ff ff bf   9...I...W...h...
+0xbffffd90  76 ff ff bf 80 ff ff bf 94 ff ff bf d8 ff ff bf   v...............
+0xbffffda0  e0 ff ff bf 00 00 00 00 10 00 00 00 ff f9 83 03   ................
+0xbffffdb0  06 00 00 00 00 10 00 00 11 00 00 00 64 00 00 00   ............d...
+                                    ~~~~~~~~~~~~~~~~~~~~~~~
+0xbffffdc0  0f 00 00 00 e7 fd ff bf 00 00 00 00 00 00 00 00   ................
+            ~~~~~~~~~~~~~~~~~~~~~~~
+0xbffffdd0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0xbffffde0  00 00 00 00 00 00 00 69 36 38 36 00 2e 2f 76 75   .......i686../vu
+0xbffffdf0  6c 00 41 41 41 41 41 00 41 41 41 41 41 00 50 57   l.AAAAA.AAAAA.PW
+
+프로그램을 약간 변경하여 메모리의 내용을 살펴보았다.
+위의 ~~~ 부분에 주목하라. 어떤가? 정말 굳이다.
+어쩌면 저리도 우리가 원하는 형태와 동일한 형태를 띄어준단 말인가?
+위에서 03 00 00 00 이 부분은 인자의 갯수를 argv[0], argv[1], 순으로 실제 메모리 상의 주소값이
+나오고 있음을 알 수 있다.
+그러면 우리는 argc의 주소에서 -8을 한 위치의 주소를 __exit_funcs->next에 설정하면
+다음 루프에서 __exit_funcs->idx에 0x08048101, f->flavor = 0x00000003, f->func.at에는 argv[0]
+식으로 들어간다.
+
+긴급사태 발생 ㅡㅡ;
+const struct exit_function *const f =
+	    &__exit_funcs->fns[--__exit_funcs->idx];
+
+위에서 __exit_funcs->idx의 값이 현재 너무 크다. 따라서 인덱스 값이 너무 크게 작용하므로, 
+에러가 날 가능성이 보인다. 이전 버젼에서는 flavor가 없었다. ㅡㅡ;
+
+그러면 다시 이와 유사하면서 __exit_funcs->idx값이 작은 영역을 찾아야 한다.
+ㅡㅡ; 없다.. 흠냐~ 정말 없다 ㅡㅡ;
+만일 원문제와 같은 아주 단순한 프로그램이 아니라, 표준입력을 통해 입력을 받아들이는 부분이
+존재한다면, 그 프레임을 꾸미고, 그곳으로 next포인터를 돌림으로써 적용이 가능하리라 생각된다.
+이 부분에 대해 이후에 별도로 실험을 해보도록 하겠다.
+
+만일 위의 문제가 다음과 같은 형태라면 문제는 쉽게 해결이 가능할 것이다.
+
+<-- copy from here 
+#include <stdio.h>
+
+int main(int argc,char *argv[])
+{
+    static char buf[128];
+    fgets(buf, 500, stdin);
+  
+}
+-- to here -->
+
+위와 같은 형태라면, 표준입력을 통하여 \x00에 해당하는 값을 입력을 받을 수 있기 때문에, 
+쉽게 프레임을 만들어버릴 수 있다. 이를 통해 쉽게 exploit의 제작이 가능하다.
+만일 next까지만 오버가 가능하다할지라도, 이 또한 static 변수에 프레임을 구성하고 
+static 변수의 주소를 next값으로 설정하면 되는 것이기 때문에 그리 어려운 문제가 되지 않는다.
+
+이제 남은 건 free()버그를 이용하는 방법만이 남아있다.
+이 부분은 이 문서의 다음 버젼에서 시도하도록 하겠다.
+너무 피곤해서리 ㅡㅡ;
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 6. 결론
+
+아규먼트나 환경변수와 같은 0값을 전달할 수 없는 상황에서의 static char buffer overflow에 관련된 
+사항을 실험을 통해 알아보았다. 아직, free()버그 기법을 적용해보지는 못했으며, 이에 대해서는
+본 문서를 수정해가면서 검토하도록 할 것이다.
+
+기존에 제작되었던 Pascal의 문서가 glibc버젼이 올라가면서 실제 적용이 어려움을 알아보았다.
+현재, free()기법을 적용하지 못했지만, 실제 적용했을 때 충분히 exploit이 가능할 것으로 보인다.
+
+본 문서에서는 static char buffer overflow에 관련된 사항을 알아보면서, 
+atexit()함수에 의해 생성되는 __exit_funcs의 생성 및 사용, 구조에 대해 알아보고, 어떻게
+exploit이 가능하겠는가에 대한 구조에 대해 알아보았다.
+즉, 본 문서를 통해 실제 exploit에 대한 제작 기법은 소개하지 못함을 죄송하게 생각한다.
+근 시일내에 새로 수정된 버젼을 기대해 본다.
+
+때로는 실패도 성공의 어머니랬다. ^^;
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 7. 참고 문헌： 
+
+  [1]. w00w00 on Heap Overflows
+       By: Matt Conover (a.k.a. Shok) & w00w00 Security Team
+
+  [2]. __atexit in memory bugs
+       By Pascal Bouchareine <pb@hert.org>
+

@@ -1,0 +1,428 @@
+<html>
+<span style="font-size:11pt;">
+#wiseguyz 버퍼의 시작: Thu Sep 07 23:54:15 2006
+<br>&lt;sjh21a&gt; 강의 시작해용 ㄷㄷㄷ
+<br>&lt;@mongii&gt; 오케이
+<br>&lt;mephist&gt; Start~
+<br>&lt;naskazi&gt; 스타트
+<br>&lt;naskazi&gt; ㅋㅋ
+<br>&lt;@mongii&gt; 넷미팅 들어갑시다 ㅎㅎ
+<br>&lt;@mongii&gt; 리얼 ip이신 분 불러주세요
+<br>&lt;mephist&gt; 앗.. 넷미팅 프로그램 있어야 해요?
+<br>&lt;@mongii&gt; 넷미팅은 따로 안깔으셔도 c:\program files\netmeeting에 설치되어 있을꺼에요
+<br>&lt;@mongii&gt; conf.exe 실행시키면 됩니다
+<br>&lt;mephist&gt; 아... 그럼.. 제가 vdsl 이니.. 220.117.160.85
+<br>&lt;@mongii&gt; 오케이
+<br>&lt;@mongii&gt; 20.117.160.85 로 들어오세요
+<br>&lt;mephist&gt; 아.. 근데.. 시스템 사양이 좀 딸리겠당.. ㅎㅎ  그래도~~ 고고~
+<br>&lt;@mongii&gt; 해상도 안맞아서 제 화면이 너무 크게 보이는 분 없죠
+<br>&lt;sjh21a&gt; 네~ 적당하게 보여용~
+<br>&lt;@mongii&gt; 그럼 이제 시작합니다
+<br>&lt;@mongii&gt; ㅇㅋ?
+<br>&lt;mephist&gt; 고~
+<br>&lt;@mongii&gt; 네
+<br>&lt;@mongii&gt; 이번 학습 주제는 "프로세스 침투 기술과 API 함수 후킹" 이고요.
+<br>&lt;@mongii&gt; 강의 순서는 다음과 같이 되겠습니다
+<br>&lt;@mongii&gt; 1. 타 프로세스의 메모리 값 수정하기
+<br>&lt;@mongii&gt; 2. 타 프로세스에 실행 코드 주입하기
+<br>&lt;@mongii&gt; 3. 타 프로세스로 주입된 코드 실행하기
+<br>&lt;@mongii&gt; 4. Windows API 후킹 복습
+<br>&lt;@mongii&gt; 5. 타 프로세스의 send 함수 후킹 실습
+<br>&lt;@mongii&gt; 도중에 이해 안가는 부분 있으면 그냥 넘어가지 마시고 꼭 질문 하시고요
+<br>&lt;sjh21a&gt; 네
+<br>&lt;@mongii&gt; 그럼 이제부터 프로세스 침투 기술에 대해 설명하겠습니다.
+<br>&lt;@mongii&gt; 여기서 문제!
+<br>&lt;@mongii&gt; 윈도우즈에선 한 프로세스가 다른 프로세스의 메모리 영역에 접근할 수 있다? 없다?
+<br>&lt;@mongii&gt; 벌레님에게 문제 내겠습니다 ㅋ
+<br>&lt;w0rm9&gt; 헉.
+<br>&lt;w0rm9&gt; 있다.
+<br>&lt;@mongii&gt; 다른 분들 생각은요?
+<br>&lt;sjh21a&gt; 없다에 한표요!
+<br>&lt;@mongii&gt; 또?
+<br>&lt;mephist&gt; 저도 없다에 한표
+<br>&lt;@mongii&gt; 나슥은?
+<br>&lt;naskazi&gt; no
+<br>&lt;@mongii&gt; ㅎㅎㅎ
+<br>&lt;naskazi&gt; 타자치기
+<br>&lt;naskazi&gt; ㅎㄷㅅ
+<br>&lt;naskazi&gt; 자음으로만할래욬ㅋ
+<br>&lt;@mongii&gt; ㅎㅎㅎ
+<br>&lt;@mongii&gt; 윈도우즈는 보호 시스템(가상메모리) 체계로 작동하기 때문에
+<br>&lt;@mongii&gt; 한 프로세스가 다른 프로세스로의 침범으로부터 안전하다고 알고 있습니다.
+<br>&lt;@mongii&gt; 하지만 사실 윈도우즈는 한 프로세스가 다른 프로세스의 메모리에 
+<br>&lt;@mongii&gt; 마음대로 접근하고 수정/삭제할 수 있도록 도와주는 기능들을 제공합니다.
+<br>&lt;@mongii&gt; 간단한 테스트를 한번 해볼께요
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_1.jpg>
+<br>
+<br>&lt;@mongii&gt; 이처럼
+<br>&lt;@mongii&gt; 프로세스 A라는 이름의 프로그램을 만들었는데요
+<br>&lt;@mongii&gt; 단순히 문자열 변수에 I Love Dog! 이라는 값을 담고 있다가 출력하는 프로그램입니다.
+<br>&lt;@mongii&gt; 실행해볼께요
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_2.jpg>
+<br>
+<br>&lt;@mongii&gt; 자 그럼 이제
+<br>&lt;@mongii&gt; 별도의 프로세스인 프로세스 B라는 프로그램을 만들어서
+<br>&lt;@mongii&gt; 위 프로세스 A의 "I Love Dog!"이란 문자열을 "I Love Cat!" 이라고 바꿔보겠슴다
+<br>&lt;@mongii&gt; 즉, 프로세스 B를 이용하여 프로세스 A의 메모리 값을 바꾸어
+볼 것입니다.
+<br>&lt;@mongii&gt; 타 프로세스의 메모리 값을 바꾸고 싶다면
+<br>&lt;@mongii&gt; WriteProcessMemory()라는 API 함수를 사용하면 됩니다
+<br>&lt;mephist&gt; 허거겅..  저런걸 제공하다뉘
+<br>&lt;@mongii&gt; ㅎㅎ
+<br>&lt;sjh21a&gt; 와..
+<br>&lt;@mongii&gt; 이 함수를 사용하려면 먼저 해당 메모리 영역의 접근 핸들을 생성해야합니다.
+<br>&lt;@mongii&gt; 그런데 특정 프로세스 메모리 영역의 접근 핸들을 생성하기 위해선
+<br>&lt;@mongii&gt; 그 프로세스의 PID를 먼저 알고 있어야 하는데요. 
+<br>&lt;@mongii&gt; 여기선 간단하게 FindWindow 함수를 이용해서 프로세스 A의 PID를 얻어와 보겠습니다.
+<br>&lt;@mongii&gt; Process A를 실행시키면 메시지 박스가 하나 뜨는데
+<br>&lt;@mongii&gt; FindWindow 함수로 그 메시지 박스의 윈도우 핸들을 찾아서 PID로
+<br>&lt;@mongii&gt; 변환시킬 수 있습니다.
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_3.jpg>
+<br>
+<br>&lt;@mongii&gt; 여기 보이는 이 Help Box라는 윈도우 타이틀로 검색을 하겠습니다
+<br>&lt;mephist&gt; 헙... 지금 Help Box 가 어떻게 뜬거에요?
+<br>&lt;mephist&gt; 원래 I Love Dog !! 가 나오지 않았나요?
+<br>&lt;@mongii&gt; I Love Dog은 저 박스 클릭하면 그 다음에 나와요 ㅎㅎ (소스
+참고)
+<br>&lt;@mongii&gt; 저 박스가 먼저 뜨게 한 이유는 조금 있다가 설명할께요
+<br>&lt;mephist&gt; 네
+<br>&lt;@mongii&gt; FindWindow 함수에 대해서 설명하자면
+<br>&lt;@mongii&gt; 현재 화면에 띄워진 모든 윈도우들 중 지정된 특정 윈도우의 핸들을 
+<br>&lt;@mongii&gt; 찾아서 얻어오는 함수고요
+<br>&lt;@mongii&gt; 인자가 두 개가 사용되는데
+<br>&lt;@mongii&gt; 첫째 인자는 "윈도우 클래스명"으로 검색
+<br>&lt;@mongii&gt; 둘째 인자는 "윈도우 타이틀명"으로 검색입니다
+<br>&lt;@mongii&gt; 여기선 둘째 인자를 사용해서 Help Box라는 타이틀명을 찾아
+<br>&lt;@mongii&gt; 그 메시지 박스의 윈도우 핸들을 찾아줍니다.
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_4.jpg>
+<br>
+<br>&lt;@mongii&gt; Process B의 소스 코드는 이와 같고요. 실행해 보겠습니다.
+<br>&lt;sjh21a&gt; 네
+<br>&lt;mephist&gt; ㅎㅎ
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_5.jpg>
+<br>
+<br>&lt;@mongii&gt; 잘 찾았죠?
+<br>&lt;w0rm9&gt; 네.
+<br>&lt;sjh21a&gt; 넵
+<br>&lt;@mongii&gt; 자 이제 이 찾아온 윈도우 핸들을 PID로 변환해 보겠습니다.
+<br>&lt;@mongii&gt; GetWindowThreadProcessId() API를 이용하면 특정 윈도우 핸들을
+<br>&lt;@mongii&gt; 생성한 프로세스의 PID를 얻어올 수 있습니다.
+<br>&lt;@mongii&gt; 그럼 소스 코드를 수정해서 PID를 출력해 보겠습니다.
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_6.jpg>
+<br>
+<br>&lt;@mongii&gt; 일단 제대로 PID를 얻어오는지 확인해 봅시다.
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_7.jpg>
+<br>
+<br>&lt;sjh21a&gt; 오..ㅎㅎ
+<br>&lt;mephist&gt; 브라보~
+<br>&lt;@mongii&gt; 2076이 떴죠
+<br>&lt;@mongii&gt; 작업관리창으로 맞는지 확인해봅시다
+<br>&lt;w0rm9&gt; 맞다.
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_8.jpg>
+<br>
+<br>&lt;@mongii&gt; 2076이 맞죠?
+<br>&lt;sjh21a&gt; 네~
+<br>&lt;@mongii&gt; 자, 이제 PID를 얻었으니 WriteProcessMemory를 사용해서 
+<br>&lt;@mongii&gt; 타 프로세스의 메모리 값을 수정할 수 있는데요
+<br>&lt;@mongii&gt; 한가지 주의할 점은
+<br>&lt;@mongii&gt; 우리가 어떤 파일에 값을 쓰고자 할 때
+<br>&lt;@mongii&gt; 먼저 그 파일을 fopen() 해서 접근 포인터를 얻잖아요?
+<br>&lt;w0rm9&gt; 네.
+<br>&lt;mephist&gt; 네
+<br>&lt;@mongii&gt; 메모리 역시 Write 하기 전에 먼저 접근 포인터를 얻어와야합니다
+<br>&lt;@mongii&gt; 그 역할을 하는 함수는 OpenProcess 입니다
+<br>&lt;@mongii&gt; 이 함수에는 3개의 인자가 사용되고요
+<br>&lt;@mongii&gt; 첫 번째는 어떤 권한으로 열지 (읽기 전용? 쓰기 전용? 혹은 둘 다?)
+<br>&lt;@mongii&gt; 두 번째는 얻어온 접근 포인터를 자식 프로세스에게 물려줄지
+<br>&lt;@mongii&gt; 그리고 마지막 세 번째 인자는 Open 할 프로세스의 PID입니다
+<br>&lt;@mongii&gt; 일단 첫 번째 인자는 모든 권한인 PROCESS_ALL_ACCESS을 전달해줬고요
+<br>&lt;@mongii&gt; 두 번째 인자는.. 물려줄 필요 없으므로 FALSE
+<br>&lt;@mongii&gt; 그리고 마지막 인자로 아까 얻어온 PID를 전달해 줍니다.
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_9.jpg>
+<br>
+<br>&lt;@mongii&gt; 자 그럼 이제
+<br>&lt;@mongii&gt; 접근 포인터도 얻었겠다
+<br>&lt;@mongii&gt; WriteProcessMemory로 값을 수정해 봅시다
+<br>&lt;@mongii&gt; 그런데,
+<br>&lt;@mongii&gt; 수정할 부분의 메모리 주소를 먼저 알아야겠죠?
+<br>&lt;@mongii&gt; 우리는 변수의 값을 수정할거니까
+<br>&lt;@mongii&gt; 변수의 주소를 알아야됨다
+<br>&lt;@mongii&gt; 정석대로 하자면 디버깅을 통해서 얻어와야 하는데요
+<br>&lt;@mongii&gt; 그것까지 다하면 시간이 걸리니까
+<br>&lt;@mongii&gt; 디버깅 과정을 생략하기 위해서
+<br>&lt;@mongii&gt; 바로 변수 값을 출력하도록 아까전에 help box를 띄웠던 것입니다.
+<br>&lt;mephist&gt; 아.. 오키오키.
+<br>&lt;@mongii&gt; 그럼 출력된 변수 값을 확인해 봅시다.
+<br>
+<br><IMG SRC=http://research.hackerschool.org/bbs/data/images/process_10.jpg>
+<br>
+<br>&lt;@mongii&gt; 0x12ff24네요
+<br>&lt;@mongii&gt; 자 그럼 이 메모리 값을
+<br>&lt;@mongii&gt; I Love Dog!에서 I Love Cat!으로 수정하겠심다
+<br>&lt;@mongii&gt; 거거
+<br>&lt;sjh21a&gt; ㄱㄱ~
+<br>
+<br><IMG SRC=http://research.hackerschool.org/bbs/data/images/process_11.jpg>
+<br>
+<br>&lt;@mongii&gt; WriteProcessMemory(hProcess, (void *)0x12ff24, "I Love Cat!", 12, &nByte);
+<br>&lt;@mongii&gt; 총 다섯개의 인자가 사용되었죠
+<br>&lt;@mongii&gt; 1. 접근 핸들 (포인터)
+<br>&lt;@mongii&gt; 2. 수정할 메모리 주소
+<br>&lt;@mongii&gt; 3. 수정할 값
+<br>&lt;@mongii&gt; 4. 그 값의 길이
+<br>&lt;@mongii&gt; 5. 성공적으로 수정한 값의 길이
+<br>&lt;@mongii&gt; 이해 안된 부분?
+<br>&lt;w0rm9&gt; 5번요.
+<br>&lt;@mongii&gt; 아
+<br>&lt;sjh21a&gt; 저도요
+<br>&lt;@mongii&gt; 이게
+<br>&lt;@mongii&gt; 이런 경우가 있어요
+<br>&lt;@mongii&gt; 우리가 수정하고자하는 데이터의 크기가 10000바이트라고 했을 때
+<br>&lt;@mongii&gt; 실제로는 5000바이트만 성공적으로 적용되고 남은 5000바이트는 실패하는 경우가 있거든요
+<br>&lt;@mongii&gt; 예를 들어 데이터 영역을 지나 코드 영역으로 침범해 버렸을 경우를 생각할 수 있죠
+<br>&lt;@mongii&gt; 그럼 5000바이트는 성공하고 5000바이트는 실패할 것이고, 5번째 인자의 값은 5000이 되겠죠. 
+<br>&lt;@mongii&gt; 분명 10000바이트 넣었는데 저 nByte 값이 5000밖에 없다면
+문제가 있다는걸 알 수 있겠죠.
+<br>&lt;mephist&gt; 넵.. 오케.. 고고~
+<br>&lt;@mongii&gt; 넵 그럼 실행해 보겠습니다
+<br>
+<br><IMG SRC=http://research.hackerschool.org/bbs/data/images/process_12.jpg>
+<br>
+<br>&lt;@mongii&gt; 메모리 수정 완료까지 떴습니다
+<br>&lt;@mongii&gt; 그럼 Process_A에 뜬 박스의 확인 버튼을 눌러서
+<br>&lt;@mongii&gt; szMessage 변수 값이 출력됐을 때
+<br>&lt;@mongii&gt; 그 값이 바뀌었는지 봅시다
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_13.jpg>
+<br>
+<br>&lt;mephist&gt; 오호라~
+<br>&lt;sjh21a&gt; 오 성공이네요
+<br>&lt;w0rm9&gt; 와, 굳!
+<br>&lt;@mongii&gt; ㅎㅎ
+<br>&lt;@mongii&gt; 원래는 I Love Dog이라고 떠야하는데 프로세스 B가 수정을 가해서 I Love Cat으로 바꿔버렸습니다
+<br>&lt;@mongii&gt; 이렇게 보시다시피
+<br>&lt;@mongii&gt; 윈도우즈에서 한 프로세스가 다른 프로세스의 메모리 값을 조작하는 것은 매우 쉽습니다
+<br>&lt;@mongii&gt; 물론 기본적으로 권한이 허락한다는 전제 하에서요
+<br>&lt;@mongii&gt; 일반 사용자가 Administrator의 프로세스를 막 수정할 순 없겠죠 
+<br>&lt;@mongii&gt; ㅇㅋ?
+<br>&lt;sjh21a&gt; 네~
+<br>&lt;w0rm9&gt; 넵
+<br>&lt;sjh21a&gt; 네엥.
+<br>&lt;mephist&gt; 리눅에서도 이런 비슷한 것이 있을까?
+<br>&lt;sjh21a&gt; 근데 디버깅 할 때는 디버깅 관련 API 를 써서 하나요?
+<br>&lt;sjh21a&gt; 리눅스에선 LD_PRELOAD 로 밖에 안해봤어용 
+<br>&lt;mephist&gt; 리눅에서도 가능하면.. 문자열로 명령어 받아서 system 함수나 exec 로 넘기는 부분 있으면..
+<br>&lt;mephist&gt; 그 문자열 고치면...  먼가 가능하지 않을까?
+<br>&lt;@mongii&gt; 응 디버깅 할 때도 관련 API가 다 준비되어 있어
+<br>&lt;sjh21a&gt; 아 그렇구나
+<br>&lt;@mongii&gt; 자 계속 진행합시다
+<br>&lt;@mongii&gt; 그럼 이제
+<br>&lt;mephist&gt; 멍님... 나중에 예제로 만드신 파일도 올려주세요.. 복습 하게요.
+<br>&lt;@mongii&gt; 옙
+<br>&lt;@mongii&gt; 이번엔 특정 쉘코드를 프로세스A로 주입한 다음
+<br>&lt;@mongii&gt; 그것을 실행해 보도록 하겠습니다
+<br>&lt;@mongii&gt; cmd.exe를 실행하는 쉘코드를 만들어 주입해 보겠습니다
+<br>&lt;@mongii&gt; API 코드로는 WinExec("cmd.exe", SW_SHOW); 가 됩니다
+<br>&lt;sjh21a&gt; 네
+<br>&lt;@mongii&gt; 위 코드를 어셈으로 코딩한 후 기계어로 만들겠습니다.
+<br>&lt;@mongii&gt; 먼저 WinExec 함수의 주소를 알아야겠죠
+<br>&lt;naskazi&gt; 아.. 계속 옆집에서 맛난 냄새 나요 ㅠ_ㅠ\
+<br>&lt;naskazi&gt; 제육볶음이라도 하나
+<br>&lt;@mongii&gt; 다음과 같은 방법으로 찾아보도록 하겠습니다.
+<br>
+<br><IMG
+SRC=http://research.hackerschool.org/bbs/data/images/1158217640/process_14.jpg>
+<br>
+<br>&lt;@mongii&gt; WinExec 함수는 kernel32.dll에 있고요
+<br>&lt;@mongii&gt; kernel32.dll의 Image Base에 WinExec의 RVA를 더하면 
+<br>&lt;@mongii&gt; WinExec 함수의 주소가 됩니다.
+<br>&lt;@mongii&gt; 0x7C800000 + 0x0006136D = 0x7C86136D네요
+<br>&lt;@mongii&gt; 함수의 인자를 전달해야죠
+<br>&lt;@mongii&gt; 매크로인 SW_SHOW는 실제 정수로 3이고요
+<br>&lt;@mongii&gt; cmd.exe 값을 스택에 만들고 그 주소를 인자로 넣겠습니다
+<br>
+<br><IMG
+SRC=http://research.hackerschool.org/bbs/data/images/1158217697/process_15.jpg>
+<br>
+<br>&lt;@mongii&gt; 이 코드는 WinExec("cmd", 3); 을 어셈으로 표현한 것입니다
+<br>&lt;@mongii&gt; 스택 뒷정리를 해주지 않아서 오류가 뜨는데 일단은 그냥 무시하겠습니다
+<br>&lt;@mongii&gt; 이제 이 어셈 코드를 기계어로 뽑아오겠습니다
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_16.jpg>
+<br>
+<br>&lt;@mongii&gt; \x55\x8b\xec\x33\xff\x57\xc6\x45\xfc\x63\xc6\x45\xfd\x6d\xc6\x45\xfe\x64\x57\x
+<br>  c6\x45\xf8\x03\x8d\x45\xfc\x50\xb7\x6d\x13\x86\x7C\xff\xd0
+<br>&lt;@mongii&gt; 요렇게 되게씸다
+<br>&lt;@mongii&gt; 틀린 부분 없었죠?
+<br>&lt;@mongii&gt; 그럼 이제
+<br>&lt;@mongii&gt; 프로세스B에서 A로 위 쉘코드를 집어넣겠습니다
+<br>&lt;@mongii&gt; 근디 어느 주소에 넣으면 좋을가요?
+<br>&lt;sjh21a&gt; 음..메시지박스 함수로 ㅎㅎ
+<br>&lt;@mongii&gt; 그것도 좋고..
+<br>&lt;@mongii&gt; 저는
+<br>&lt;@mongii&gt; 메모리 영역 중 0으로 가득차 있는 부분을 빈 영역으로 간주하고
+<br>&lt;@mongii&gt; 그 곳에 코드를 넣도록 하겠습니다
+<br>&lt;@mongii&gt; 이 방법 외에도 새로 타 프로세스의 새로운 메모리 영역을 할당받는 방법이
+<br>&lt;@mongii&gt; 있는데요. 이 부분에 대해선 있다가 설명하도록 하겠습니다.  
+<br>&lt;sjh21a&gt; 네엥
+<br>
+<br><IMG SRC=http://research.hackerschool.org/bbs/data/images/process_17.jpg>
+<br>
+<br>&lt;@mongii&gt; 지금 작성한 코드는
+<br>&lt;@mongii&gt; 메모리의 0x00000000에서부터
+<br>&lt;@mongii&gt; 0xfffffff까지 검색하믄서
+<br>&lt;@mongii&gt; 쉘코드의 크기만큼만 0으로 가득찬 부분을 찾슴다
+<br>&lt;@mongii&gt; 찾으면 break하고 주소 출력
+<br>&lt;@mongii&gt; 실행해보겟슴다
+<br>&lt;sjh21a&gt; 네~
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_18.jpg>
+<br>
+<br>&lt;@mongii&gt; 0x00010d0f 가 0으로 가득차 있군요
+<br>&lt;@mongii&gt; 여기에 쉘코드를 올리겠슴다
+<br>&lt;@mongii&gt; 거거
+<br>&lt;sjh21a&gt; 오 ㅎㅎ ㄱㄱㄱ
+<br>
+<br><img src=http://research.hackerschool.org/bbs/data/images/process_19.jpg>
+<br>
+<br>&lt;@mongii&gt; 오키 올렸고..
+<br>&lt;@mongii&gt; 이제
+<br>&lt;@mongii&gt; 프로세스 a의 실행 흐름이 위 0x00010d0f로 가게 하믄 되겠죠?
+<br>&lt;@mongii&gt; 이 방법도 황당하게시리 단순한데요
+<br>&lt;@mongii&gt; 특정 프로세스의 레지스터 값을 변경할 수 있는 함수들이 또 제공되고 있습니다
+<br>&lt;@mongii&gt; 단, 이 함수들을 사용하려면 Windows Flatform SDK를 추가로 설치해야 합니다.
+<br>
+<br>* http://www.microsoft.com/downloads/details.aspx?FamilyID=a55b6b43-e24f-4ea3-a93e-40c0ec4f68e5&DisplayLang=en
+<br>
+<br>&lt;@mongii&gt; 레지스터 값들 중 eip를 수정하면 흐름이 변경되겠죠?
+<br>&lt;@mongii&gt; 이는 GetThreadContext()와 SetThreadContext() 함수로 할 수 있습니다
+<br>&lt;@mongii&gt; 아까 메모리 수정 때와 마찬가지로
+<br>&lt;@mongii&gt; 레지스터를 수정하려면 먼저 스레드의 핸들을 얻어와야해요
+<br>&lt;@mongii&gt; OpenThread() 함수로 핸들을 얻어옵니다.
+<br>&lt;@mongii&gt; 해봅시다 고고
+<br>
+<br><IMG SRC=http://research.hackerschool.org/bbs/data/images/process_20.jpg>
+<br>
+<br>&lt;@mongii&gt; 음 하나의 프로세스 내에는
+<br>&lt;@mongii&gt; 최소 1개 이상의 스레드가 돌아가죠
+<br>&lt;@mongii&gt; 그리고 그 스레드들은 프로세스들이 PID를 갖는 것과 마찬가지로
+<br>&lt;@mongii&gt; TID라는 것을 갖습니다
+<br>&lt;@mongii&gt; 각 스레드의 고유 ID죠
+<br>&lt;@mongii&gt; OpenThread 함수에는 이 값이 필요함다
+<br>&lt;@mongii&gt; TID는.. 고맙게도 아까 우리가 이미 사용한 
+<br>&lt;@mongii&gt; GetWindowThreadProcessId가 리턴해 줍니다. 
+<br>&lt;mephist&gt; ㅎㅎ
+<br>&lt;@mongii&gt; 코드를 보면, Thread의 ID를 가져온 후 그 값을 이용하여
+스레드의 핸들을 Open하는 부분이 추가되었습니다.
+<br>&lt;@mongii&gt; 이제 기존의 레지스터 값들을 가져온 후
+<br>&lt;@mongii&gt; EIP만 살짝 바궈서 다시 재입력 하겠습니다
+<br>&lt;@mongii&gt; 고고
+<br>&lt;sjh21a&gt; ㄱㄱ
+<br>&lt;@mongii&gt; 레지스터 값들을 가져올 때는
+<br>&lt;@mongii&gt; 어떤 어떤 레지스터 값을 가져올지 선택하는 것이 가능한데
+<br>&lt;@mongii&gt; 여기선
+<br>&lt;@mongii&gt; CONTEXT_ALL
+<br>&lt;@mongii&gt; 즉 모든 레지스터를 가져오도록 했습니다
+<br>&lt;@mongii&gt; 일단
+<br>&lt;@mongii&gt; eip를 cccccccc로 바꿔서 적용되는지 확인해봅시다
+<br>&lt;@mongii&gt; 고고
+<br>&lt;sjh21a&gt; 어 바꼈다
+<br>&lt;w0rm9&gt; 오.
+<br>&lt;@mongii&gt; 잘 바뀌었죠?
+<br>&lt;@mongii&gt; 그럼 이제
+<br>&lt;@mongii&gt; eip를
+<br>&lt;@mongii&gt; 우리 쉘코드가 올라간 아까 그 주소로 바꿔보겠습니다
+<br>&lt;@mongii&gt; 0x00010d0f 이었죠
+<br>&lt;@mongii&gt; TargetAddress라는 변수에 이 주소를 담아두었었습니다
+<br>&lt;@mongii&gt; 고고
+<br>&lt;@mongii&gt; 두구두구 과연 쉘이 뜰 것인가
+<br>&lt;@mongii&gt; 헛.. 실패네요. 
+<br>&lt;@mongii&gt; 기계어 이은 것에 삑사리난듯.. ㅎㅎ
+<br>&lt;@mongii&gt; 확인해봅시다
+<br>&lt;naskazi&gt; 삗가라링
+<br>&lt;w0rm9&gt; b8 부분이요.
+<br>&lt;@mongii&gt; 오키 ㅎㅎ b8 부분에 오타가 있었네요.
+<br>&lt;sjh21a&gt; 어머~
+<br>&lt;w0rm9&gt; 와.
+<br>
+<br><IMG SRC=http://research.hackerschool.org/bbs/data/images/process_21.jpg>
+<br>
+<br>&lt;@mongii&gt; ㅎㅎㅎ 잘 떴네요
+<br>&lt;@mongii&gt; 스택 뒷정리만 잘 해주면 오류도 뜨지 않게 할 수 있겠죠
+<br>&lt;sjh21a&gt; 음 지금 프로세스A의 EIP 를 변경 한거죠?
+<br>&lt;@mongii&gt; 응
+<br>&lt;@mongii&gt; 자 여기까지 질문 있으신분~
+<br>&lt;@mongii&gt; 지금까지 프로세스 B에서 프로세스 A의 메모리 값을 수정하고
+<br>&lt;@mongii&gt; 기계어 코드를 올려놓고
+<br>&lt;@mongii&gt; 그 것을 실행하는 학습을 해보았습니다
+<br>&lt;@mongii&gt; 그럼 여기서 문제
+<br>&lt;@mongii&gt; ㅎㅎ
+<br>&lt;@mongii&gt; 우린 지금
+<br>&lt;@mongii&gt; WinExec()와 같은 짧은 코드를 기계어로 만들어서 넣었는데요
+<br>&lt;@mongii&gt; 만약
+<br>&lt;@mongii&gt; 후킹을 한다던지하는 긴~ 코드를 프로세스 a로 쉽게 넣는 방법이 뭐가 있을까요?
+<br>&lt;sjh21a&gt; 음 아예 함수주소를 바꿔버리는건 어때요 ㅋㅋ
+<br>&lt;sjh21a&gt; 아 안되나 그건 ㄷㄷ
+<br>&lt;@mongii&gt; 한 가지 좋은 방법은 ㅎㅎ
+<br>&lt;@mongii&gt; 내가 타 프로세스에서 작동시키고자하는 코드를 DLL로 먼저 작성하고
+<br>&lt;@mongii&gt; 프로세스 A가 그 DLL을 Loading 하도록 하는 것입니다
+<br>&lt;@mongii&gt; 그럼 아무리 긴 코드라도 프로세스 침투에 필요한건 "DLL을 Loading 하는 코드" 만 있으면 되겠죠
+<br>&lt;@mongii&gt; 여기서 Loading하는 코드란,
+<br>&lt;@mongii&gt; LoadLibrary("xxx.dll"); 을 말합니다
+<br>&lt;@mongii&gt; 이 한줄의 코드만 있으면
+<br>&lt;@mongii&gt; 특정 dll을 로딩시킴으로써 어떤 긴 코드라도 쉽게 적재시킬 수 있게 됩니다
+<br>&lt;@mongii&gt; ㅇㅋ?
+<br>&lt;muzen&gt; 네 ㅎ
+<br>&lt;sjh21a&gt; 음 dll 을 P_A 에 적재 시키면
+<br>&lt;@mongii&gt; ㅇㅇ
+<br>&lt;sjh21a&gt; P_A 에서 그 dll 에 있는 함수들을 사용하면 되는거에요?
+<br>&lt;sjh21a&gt; 아니면, 후킹 당할 함수 이름이랑 똑같게 만들어야 하나요?
+<br>&lt;@mongii&gt; dll에 있는 함수를 따로 불러서 사용하는건 아니고
+<br>&lt;@mongii&gt; 이걸 알아야해
+<br>&lt;@mongii&gt; dll을 만들 때는 이런 기능이 있거든
+<br>&lt;@mongii&gt; "이 dll이 로딩되자마자 실행될 작업"을 정할 수 있어
+<br>&lt;@mongii&gt; 그 부분에 우리가 원하는 코드를 코딩해 넣으면
+<br>&lt;@mongii&gt; LoadLibray()에 의해 그 dll이 로딩되자마자
+<br>&lt;@mongii&gt; 그 부분의 코드가 자동!으로 실행돼
+<br>&lt;sjh21a&gt; 아, 그렇구나
+<br>&lt;@mongii&gt; 자, 그럼 이제 마지막으로
+<br>&lt;@mongii&gt; 음 이거 생각보다 오래 걸릴 거 같은데요
+<br>&lt;@mongii&gt; 타 프로세스의 send 함수를 후킹하는 예제는 다음 시간에 할까요?
+<br>&lt;@mongii&gt; 이것만 또 한 30~40분 걸릴 거 같네요
+<br>&lt;@mongii&gt; 어떠세요?
+<br>&lt;sjh21a&gt; 다음 시간에 하는 게 어때요? ㄷㄷㄷ
+<br>&lt;muzen&gt; 예습해올께여
+<br>&lt;@mongii&gt; ㅎㅎ 오케이
+<br>&lt;@mongii&gt; 다른 분들은요?
+<br>&lt;naskazi&gt; 음.. 전 낼 아침 일찍 출근해야 하는데 -ㅁ-
+<br>&lt;muzen&gt; ;;;;
+<br>&lt;naskazi&gt; 회사 정책 상 낼은 한시간 일찍 출근 ㅡ,.ㅡ
+<br>&lt;@mongii&gt; 그럼 send 함수 후킹 실습은 다음 시간에 하도록 합시다
+<br>&lt;sjh21a&gt; ㅎㅎ 네에
+<br>&lt;@mongii&gt; 일단 오늘 로그 다시 보시면서 지금까지 배운 것 확실하게 숙지하시고요
+<br>&lt;@mongii&gt; 이해 안간 부분 게시판에 질문해주세요
+<br>&lt;@mongii&gt; ㅇㅋ?
+<br>&lt;mephist&gt; 파일도 올려주세요~~ ^^
+<br>&lt;@mongii&gt; 넵
+<br>&lt;sjh21a&gt; 네~
+<br>&lt;@mongii&gt; 그럼 오늘 스터디는 여기까지 하겠습니다 ㅎㅎ
+<br>&lt;@mongii&gt; 모두 수고하셨어요
+<br>&lt;sjh21a&gt; 몽이형 수고하셨어요~
+<br>&lt;mephist&gt; 수고하셨습니다.
+<br>&lt;@mongii&gt; 넵
+<br>&lt;sjh21a&gt; 열강이셨어용 ㅎㅎ
+<br>&lt;@mongii&gt; 넵
+<br>&lt;muzen&gt; 수고하셨습니다
+<br>&lt;naskazi&gt; 수고 하셨습니닻
+<br>&lt;@mongii&gt; 그럼 모두 좋은 밤 되시고
+<br>&lt;mephist&gt; 감사합니다..
+<br>

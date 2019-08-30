@@ -1,0 +1,481 @@
+
+Start of #wiseguys buffer: Tue Sep 30 00:29:23 2003
+
+[23:40] <mongii> ÀÌÁ¦ ½ºÅÍµð ½ÃÀÛÇÕ½Ã´Ù
+[23:41] <prosager> ³Ü
+[23:41] <[á¡Øª]¹Ì¸£> ¿À....
+[23:41] <y2family> Æ¯È÷ Ãµµµº¹¼þ¾Æ Â¯!
+[23:41] <mongii> WORK ¼­¹ö¿¡ Á¢¼ÓÇÏ¼¼¿ä
+[23:41] <[á¡Øª]¹Ì¸£> Å°...
+[23:41] <[á¡Øª]¹Ì¸£> ¿ä...
+[23:41] <y2family> ³ß.
+[23:41] <prosager> ³×
+[23:41] <sjh21a> ³×
+[23:41] <[á¡Øª]¹Ì¸£> ¿Í¿ì
+[23:41] <prosager> ¿ÀÄÉÁ¢¼Ó
+[23:41] <prosager> ¿À´ÃÀº ´©±¸ÁÒ?
+[23:41] <mongii> Á¤ÈÆ
+[23:41] <sjh21a> ³×? -_-aa
+[23:41] <[á¡Øª]¹Ì¸£> for, while ÀÌ¾ú³ª¿ä
+[23:41] <mongii> for()¹®ÀÌ¶û while()¹® µî ºÐ±â¹®À» ÀÌ¿ëÇØ¼­
+[23:41] <sjh21a> ³×
+[23:41] <mongii> ÃÊ°£´Ü~ÇÑ ¼Ò½º ÇÏ³ª ¸¸µé¾îºÁ
+[23:41] <mongii> ½Ã°£Àº 10ºÐ
+[23:41] <sjh21a> for ¶û while;;;
+[23:41] <mongii> ¾î·Æ°ÔÇÏ¸é ¾ÈµÈ´Ü´Ù ¾ËÁö?
+[23:41] <sjh21a> ³×
+[23:41] <[á¡Øª]¹Ì¸£> ¤»¤»
+[23:41] <sjh21a> ½±°Ô¿ä
+[23:41] <mongii> ¾î
+[23:42] <mongii> pro´Ô ¾ÖÀÎ´ÔÀº Á¹¾÷ ÇÏ¼Ì³ª¿ä?
+[23:42] <naskazi> ÇªÇÏÇÏÇÏ
+[23:42] <prosager> ³Ü
+[23:42] <mongii> ³ª½ºÄ« ÇÏÀÌÀÌ
+[23:42] <naskazi> -0-
+[23:42] <prosager> Áö±Ý e-land ¿¡ ´Ù´Ï°í ÀÖ½À´Ï´Ù
+[23:42] <mongii> ¹¹ÇØ¾²?
+[23:42] <naskazi> ÇÏÀÌ¿ä~
+[23:42] <mongii> e-land¿ä?
+[23:42] <mongii> ±×°Ô ¹¹ÁÒ?
+[23:42] <naskazi> Àú Áö±Ý »óÅÂ°¡ Á» ÀÌ»óÇÑ°Í °°¾Æ¿ä
+[23:42] <mongii> ¿Ö
+[23:42] <mongii> ¶Ç ¹è¾ÆÆÛ?
+[23:42] <naskazi> ¾Æ´Ï¿ä~
+[23:42] <mongii> ±×·³?
+[23:43] <naskazi> Á¤½ÅÀûÀ¸·Î ¤»¤»
+[23:43] <mongii> -___-
+[23:43] <prosager> À½..¿ÊÆÄ´ÂÈ¸»ç¿¡¿ä~
+[23:43] <mongii> ¾Æ..
+[23:43] <mongii> ¹Ì¸£´Ô ³ª½ºÄ« °íÃæ»ó´ãÁ» ÇØÁà¿ä
+[23:43] <sjh21a> for ¶û while °°ÀÌ ½á¾ß ÇØ¿ä?
+[23:43] <prosager> ¾Æ´Ï.
+[23:43] <mongii> ³Ê ¸¶À½´ë·Î
+[23:43] <prosager> µû·Î µû·ÎÇØ
+[23:43] <mongii> µû·Î ¾²´Â°Ô ³´Áö
+[23:43] <naskazi> Á» ¸ÀÀÌ °¬¾î¿ä
+[23:43] <prosager> switch ¹®¿¡¼­µµ Âü È²´çÇß¾úÀ¸´Ï.¤¾¤¾
+[23:43] <naskazi> °è¶õ¾Æ ¹Ý¼÷ÀÌ µÇ¾î´Ù¿À~
+[23:43] <naskazi> -_-;
+[23:43] <y2family> ¤·¤·
+[23:44] <mongii> Àú ¸»ÀÇ ÀÇ¹Ì°¡ ¹«¾ùÀÏ±î
+[23:44] <[á¡Øª]¹Ì¸£> ³ª½ºÄ« ¹ºÀÏÀÌ±æ·¹
+[23:44] <mongii> "°è¶õ¾Æ ¹Ý¼÷ÀÌ µÇ¾î´Ù¿À"
+[23:44] <mongii> ¾Ë ¼ö ¾ø´Â ¹®ÀåÀÌ´Ù
+[23:44] <naskazi> ¾Æ..
+[23:44] <[á¡Øª]¹Ì¸£> »îÀº ´Þ°¿¿¡ ´ëÇÑ
+[23:44] <[á¡Øª]¹Ì¸£> ºñÀ¯ÀÎ°¡ ¤Ñ.,¤Ñ
+[23:44] <y2family> ¹è°íÇÂ°¡ º¸±º
+[23:44] <naskazi> Áö±Ý ¹è°íÆÄ¼­
+[23:44] <naskazi> °è¶õ »î°í ÀÖÀ½
+[23:44] <mongii> ±×...±×·±°Å¾ß?
+[23:44] <y2family> °è¶õÀ» º¸¸ç ¸Ô°í½ÍÀº
+[23:44] <[á¡Øª]¹Ì¸£> ¤»¤»
+[23:44] <y2family> ¤»¤»
+[23:44] <sjh21a> Àü »÷µåÀ§Ä¡ -_-
+[23:44] <naskazi> ¤»¤»¤»¤»
+[23:44] <mongii> ³­ ¶Ç ¹«½¼ ÀÇ¹Ì°¡ ÀÖ´Ù°í
+[23:44] <[á¡Øª]¹Ì¸£> À¹..³­ ´ÜÆÏ»§
+[23:44] <prosager> ¾ÆÄ§µµ ¾È¸Ô°í ³ª¿Ô´Âµ¥..¹è°íÇÂµ¥-_-
+[23:44] <ÄÚÄ«½º> ¿Â¸® ±ø!
+[23:44] <[á¡Øª]¹Ì¸£> ÇªÈý
+[23:45] <naskazi> ÈÉ..
+[23:45] <mongii> »îÀÇ °íÅëÀ» °è·¬¿¡ ºñÀ¯Çß´ÂÁÙ ¾Ë¾ÒÁö
+[23:45] <[á¡Øª]¹Ì¸£> ³ªµµ ¤»¤»
+[23:45] <naskazi> ÈåÈå;;
+[23:45] <ÄÚÄ«½º> ³ª°¡±âµµ ±ÍÂú´Ù.. ¤Ñ¤Ì
+[23:45] <naskazi> ÈÞ
+[23:45] <naskazi> ¸ùÀÌÇü
+[23:45] <mongii> ¾î
+[23:45] <[á¡Øª]¹Ì¸£> ¾Æ.»ó¿ø´Ô ¿©Ä£ ÀÌ·»µå¿¡¼­
+[23:45] <[á¡Øª]¹Ì¸£> µðÀÚÀÎÇÏ½Ã³ªºÁ¿ä?
+[23:45] <prosager> ¾Æ´¢~
+[23:45] <[á¡Øª]¹Ì¸£> ±×·³?
+[23:45] <prosager> ¸ÅÀå°ü¸®ÇÑµ¥¿ä
+[23:45] <[á¡Øª]¹Ì¸£> ¾ÆÇ×
+[23:48] <sjh21a> ¼³¸¶ ¾ÆÁ÷µµ º¸°í °è½Ã³ª¿ä »ó¿øÇü -_-a
+[23:48] <prosager> ¾Æ´Ï
+[23:48] <prosager> ³ª ¼Ò½º ¾ÈºÃ¾î
+[23:48] <naskazi> ¿ìÅ°Å°
+[23:48] <sjh21a> ¾Æ ±×·¡¿ä? È÷È÷ -_-
+[23:48] <naskazi> ³Ü
+[23:48] <prosager> ±×³É .c ÆÄÀÏÀÌ ÀÖ±æ·¡
+[23:48] <sjh21a> ¿ª½Ã ¸Þ³Ê -0-
+[23:48] <naskazi> ÇØº¸²²¿ä
+[23:48] <naskazi> ±Ùµ¥
+[23:48] <prosager> ±×°Å »¡¸® ¿Å±â¶ó°í ÇÑ°ÅÁö
+[23:48] <sjh21a> ¾ÆÇÏ..³Ü
+[23:48] <mongii> Èì
+[23:48] <sjh21a> ³×¿¦..Çß¾î¿ä
+[23:48] <mongii> ±â´Ù·ÁºÁ¹Ù
+[23:48] <sjh21a> /tmp/disass.../4th ¿ä
+[23:49] <y2family> ¤·¤»
+[23:49] <[á¡Øª]¹Ì¸£> ¤·¤»
+[23:49] <sjh21a> ±Ùµ¥ °Ì³ª ±è -_-
+[23:50] <y2family> ¸í·É¾î..
+[23:50] <[á¡Øª]¹Ì¸£> ÄÁÆ®·Ñ ºêÀÌ ¿À
+[23:50] <[á¡Øª]¹Ì¸£> ´ø°¡
+[23:50] <[á¡Øª]¹Ì¸£> µÑÁß ÇÏ³ªÀÏ²¬
+[23:52] <mongii> Á¤ÈÆ ¸Ö¾ú¾î?
+[23:52] <naskazi> ¾îÀÌ¾÷¤²À½
+[23:52] <ÄÚÄ«½º> ±×°Å °É¸®ÁÒ...
+[23:53] <mongii> ÀÚÀÚ.. °í°í
+[23:53] <mongii> °øºÎ ¹æ¹ýÀº
+[23:53] <mongii> /tmp/disass_study/4th
+[23:53] <mongii> ÀÌ ¹ÙÀÌ³Ê¸® ÆÄÀÏÀ» °¢ÀÚ disassemblingÇÏ¿©
+[23:53] <mongii> c¾ð¾î ¼Ò½º·Î ¸¸µé¸é µË´Ï´Ù
+[23:53] <mongii> ½Ã°£Àº 20ºÐ
+[23:53] <mongii> 20ºÐÀÌ Áö³ª¸é
+[23:54] <mongii> ¿ø ¼Ò½º°¡ °ø°³µÇ°í
+[23:54] <mongii> ±Ã±ÝÇÑ ºÎºÐ¿¡ ´ëÇØ ¼­·Î Áú¹®/´äº¯ ÇÕ´Ï´Ù
+[23:54] <mongii> ¾Èµé¾î¿Â »ç¶÷µé ÀÖ³×?
+[23:55] <prosager> Á¤ÈÆÀÌ´Â...
+[23:55] <prosager> ÀÚ±â°¡Â§ ¼Ò½º¸¦ º¸¸é¼­
+[23:56] <prosager> ¿Ö ÀÌ·¸°Ô ¾î¼ÀÄÚµå°¡ Â¥¿©Á³´ÂÁö..»ý°¢ÇØºÁ
+[23:56] <prosager> ±×·³ Á»´õ ±í°Ô »ý°¢ÇÒ¼ö ÀÖÀ»°Å¾ß
+[23:56] <sjh21a> ³×
+[23:56] <sjh21a> ¾Æ±îºÎÅÍ ±×·¯°í ÀÖ¾úÀ½;
+[23:57] <prosager> jump less equal ÀÌ¾úÁÒ? jle °¡?
+[23:57] <sjh21a> ¹«½¼ ¶æÀÌ¿¡¿ä?
+[23:57] <y2family> ÀÛ°Å³ª°°À¸¸éÁ¡ÇÁ
+[23:57] <sjh21a> ¾ÆÇÏ
+[23:58] <ÄÚÄ«½º> ¹ÙÀÌ³Ê¸®
+[23:58] <[á¡Øª]¹Ì¸£> ±×°ÅÀÇ ¹Ý´ë¸»Àº ±×·³
+[23:58] <ÄÚÄ«½º> ½ÇÇàÇÏ¸é ¾ÈµÇ´Â°Å¿´³ª¿ä?
+[23:58] <[á¡Øª]¹Ì¸£> ¹¹Áö ¤Ñ.,¤Ñ
+[23:58] <mongii> ½ÇÇàÇØµµ ¾ÈµÉ°Ç ¾øÁö
+[23:58] <ÄÚÄ«½º> ¿ÀÄÉ
+[23:58] <ÄÚÄ«½º> ÇÏ±ä...
+[23:58] <ÄÚÄ«½º> ½ÇÇàÀÌ ¾ÈµÇ´Â ¹ÙÀÌ³Ê¸®´Â µð½º¾î¼ÀÇÒ ÇÊ¿äµµ ¾ø°ÚÁö¿ä.. ¤Ñ.¤Ñ
+[00:00] <y2family> °ÅÂü.. ¹ã¿¡¸¸ ÇÏ´ø°øºÎ¸¦ ³·¿¡ ÇÏ·Á´Ï ÁýÁßÀÌ ¾ÈµÅ³×¿ä.. ½Ã°£µµ¾ø°í..
+[00:01] <[á¡Øª]¹Ì¸£> lea°¡ ¹¹ÁÒ?
+[00:01] <sjh21a> ÁÖ¼Ò..¾îÂ¼°í¿´´ø°Å °°Àºµ¥ ÈåÈå
+[00:01] <mongii> lea A, B ÀÏ ¶§ AÀÇ ÁÖ¼Ò¸¦ B·Î?
+[00:02] <[á¡Øª]¹Ì¸£> ¾ÆÇÏ...
+[00:02] <sjh21a> ·¹Áö½ºÅÍ¿¡ ( ) ¸¦ ³ÖÀ¸¸é
+[00:02] <mongii> mov A, B ÀÏ¶© AÀÇ °ªÀ» B·Î ÀúÀåÇÏÁö¸¸ leaÀÏ ¶© ÁÖ¼ÒÀÏ²¨¿¡¿ä
+[00:02] <sjh21a> ±× ·¹Áö½ºÅÍÀÇ ÁÖ¼Ò¶õ ¾ê±ä°¡¿ä
+[00:03] <mongii> ¾Æ´Ï
+[00:03] <mongii> ±× ÁÖ¼Ò°¡ °¡¸®Å°´Â °ª
+[00:03] <mongii> Æ÷ÀÎÅÍÀÇ °³³ä
+[00:03] <sjh21a> ¾ÆÇÏ..
+[00:03] <sjh21a> * ±º¿ä
+[00:03] <mongii> ¿ÀÅ°
+[00:04] <sjh21a> test ´Â ¾î¶² ¸í·ÉÀÌ¿¡¿ä?
+[00:05] <y2family> if ¹®À» ¾µ¶§ ³ª¿Ô´ø°Å°°Àºµ¥.
+[00:05] <[á¡Øª]¹Ì¸£> ºñ±³ÇÏ´Â°Å´ø°¡
+[00:05] <[á¡Øª]¹Ì¸£> ¸ð¸£°Ú³ß
+[00:06] <y2family> if ¹®¿¡¼­ Á¶°Ç¿¡ º¯¼öÀÏ¶§ ¶û »ó¼öÀÏ¶§ ºñ±³ÇÏ´Â°Ô Æ²·È´ø°Å °°À½.
+[00:06] <mongii> ³ª½ºÄ« test ¸í·ÉÀÌ ¹¹Áö?
+[00:06] <ÄÚÄ«½º> ¹ÌÄ¡... ¤Ñ¤Ñ;;
+[00:07] <ÄÚÄ«½º> test´Â ¸Ö±î... ¤Ñ¤Ñ;;
+[00:07] <y2family> ¾î¶³¶¾ test°¡ ³ª¿À±âµµÇÏ°í. ¾î¶³¶© jle ÀÌ·±°Ô ³ª¿À±âµµÇÏ°í.
+[00:07] <y2family> while¹®ÀÌ¾ú³ª -_-?
+[00:07] <[á¡Øª]¹Ì¸£> À¸Èì...
+[00:07] <[á¡Øª]¹Ì¸£> Æ÷¹®±îÁø ½è´Âµ¥
+[00:07] <[á¡Øª]¹Ì¸£> ±× ¾Æ·¡ ¹¹°¡ÀÖ´ÂÁö ¤Ñ,.¤Ñ
+[00:09] <sjh21a> Àúµµ ÇØº¸±ä Çß´Âµ¥, »ìÂ¦ ÀÇ¹®ÀÌ µå´Â°Ô ¸î°³ ÀÖ¾úÀ½ -_a
+[00:09] <[á¡Øª]¹Ì¸£> aÀÇ ¾Æ½ºÅ°ÄÚµå°¡....
+[00:09] <y2family> À¸... ÀüÀÌ¸¸ °¡ºÁ¾ß ÇÒ²¨°°³×¿ä. µ·µµ¾ø°í °ú¿ÜÇÏ´Â ³ÑÀÌ ¹¹Á»µµ¿Í´Þ¶ó±×·¡¼­.
+[00:09] <sjh21a> 41ÀÌ¿ä
+[00:09] <ÄÚÄ«½º> 0x41
+[00:09] <[á¡Øª]¹Ì¸£> ¶¯Å¥
+[00:09] <prosager> Á¤ÈÆ¾Æ
+[00:09] <[á¡Øª]¹Ì¸£> ¾Æ..±Û±N´ç....¿ÍÀÌÅõ....
+[00:09] <ÄÚÄ«½º> sjh21a//±×³É 41ÀÌ¶ó´Ï..
+[00:09] <prosager> ¹®Á¦°¡ for , while ÀÌ¾ú¾î?
+[00:09] <[á¡Øª]¹Ì¸£> ´ã¿¡ º¸¾Æ..
+[00:09] <sjh21a> ³×;
+[00:09] <sjh21a> for ¶û while.;
+[00:09] <prosager> for °¡ ¾ÕÀÌÁö?
+[00:09] <sjh21a> ³×
+[00:09] <[á¡Øª]¹Ì¸£> À¸Èì...whileÀÌ ¾²¿©ÁøºÎºÐÀ»
+[00:09] <y2family> ´ÙÀ½¿¡ ¶Ç ºÆ¿ä~
+[00:09] <[á¡Øª]¹Ì¸£> ºÎºÐÀÌ Àú±â±¸³ª
+[00:09] <prosager> for ´Â ³¡³Â³×..
+[00:09] <sjh21a> ¶Ç ºÁ¿ë~
+[00:09] <prosager> while ¹®ÇØ¾ß°Ú´ä..
+[00:09] <ÄÚÄ«½º> whileÀ» ¾î¶»°Ô ÇØ¾ß
+[00:09] <[á¡Øª]¹Ì¸£> ¾û Àß°Ç°­È÷ Áö³»~
+[00:09] *** y2family (mirckorea@212.2.2.87) Quit (Read error: Connection reset by peer)
+[00:09] <ÄÚÄ«½º> test°¡ ³ª¿Ã±î³ª...
+[00:10] <[á¡Øª]¹Ì¸£> º¯¼ö·Î µÎ¸é µÇ
+[00:10] <[á¡Øª]¹Ì¸£> Áö ¾ÊÀ»±î
+[00:10] <[á¡Øª]¹Ì¸£> test°¡ ³ª¿Ã¶§´Â º¸Åë ³»ºÎº¯¼ö°¡ »ç¿ëµÇ¸é ¶ß´ø°Å°°´øµ¥
+[00:10] <sjh21a> ±Ùµ¥ test ¶õ ºÎºÐ ¾ø¾îµµ »Ì¾Æ³»´Âµ§ º°·Î ÁöÀåÀÌ ¾ø´Â°Å °°Àºµ¥;
+[00:10] <sjh21a> Á¦°¡ test ¶õ°Å ÇÑ¹ø Ã£¾Æº¼°Ô¿ä
+[00:11] <ÄÚÄ«½º> sjh21a//¶È°°Àº ½ÇÇà °á°ú¾ß ¾ò±â ½±°ÚÁö¸¸... ¶È°°Àº ¹ÙÀÌ³Ê¸®¸¦ ¾òÀ¸·Á´Â°ÔÁö..
+[00:12] <sjh21a> À½
+[00:12] <sjh21a> test »©°íµµ
+[00:12] <sjh21a> 0x0804835d <main+53>: nop
+[00:12] <sjh21a> 0x0804835e <main+54>: mov 0xfffffffc(%ebp),%edx
+[00:12] <sjh21a> 0x08048361 <main+57>: lea 0xfffffffc(%ebp),%eax
+[00:12] <sjh21a> 0x08048364 <main+60>: decl (%eax)
+[00:12] <sjh21a> 0x08048366 <main+62>: test %edx,%edx
+[00:12] <sjh21a> 0x08048368 <main+64>: jg 0x804836c <main+68>
+[00:12] <sjh21a> 0x0804836a <main+66>: jmp 0x8048381 <main+89>
+[00:12] <sjh21a> 0x0804836c <main+68>: sub $0x8,%esp
+[00:12] <sjh21a> ÀÌ ºÎºÐ¸¸ ÀÖ¾îµµ while Àº ÃæºÐÇÒ °Å°°Àºµ¥;;
+[00:13] <sjh21a> * test (Logical Compare)
+[00:13] <sjh21a> op1°ú op2¿¡ ´ëÇØ ºñÆ® & ¿¬»êÀ» ÇÏ¿© ±× °á°ú¿¡ µû¶ó °¢ ÇÃ·¡±×ÀÇ °ªÀ»
+[00:13] <sjh21a> º¯°æÇÑ´Ù. opÀÇ °ªÀÌ º¯ÇÏÁö ¾Ê´Â´Ù´Â Á¡À» Á¦¿ÜÇÏ°í´Â and ¸í·É°ú µ¿
+[00:13] <sjh21a> ÀÏÇÏ´Ù.
+[00:13] <sjh21a> ¿ª½Ã ¶Ç ÇÃ·¡±× -_-a
+[00:14] <[á¡Øª]¹Ì¸£> ³ª´Â test°¡ ¾È³ª¿À°í
+[00:14] <[á¡Øª]¹Ì¸£> cmpl·Î ºñ±³µÇ¹ö¸®³×
+[00:14] <[á¡Øª]¹Ì¸£> ¼ö½ÄÀÎ°¡..
+[00:15] <[á¡Øª]¹Ì¸£> 0x08048328 <main+0>: push %ebp
+[00:15] <[á¡Øª]¹Ì¸£> 0x08048329 <main+1>: mov %esp,%ebp
+[00:15] <[á¡Øª]¹Ì¸£> 0x0804832b <main+3>: sub $0x8,%esp
+[00:15] <[á¡Øª]¹Ì¸£> 0x0804832e <main+6>: and $0xfffffff0,%esp
+[00:15] <[á¡Øª]¹Ì¸£> 0x08048331 <main+9>: mov $0x0,%eax
+[00:15] <[á¡Øª]¹Ì¸£> 0x08048336 <main+14>: sub %eax,%esp
+[00:15] <[á¡Øª]¹Ì¸£> 0x08048338 <main+16>: movl $0x1,0xfffffffc(%ebp)
+[00:15] <[á¡Øª]¹Ì¸£> 0x0804833f <main+23>: movl $0x0,0xfffffff8(%ebp)
+[00:15] <[á¡Øª]¹Ì¸£> 0x08048346 <main+30>: cmpl $0x8,0xfffffffc(%ebp)
+[00:15] <[á¡Øª]¹Ì¸£> 0x0804834a <main+34>: jle 0x804834e <main+38>
+[00:15] <[á¡Øª]¹Ì¸£> 0x0804834c <main+36>: jmp 0x8048376 <main+78>
+[00:15] <[á¡Øª]¹Ì¸£> 0x0804834e <main+38>: lea 0xfffffffc(%ebp),%eax
+[00:15] <[á¡Øª]¹Ì¸£> 0x08048351 <main+41>: decl (%eax)
+[00:15] <[á¡Øª]¹Ì¸£> ¿©±â±îÁø °ÅÁø ºñ½ÁÇÑµ¥
+[00:15] <[á¡Øª]¹Ì¸£> ¿À!
+[00:19] <mongii> 10ºÐ ÈÄ¿¡ Á¤´ä °ø°³ÇÕ´Ï´Ù
+[00:19] <mongii> Á¤È®È÷ 12½Ã 30ºÐ
+[00:19] <sjh21a> ³Ü
+[00:20] <ÄÚÄ«½º> ±×·±µ¥...
+[00:21] <ÄÚÄ«½º> %edx³¢¸® test¸¦ ÇÏ¸é
+[00:21] <ÄÚÄ«½º> ¾î¶»°Ô µÇ´Â°ÅÁö? ¤Ñ¤Ñ;;
+[00:21] <sjh21a> and ¿¬»ê ÇÑ´Ù°í ±×·¨À¸´Ï...
+[00:21] <sjh21a> ¶È°°ÀÌ ³ª¿ÀÁö ¾ÊÀ»±î¿ä?
+[00:21] <ÄÚÄ«½º> À½...
+[00:21] <ÄÚÄ«½º> cmplÀÌ ÀÚ²Ù ³ª¿À³×
+[00:22] <[á¡Øª]¹Ì¸£> ³ªµµ cmplÀÌ³ª¿Í ¤Ñ,.¤Ñ
+[00:22] <sjh21a> ¸î¹øÂ°¿ä?
+[00:22] <[á¡Øª]¹Ì¸£> while Á¶°Ç¹®À¸·Î ¤Ñ.,¤Ñ
+[00:22] <[á¡Øª]¹Ì¸£> ¹®¿¡¼­
+[00:23] <sjh21a> À¸À¹..Àü ¾È³ª¿À³×¿ä -_-;
+[00:24] <[á¡Øª]¹Ì¸£> À¸Èì..
+[00:29] <mongii> Á¤ÈÆ~ ¼Ò½º °ø°³ÇØ¶ó
+[00:29] <ÄÚÄ«½º> ¾ÆÈë...
+10[00:29] 10 z0nKT1g3r(wantstar@ca-dibar-cuda1-c10a-223.anhmca.adelphia.net)´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.
+[00:29] *** HyunJoo sets mode: +o z0nKT1g3r
+[00:29] <ÄÚÄ«½º> °á±¹
+[00:29] <ÄÚÄ«½º> testÀÇ Á¤Ã¼´Â ¸ø Ç®¾ú´Ù.. ¤Ì¤Ì
+[00:29] <[á¡Øª]¹Ì¸£> À¸Èæ
+[00:29] <[á¡Øª]¹Ì¸£> ³ªµµ
+[00:29] <prosager> À½...
+[00:29] <mongii> Á¾Å© ÇÏÀÌÀÌ~
+[00:30] <sjh21a> È÷È÷.
+[00:30] <sjh21a> Á¾Å© ÇÏÀÌ
+[00:30] <sjh21a> #include <stdio.h>
+[00:30] <sjh21a> int main(int argc, char *argv[])
+[00:30] <sjh21a> {
+[00:30] <sjh21a> int fffc, fff8=0;
+[00:30] <sjh21a> for(fffc=1;fffc<10;fffc++)
+[00:30] <sjh21a> {
+[00:30] <z0nKT1g3r> ²Ù¹÷ ~ ;
+[00:30] <mongii> ¼Ò½º ¿Ã¸®¶ó
+[00:30] <sjh21a> fff8 = fff8 + fffc;
+[00:30] <sjh21a> }
+[00:30] <prosager> ¾ß-_-
+[00:30] <sjh21a> while(fffc-->0)
+[00:30] <sjh21a> printf("%d\n",fff8);
+[00:30] <[á¡Øª]¹Ì¸£> ¾î¶ó
+[00:30] <sjh21a> }
+[00:30] <sjh21a> À¸¾Ç
+[00:30] <prosager> ¹¹ÇÏ³Ä?
+[00:30] <mongii> µð·º¿¡ ³Ö¾î
+[00:30] <sjh21a> ¿Å°åÀ½ -_-;
+[00:30] <sjh21a> Ã³À½ÀÌ¶ó ÇÏÇÏ -_-
+[00:30] <mongii> ¿ÀÄÉÀÌ
+[00:30] <z0nKT1g3r> _-_
+[00:30] <sjh21a> Á¾Å© ÇÒ·ç
+[00:30] <sjh21a> ÇÒ·î -_-
+[00:30] <z0nKT1g3r> ÇÒ¶û -_-;;
+[00:31] <[á¡Øª]¹Ì¸£> ÀÎÀÚ...
+[00:31] <ÄÚÄ«½º> ¤Ñ¤Ñ;;
+[00:31] <ÄÚÄ«½º> ÇãÇä...
+[00:31] <ÄÚÄ«½º> Àú·±°Å¿´±¸³ª...
+[00:31] <[á¡Øª]¹Ì¸£> °¨¼Ò½ÃÅ°´Â°Ç ¾Ë¾Ò´Âµ¥
+[00:31] <mongii> ÇÃ¹Ö ½ºÅ¸ÀÏ Âü ±«»óÇÏ³×
+[00:31] <mongii> -_-
+[00:31] <[á¡Øª]¹Ì¸£> ¿Ã¼Ò ¤»¤»
+[00:31] <sjh21a> -_-
+[00:31] <[á¡Øª]¹Ì¸£> ¹¦ÇÏ´Ù
+[00:31] <sjh21a> -_-aa
+[00:32] <[á¡Øª]¹Ì¸£> for¿¡¼± ¿¬»êÇÏ°í
+[00:32] <[á¡Øª]¹Ì¸£> while¿¡¼­ ¹Ù·Î »Õ¾î³½°Å±¸³ª
+[00:32] <[á¡Øª]¹Ì¸£> ±Ùµ¥......
+[00:32] <sjh21a> ³×? -_-
+[00:32] <mongii> while ÀÚÃ¼°¡ ¿ø·¡ 0º¸´Ù Å«Áö¸¦ ºÁÁÖ´Â°Çµ¥ °Åµû°¡ ¶Ç 0À» ºñ±³Çß³×
+[00:32] <sjh21a> ¾Æ ±×·¡¿ä? -_-
+[00:32] <sjh21a> ±×·³ ±×³É while(i--) ¸¸ ÇØÁàµµ?
+[00:32] <mongii> ±×³É while(i--)ÀÌ¶û °°Áö
+[00:32] <sjh21a> ¿ÀÈ«;;
+[00:32] <sjh21a> ±×·¸±¸³ª;
+[00:33] <[á¡Øª]¹Ì¸£> ²ô´ö
+[00:33] <mongii> ÈìÈì
+[00:33] <mongii> ±×·³ ÀÌÁ¦ ¸·Èù ºÎºÐ Áú¹®ÇÏ¼¼¿ä
+[00:33] <ÄÚÄ«½º> ²ôÀÀ...
+[00:33] <[á¡Øª]¹Ì¸£> testºÎºÐÀÌ¿ä
+[00:33] <ÄÚÄ«½º> test
+[00:33] <ÄÚÄ«½º> Àúµµ
+[00:33] <ÄÚÄ«½º> °°Àº ·¹Áö½ºÅÍ³¢¸® test¸¦ ÇÏ¸é
+[00:34] <ÄÚÄ«½º> ·¹Áö°¡ °¡¸®Å°´Â °ªÀÌ 0ÀÌ°Å³ª ¶Ç´Â 0ÀÌ ¾Æ´Ï°Å³ª¸¸ ºñ±³ÇÏ°Ô µÇ´Â°Ç°¡¿ä?
+[00:34] <prosager> Á¤ÈÆ³à¼®-_-¾å½ÇÇÏ°Ô..-_-
+[00:34] <ÄÚÄ«½º> ±× µÚ¿¡ jg°¡ ³ª¿À´Âµ¥ ¹¹º¸´Ù Ä¿¾ß jump°£´Ù´Â °ÇÁö ¸ð¸£°Ú¾î¿ä
+[00:34] <sjh21a> ³×?
+[00:34] <prosager> int i ´Â ¾Æ·¡¿¡ ÇÒ´çÇÏ´Ù´Ï..¼Ó¾Ò´Ù-_-
+[00:34] <sjh21a> ÈÄÈÄ -_-v
+[00:34] <prosager> ´Ù¸¥°Ç °ÅÀÇ´Ù ¸ÂÃè´Âµ¥..
+[00:34] <sjh21a> Á¦ ¹®Á¦¿¡ ´ëÇÑ º¹¼öÀÓ -_-a~
+[00:35] <z0nKT1g3r> _-_; ÇÁ·Î±×·¥ ÀÌ¸§ÀÌ?;
+[00:35] <[á¡Øª]¹Ì¸£> 0
+[00:35] <sjh21a> /tmp/disass_study ¸Â³ª(?)/4th
+[00:35] <sjh21a> Àú ±Ùµ¥¿ä
+[00:35] <[á¡Øª]¹Ì¸£> 0ÀÌ¶û ºñ±³¸¦ ÇØ¹ö·Á¼­ ±×·±°Å ¾Æ´Ñ°¡ jg°¡ ³ª¿À´Â°Ç
+[00:35] <sjh21a> ±Ã±ÝÇÑ°Ô ÀÖ´Âµ¥
+[00:35] <sjh21a> 0x0804834e <main+38>: mov 0xfffffffc(%ebp),%eax
+[00:35] <sjh21a> 0x08048351 <main+41>: lea 0xfffffff8(%ebp),%edx
+[00:35] <sjh21a> 0x08048354 <main+44>: add %eax,(%edx)
+[00:35] <sjh21a> for ¹®¾ÈÀÇ Ã³¸®¿¡ °üÇÑ°Çµ¥¿ä
+[00:35] <sjh21a> Àú±â Àú fff8 À» edx ¿¡ ³Ö¾îÁÖ°í
+[00:36] <sjh21a> ±×°É eax (i) ¶û fff8(sum) ÀÌ¶û ´õÇÏ´Â ºÎºÐÀÎµ¥
+[00:36] <sjh21a> ¿Ö ±ÄÀÌ ÁÖ¼Ò¸¦ ³Ö¾îÁÖ´Â°ÅÁÒ
+[00:36] <sjh21a> ÁÖ¼Ò°¡ ¾Æ´Ï¶ó
+[00:36] <sjh21a> ±×..ÁÖ¼ÒÀÇ °ª À» »ç¿ëÇØ¼­ ¿¬»êÀ» -_-
+[00:36] <sjh21a> °Íµµ ¾îÁ¤ÂÄÇÏ°Ô sum ¸¸ ÁÖ¼ÒÀÇ °ªÀ¸·Î;;
+[00:36] <prosager> Àú°Å..
+[00:36] <sjh21a> ³×
+[00:36] <prosager> edx ¿¡ ÁÖ¼Ò°ªÀ¸·Î ¿¬»êÇÏ´Â°ÅÀÚ³ª
+[00:37] <sjh21a> ³×
+[00:37] <prosager> Áï sum = sum +i ¶ó´Â ¹æ½ÄÀÌ´Ï±ñ..
+[00:37] <sjh21a> ±×·±µ¥ ±ÄÀÌ ±×·¸°Ô ¾µ ÇÊ¿ä°¡ -_-a
+[00:37] <sjh21a> ³×
+[00:37] <prosager> call by reference
+[00:37] <sjh21a> ¾ÆÇÏ
+[00:37] <sjh21a> ±×·¸±¸³ª
+[00:37] <sjh21a> ¾Æ~
+[00:38] <prosager> 0x0804835e <main+54>: mov 0xfffffffc(%ebp),%edx
+[00:38] <prosager> 0x08048361 <main+57>: lea 0xfffffffc(%ebp),%eax
+[00:38] <prosager> 0x08048364 <main+60>: decl (%eax)
+[00:38] <prosager> 0x08048366 <main+62>: test %edx,%edx
+[00:38] <prosager> 0x08048368 <main+64>: jg 0x804836c <main+68>
+[00:38] <prosager> 0x0804836a <main+66>: jmp 0x8048381 <main+89>
+[00:38] <prosager> ÀÌ ºÎºÐ¿¡¼­ ÀÌÇØ°¡ Àß ¾ÈµÇ³×¿äÀü
+[00:39] <[á¡Øª]¹Ì¸£> ³ª´À ¿Ö ÀÚ²Ù cmplÀÌ³ª¿ÀÁö
+[00:39] <sjh21a> ±× ºÎºÐÀº while;;
+[00:39] <sjh21a> À½...
+[00:39] <[á¡Øª]¹Ì¸£> ¾Æ ¤Ñ,.¤Ñ
+[00:39] <[á¡Øª]¹Ì¸£> while¿¡¼­ i-->0
+[00:39] <[á¡Øª]¹Ì¸£> ¶§¹®¿¡ ³ª¿À³×¿ä
+[00:39] <prosager> test ÀÇ ºñ±³´Â..
+[00:39] <[á¡Øª]¹Ì¸£> i¸¦ ´Ù½Ã °¨¼Ò½ÃÅ°°í
+[00:39] <[á¡Øª]¹Ì¸£> ±×°É 0ÀÌ¶û ´Ù½Ã ºñ±³¸¦ÇØ¼­
+[00:39] <prosager> ºñ±³ÇÏ´Â °ªÀÌ 0 ÀÏ°æ¿ì¿¡ test ÀÇ ºñ±³¸¦ ÇÏ³×¿ä
+[00:40] <sjh21a> ¿ÀÈ£;;
+[00:40] <prosager> º¸ÅëÀÇ ºñ±³´Â cmpl 0x0, %eax
+[00:40] <prosager> ¿Í °°ÀÌ ÇÏ´Âµ¥..
+[00:40] <prosager> À¢Áö ¸ð¸£°Ô..
+[00:40] <[á¡Øª]¹Ì¸£> ²ô´ö
+[00:40] <prosager> test ¸¦ ¾²³×¿ä
+[00:40] <[á¡Øª]¹Ì¸£> 0ÀÏ°æ¿ì¿£ test°¡ »ç¿ëµÊ
+[00:40] <prosager> while i-->1 ·Î ³Ö¾îÁÖ¸é
+[00:40] <prosager> cmpl ³ª¿É´Ï´Ù
+[00:40] <[á¡Øª]¹Ì¸£> 1ÀÌ»óÀÌ¸é cmpl
+[00:40] <mongii> ±×·¸³×¿ä
+[00:40] <mongii> 0ÀÏ¶§¸¸ test
+[00:40] <[á¡Øª]¹Ì¸£> Æ®·ç ÆÞ½º°ª°ú °ü·ÃµÇ¼­ ±×·±°Ç°¡
+[00:41] <[á¡Øª]¹Ì¸£> ÀÌÇÁ¹®¿¡¼­µµ
+[00:41] <[á¡Øª]¹Ì¸£> Æ®·çÆÞ½ººñ±³½ÄÀ¸·Î 0°ú 1¹ÝÈ¯À» ³»µµ
+[00:41] <[á¡Øª]¹Ì¸£> test°¡ »ç¿ëµÇ´øµ¥
+[00:41] <prosager> ¿©±â¼­ ±Ã±ÝÇÑÁ¡ÀÌ¿ä..
+[00:41] <prosager> ¸ùÀÌ´Ôµµ ¾Æ½Ã°ÚÁö¸¸..
+[00:41] <prosager> jle È¤Àº
+[00:41] <prosager> jump °ü·ÃÀº..¹Ý´ë·Î ¾²¸é..
+[00:41] <prosager> ¼ö½ÄÀÌ ¸Â´Â°É·Î ¾Ë¾Ò´Âµ¥..
+[00:41] <[á¡Øª]¹Ì¸£> jg¸¦ ÅëÇØ¼­
+[00:41] <[á¡Øª]¹Ì¸£> ÀÇ¹®ÀÌ ¤Ñ.,¤Ñ
+[00:42] <prosager> jg ´Â...Á¤¸»·Î jump greater ´õ±º¿ä
+[00:42] <[á¡Øª]¹Ì¸£> ´õ Å©¸é ±Û·ç ¶Ù¾î¶ó
+[00:42] <[á¡Øª]¹Ì¸£> ÀÎ°Ç°¡¿ä
+[00:42] <[á¡Øª]¹Ì¸£> ºñ±³µÇ´Â °ªÀÌ ºñ±³ÇÒ °ªº¸´Ù ´õ Å©¸é
+[00:43] <z0nKT1g3r> Àú -_-..; Àú¹ø¿¡ ÇÏ½Å°Íµé º¸¸é¼­ °øºÎÇÏ´Ù°¡¿ä; ±Ã±ÝÇÑ°Ô »ý°å´Âµ¥ -_-;
+[00:43] <z0nKT1g3r> jbe je jg µîµîÀº -_-
+[00:43] <z0nKT1g3r> jump below or equal
+[00:43] <z0nKT1g3r> jump equal
+[00:43] <z0nKT1g3r> jump greater ÀÌ¶ó°í ½áµÎ¼Ì´Âµ¥ _-_
+[00:43] <prosager> ±×¸®°í test ¸í·É¾î´Â¿ä..
+[00:44] <z0nKT1g3r> °Â³×µé ¹¹ÇÏ´Â°ÇÁö ¸ð¸£°Ú´Âµ¥ _-_; ¼³¸íÇØÁÖ½ÇºÐ;
+[00:44] <prosager> µÎ°³ÀÇ ¿ÀÆÛ·£µå¸¦ ³í¸®ÀûÀ¸·Î °Ë»çÇÏ¿©¼­ »óÅÂ ·¹Áö½ºÅÍ¿¡ Ç¥½ÃÇÕ´Ï´Ù.
+[00:44] <prosager> »óÅÂºñÆ®´Â..
+[00:44] <[á¡Øª]¹Ì¸£> µîÈ£¿Í ºÎµîÈ£¿¡ °ü·ÃµÈ
+[00:44] <[á¡Øª]¹Ì¸£> ¸í·ÉÀÌ¾ß
+[00:44] <z0nKT1g3r> > < ?;
+[00:44] <[á¡Øª]¹Ì¸£> A<B ÀÌ·±°Å
+[00:44] <z0nKT1g3r> ¾Æ
+[00:44] <prosager> sf 1= À½¼ö, sf 0 = ¾ç¼ö, zf=1 ³»¿ëÀÌ °°°Å³ª °á°ú°¡ 0, zf=0 °Ë»çÇÑ ³»¿ëÀÌ °°Áö ¾Ê°Å³ª °á°ú°¡ 0ÀÌ ¾Æ´Ô
+[00:44] <[á¡Øª]¹Ì¸£> ³í¸®Àû °Ë»çÇÏ´Â°Å±¸³ª
+[00:45] <prosager> ÀÌ·±½ÄÀ¸·Î eflags ÀÇ °ªÀ¸·Î ÅëÇØ¼­ °á°ú¸¦ È®ÀÎÇÒ¼ö ÀÖ½À´Ï´Ù.
+[00:45] <mongii> À½
+[00:45] <[á¡Øª]¹Ì¸£> ±×·¡¼­ 0¿¡ ´ëÇØ¼­ test°¡ »ç¿ëµÇ´Â°Å±º¿ä
+[00:45] <[á¡Øª]¹Ì¸£> ¾Æ´Ñ°¡
+[00:46] <[á¡Øª]¹Ì¸£> i--¸¸ ÇØµµ µÇ´Âµ­....
+[00:46] <[á¡Øª]¹Ì¸£> 0ÀÌ¶û ºñ±³ÇØÁà¼­ ÇØ±ò·È³ß ¤»¤»
+[00:46] <prosager> Àú±â¼­ º¸¸é..
+[00:46] <prosager> eflags ¿¡ sf, zf µÑ´Ù 0ÀÎ°Å °°³×¿ä
+[00:46] <mongii> tests.c ÀÌ°Ô test ¸í·ÉÀÌ ³ª¿Àµµ·Ï ÇÏ´Â °¡Àå ÂªÀº ¼Ò½º¿¡¿ä
+[00:47] <mongii> ÀÌ°É·Î ÇÑ¹ø ºÐ¼®ÇØº¸¼¼¿ä
+[00:47] <prosager> Áï °á°ú°¡ 0ÀÌ ¾Æ´Ï°í ¾ç¼ö..Àá½Ã¸¸¿ä
+[00:48] <mongii> test ¸í·ÉÀÌ.. ÁÖ¾îÁø ÀÎÀÚ¿Í "0"À» ºñ±³ÇÏ´Â°Å °°³×¿ä
+[00:48] <prosager> ³Ü
+[00:48] <mongii> ÀÇ¿Ü·Î ´Ü¼øÇÑ ³à½ÄÀÎµí
+[00:48] <prosager> Á¤È®È÷´Â 2°³ÀÇ ¿ÀÆÛ·£µå¸¦ ³í¸®ÀûÀ¸·Î °Ë»çÇÑ´Ù°í Ã¥¿¡ ³ª¿ÍÀÖ´Âµ¥¿ä..
+[00:48] <prosager> ¸Â´Â°ÇÁö ¾Æ´Ñ°ÇÁö-_-;;
+[00:48] <prosager> ÇÏµµ ¿À·¡µÈ Ã¥ÀÌ¶ó
+[00:48] <mongii> 2°³¶ó´Â°Ô ¹¹ÁÒ?
+[00:49] <prosager> test al, 00100000B
+[00:49] <prosager> ¿Í °°ÀÌ
+[00:49] <[á¡Øª]¹Ì¸£> ³í¸®ÀûÀ¸·Î °Ë»çÇÑ´Ù´Â°Å¸é Æ®·ç ÆÞ½º·Î °á°ú¸¦ ³½´Ù´Â¸»ÀÌÀÝ¾Æ¿ä
+[00:49] <z0nKT1g3r> À½..
+[00:49] <prosager> ¿©±â¼­´Â edx ³×¿ä
+[00:49] <ÄÚÄ«½º> ¾ÆÁ÷µµ ÀÌÇØ°¡ ¾È°¡´Â°Å´Â¿ä
+[00:49] <ÄÚÄ«½º> °°Àº ·¹Áö½ºÅÍ³¢¸® ºñ±³ÇØ¼­
+[00:49] <ÄÚÄ«½º> ¾î¶»°Ô ÇÏÀÚ´Â °ÇÁö¿ä?
+[00:49] <ÄÚÄ«½º> µÑ ´Ù 0ÀÌ ¾Æ´Ï¶ó¸é
+[00:50] <ÄÚÄ«½º> µÑ ´Ù 0ÀÏ¶§´Â 0ÀÌ°ÚÁö¸¸
+[00:50] <ÄÚÄ«½º> Áï 0ÀÌ°Å³ª ¾Æ´Ï°Å³ª¸¸ ºñ±³ÇÒ ¼ö ÀÖ´Â °Ç°¡¿ä?
+[00:50] <prosager> À½..Á¤È®È÷ ¾î´À°Ô eflag ÀÎÁö ¸ð¸£°Ú³×¿ä..Àá½Ã
+[00:52] <prosager> 8¹øÂ°ÀÇ flag °¡ sf flag ÀÎ°Å °°³×¿ä
+[00:53] <prosager> À½..Á¤È®È÷ ¸ô°Ú³×..-_-
+[00:54] <ÄÚÄ«½º> À½...
+[00:55] <mongii> ½ºÀ¾..
+[00:55] <mongii> ±×³É °£´ÜÇÏ°Ô »ý°¢ÇÏ¸é
+[00:55] <mongii> test A, B¿¡¼­, A¿Í BÀÇ °ªÀ» &¿¬»êÇÑ ÈÄ, ±×°ÍÀ» 0°ú ºñ±³ÇÏ´Â µí
+[00:55] <mongii> µû¶ó¼­ Áö±Ý°ú °°Àº °æ¿ì¿£ A¿Í B°¡ µ¿ÀÏÇÏ´Ï±î
+[00:56] <mongii> µ¿ÀÏÇÑ µÎ °ªÀ» &¿¬»êÇßÀ¸´Ï ´Ù½Ã ±× °ªÀÌ ³ª¿À°ÚÁÒ
+[00:56] <mongii> 1 & 1 = 1
+[00:56] <prosager> ³Ü..±×·¸°Ô µÇ³×¿ä
+[00:56] <[á¡Øª]¹Ì¸£> a, a°¡ µÇ´Â°ÅÀÝ¾Æ¿ä ±Ùµ¥
+[00:56] <mongii> ³×
+[00:56] <[á¡Øª]¹Ì¸£> °°Àº edx´Ï±î
+[00:56] <[á¡Øª]¹Ì¸£> ±×·³ °è¼Ó 1ÀÌ ³ª¿À°ÔµÇ°í, while¹®Àº °è¼Ó µ¹¾Æ°¡°Ô µÇ´Â°Å ¾Æ´Ñ°¡¿ä
+[00:57] <[á¡Øª]¹Ì¸£> À½¼ö·Î °¡¼­ -1ÀÌ ¹ÝÈ¯µÇ°Ô µÇ¸é ¿ÍÀÏ¹®ÀÌ ºüÁ®³ª°¡°Ô µÇ´Â°Ç ¾Æ´Ï°ÚÁÒ?
+[00:57] <prosager> ³ë³ë
+[00:57] <prosager> 0x0804835e <main+54>: mov 0xfffffffc(%ebp),%edx
+[00:57] <prosager> 0x08048361 <main+57>: lea 0xfffffffc(%ebp),%eax
+[00:57] <prosager> 0x08048364 <main+60>: decl (%eax)
+[00:57] <prosager> ÀÌ ºÎºÐÀ» Àßº¸¼¼¿ä
+[01:00] <mongii> À½
+[01:00] <mongii> ±×·³ ÀÏ´Ü
+[01:00] <ÄÚÄ«½º> ÇÏÇÏ...
+[01:00] <mongii> test A, B¿¡¼­, A¿Í BÀÇ °ªÀ» &¿¬»êÇÑ ÈÄ, ±×°ÍÀ» 0°ú ºñ±³ÇÑ´Ù
+[01:00] <mongii> ¶ó°í Á¤ÀÇÇÏ°í
+[01:00] <ÄÚÄ«½º> ¿ÀÈÄ 1½Ã¿¡ ÀÏ¾î³ª·Á´Â ¾Ë¶÷ÀÌ... »õº® 1½Ã¿¡ ¿ï¸®´Ù´Ï.. ¤Ì¤Ì
+[01:00] <prosager> ³Ü
+[01:00] <mongii> ³ªÁß¿¡ ¶Ç ´Ù¸¥ È¯°æ¿¡¼­ test ¸í·ÉÀÌ ³ª¿À¸é ´õ ¾Ë¾Æº¸±â·ÎÇØ¿ä
+[01:00] <[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ
+[01:01] <[á¡Øª]¹Ì¸£> ¿¹¤³
+[01:01] <mongii> pro´ÔÀº ¶Ç ¾ÆÁ÷ ³²Àº ÀÇ¹®Á¡¿¡ ´ëÇØ¼­ °Ô½ÃÆÇ¿¡ ¿Ã·ÁÁÖ½Ã±¸¿ä
+[01:01] <ÄÚÄ«½º> ¹Ýº¹¹®Àº »ý°¢º¸´Ù´Â °£´ÜÇÏ³×¿ä...
+[01:01] <prosager> ³Ü..¾Ë°Ú½À´Ï´Ù.
+[01:01] <mongii> ±×·³ ½ºÅÍµð´Â ¿©±â±îÁöÇÕ½Ã´Ù

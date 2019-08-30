@@ -1,0 +1,739 @@
+
+Start of #wiseguys buffer: Fri Sep 26 01:51:04 2003
+
+[23:53] <mongii> ½ÃÀÛÇÕ½Ã´Ù
+[23:53] <mongii> ¿À´ÃÀº ´©°¡ ¼Ò½º ¸¸µé·¡¿ä?
+[23:53] <[á¡Øª]¹Ì¸£> ¿À...±Â
+[23:53] <prosager> ±×·±µ¥ ¸¸µé±âÀü¿¡..
+[23:54] <prosager> ¿À´Ã ÇÒ ÁÖÁ¦¿¡ ´ëÇØ¼­
+[23:54] <prosager> Á¶°Ç¹®Áß¿¡¼­ ¾îÁ¦´Â if else ±îÁö ÇßÀ¸´Ï..
+[23:54] <prosager> ¿À´Ãµµ Á¶°Ç¹®À» ÇÏÀÚ°í ³ª½ºÄ«°¡ Çß´Âµ¥
+[23:54] <prosager> ¾î¶°ÇÑ Á¶°Ç¹®À» ÇÒ±õ¼î?
+[23:54] <mongii> ¿À´ÃÀº switch¸¦ ÇØº¸ÁÒ
+[23:54] <prosager> ¾Ë°Ú½À´Ï´Ù~
+[23:55] <mongii> ±×·³ ¿À´ÃÀº pro´ÔÀÌ ¸¸µé¾îº¸¼¼¿ä
+[23:55] <[á¡Øª]¹Ì¸£> ÈÄ´Ù´Ú ·Î±×º¸±â
+[23:55] <prosager> ³Ü
+[00:03] <prosager> ¾îÁ¦¶û ºñ½ÁÇÑ ¾çÀÔ´Ï´Ù.
+[00:03] <prosager> switch ¹®ÀÚÃ¼°¡ ¸¹ÀÌ ¸Ô³×¿ä..
+[00:03] <prosager> ±×·³..¿Å±â°Ú½À´Ï´Ù
+[00:03] <[á¡Øª]¹Ì¸£> ¾îµð../tmp/dis°Å±â¿¡¿ä?
+[00:03] <[á¡Øª]¹Ì¸£> workÀÇ?
+[00:03] <prosager> ³Ü
+[00:04] <prosager> 3rd ÀÔ´Ï´Ù.
+[00:04] <[á¡Øª]¹Ì¸£> ¿½
+[00:04] <prosager> µð½º¾î¼ÀÇÏ¼¼¿ë~~
+[00:04] <[á¡Øª]¹Ì¸£> ¿Í..±æ´Ù
+[00:04] <prosager> ¾îÁ¦¶û ºñ½ÁÇÑ ±æÀÎµ¥¿ä?-_-
+[00:05] <[á¡Øª]¹Ì¸£> ¿ÀÈ«
+[00:13] <prosager> Áß°£¿¡ ÇÔÁ¤ÇÏ³ª-_-a
+[00:14] <naskazi> Àá½Ã
+[00:15] <naskazi> Á¦°¡ Á» ´Ê°Ô ½ÃÀÛÇßÀ¸´Ï ÃµÃµÈ÷ ÇÏ¼¼¿ë..ÆRÈ÷
+[00:15] <prosager> ¾û..
+[00:15] <prosager> ½Ã°£Àº ÃÊº¸ÀÎ ¹Ì¸£´ÔÀÌ ÀÖÀ¸´Ï..20ºÐ µå¸³´Ï´Ù~
+[00:15] <prosager> ÄÚÄ«½º// ¾ÈÀÚÁö?
+[00:15] <ÄÚÄ«½º> ³×
+[00:15] <prosager> Èû³»..^^
+[00:16] <[á¡Øª]¹Ì¸£> À¸Èì...¾î·Æ´Ù ¤Ñ,.¤Ñ::
+[00:16] <prosager> ¹Ì¸£´Ô// Ã·¿£ ´Ù ¾î·Á¿ö¿ä.^^; Á¦°¡ ¿Ã¸° 1,2È¸ Á¤µ¶ÇÏ½Ã°í..Á¤È®È÷ ÆÄ¾ÇÇØº¸¼¼¿ä
+[00:16] <prosager> ±×·¯¸é ÀÌÇØµÇ½Ç°Ì´Ï´Ù.
+[00:16] <[á¡Øª]¹Ì¸£> ¿¹
+[00:17] <prosager> ³»°¡ ¸¸µé°íµµ ¿Ö ´õ¹Ì°¡ 24µé¾î°¬´ÂÁö ¾ÆÁ÷µµ ÀÌÇØ ¸øÇÏ°í ÀÖÀ½-_-;;;;;;
+[00:17] <prosager> switch ¹®ÀÇ ²Ï³ª Àç¹Õ°Ô µ¿ÀÛÇÏ³×¿ä~
+[00:18] <prosager> Àá½Ã test ÇÏ³ª
+[00:20] <ÄÚÄ«½º> ¾Æµû ¹ÌÄ¡³×... -_-
+[00:20] <mongii> °í°í
+[00:21] <prosager> ´õ¹Ì ¿À¸¥ÂÊ-_-ÃÂ
+[00:21] <prosager> ¾Æ´Ï ´õ¹Ì ¿ÞÂÊ-_-
+[00:23] <ÄÚÄ«½º> ¾îÄÉ
+[00:23] <ÄÚÄ«½º> ´ÙÇßÀ½.. ^_^
+[00:23] <prosager> ¼ö°í~
+[00:23] <prosager> ½ÇÀº switch ¹® ÇÏ³ª ´õÀÖ¾ú´Âµ¥..
+[00:23] <prosager> ±×·¯´Ï±ñ main+200 ³Ñ±æ·¡-_-
+[00:23] <ÄÚÄ«½º> ¤Ñ.¤Ñ
+[00:23] <prosager> ÁÙ¿´¾î..¤Ñ¤Ñ¤»
+[00:24] -ÄÚÄ«½º- [4-X4-] ÆÄÀÏ Àü¼ÛÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù. (3rd.c)
+10[¿Ï·á] 3rd.c (À»)¸¦ ¹Þ¾Ò½À´Ï´Ù. F3 = Æú´õ¿­±â, F7 = ¹Ù·Î½ÇÇà
+1,1[--------------- [ Dns: ______ ]
+1,1[ Address: 143.248.205.250
+1,1[ Resolved: Could Not Resolve
+1,1[--------------- [ Dns: End ]
+[00:24] <ÄÚÄ«½º> À¸À½...
+[00:24] <ÄÚÄ«½º> ¼±¾ðÀÌ Âü ¿À¹¦ÇÏ³×¿ä...
+[00:25] <prosager> ¤¾
+[00:25] <ÄÚÄ«½º> ¼Ó¾Ò´Ù´Â °Å ¾Æ´Ï°Ú½É²¨...
+[00:25] <ÄÚÄ«½º> ¼Ò½º ´ëÃæ ºñ½ÁÇÏÁÒ?
+[00:25] <prosager> Àá½Ã¸¸
+[00:25] <prosager> À©µµ¿ì ¿¡¼­ º¸´Ï±ñ
+[00:25] <prosager> ±úÁ®¼­ ³ª¿À³×
+[00:26] <prosager> ¾û
+[00:26] <prosager> ´ë°­ ºñ½ÁÇÏ³×
+[00:28] <ÄÚÄ«½º> ¾Æ¾Æ...
+[00:28] <ÄÚÄ«½º> Á¦°¡ ¸¸¾à ¾î´À¼ø°£ ¸»ÀÌ ¾ø¾îÁö¸é...
+[00:28] <prosager> À½..
+[00:28] <ÄÚÄ«½º> ¾²·¯Á® ÀÚ´Â °É·Î »ý°¢ÇØ ÁÖ¼¼¿ä.. ¤Ì¤Ì
+[00:28] <prosager> -_-
+[00:28] <ÄÚÄ«½º> Áö±Ý ¼÷Á¦&ÇÒÀÏ Å¥°¡ ½×ÀÌ°í ÀÖ´Â °É º¸¸é...
+[00:29] <ÄÚÄ«½º> ¾ðÁ¦ºÎÅÍ Å¥ ¿¬»ê¿¡ push¸¸ ÀÖ°í popÀÌ »ç¶óÁ³´ÂÁö ±Ã±ÝÇÒ »ÓÀÌÁÒ.. ^_^
+[00:29] <prosager> -_-
+[00:29] <prosager> À½..±×·²¶©¸»¾ß..
+[00:29] <prosager> ¸®ºÎÆÃÀ» ÇØºÁºÁ-0-
+[00:29] <ÄÚÄ«½º> ¤Ñ.¤Ñ
+[00:29] <prosager> stack À» ±ú²ýÇÏ°Ô..-_-;;
+[00:29] <ÄÚÄ«½º> ½Ã½ºÅÛ Á¾·á´Â ÇÑ¹ø»ÓÀÌ... -_-
+[00:29] <ÄÚÄ«½º> ÇÏ¸é ¿µ¿øÈ÷ ³¡ÀÎµ¥...
+[00:30] <prosager> ¾Æ...Á¾·á¸¸ ÀÖ°í..¸®ºÎÆÃÀÌ ¾ø±¸³ª-_-;;
+[00:30] <ÄÚÄ«½º> À½...
+[00:30] <ÄÚÄ«½º> ½ºÀ§Ä¡°¡...
+[00:30] <ÄÚÄ«½º> ±×·²ÁÙÀº ¸ô¶ú´Âµ¥...
+[00:30] <prosager> ¹¹°¡ ±×·²ÁÙ ¸ô¶ó?
+[00:31] <prosager> ´ÜÁö ³ªµµ ¾à°£ ½Å±âÇÑ°É ¹ß°ßÇß¾î..¤¾¤¾
+[00:33] <prosager> ÀÚ~~
+[00:33] <prosager> ÀÌÁ¦ time~up~~
+[00:33] <prosager> ´Ùµé ÇÏ¼Ë³ª¿ä?
+[00:34] <prosager> ¸ùÀÌ´ÔÀº ´ÊÀ¸¼Å¼­ ´õ ÇÊ¿äÇÏ½Å°¡¿ä?
+[00:34] <mongii> ¾ÆÁ÷¿ä
+[00:34] <mongii> ³×
+[00:34] <prosager> ³Ü
+[00:34] <ÄÚÄ«½º> ´Ùµé...
+[00:34] <prosager> Ä«½º¾ß
+[00:34] <ÄÚÄ«½º> ±×°Å¿¡¼­ Çò°¥·Á ÇÏ½Ç µí...
+[00:34] <ÄÚÄ«½º> ³×?
+[00:34] <prosager> ³Ê ¿Ö 0x18 ÀÎÁö ÀÌÇØµÅ?
+[00:34] <prosager> -_-
+[00:35] <ÄÚÄ«½º> 18ÀÌ... 10Áø¼ö·Î
+[00:35] <prosager> 24
+[00:35] <ÄÚÄ«½º> 24³×¿ä..
+[00:35] <prosager> 0x0804855d <main+3>: sub $0x18,%esp
+[00:35] <ÄÚÄ«½º> 16±îÁö¸¸ ÀÌÇØµÊ...
+[00:35] <prosager> ÀÌ°Å..ÀÌÇØµÅ?-_-
+[00:36] <prosager> ÄÄÆÄÀÏ·¯°¡ ³Ê¹« ¶Ù¾î³ª´Ù°í ¹Û¿¡ ¸»À» ÇÒ¼ö¾ø±º-_-
+[00:37] <prosager> ³ª½ºÄ« ÀÚÁö?-_-
+[00:38] <prosager> ¾ÈÀÚ³ª?¤Ñ¤Ñ¤»
+[00:38] <naskazi> ¾ÈÀÚ¿ä
+[00:38] <naskazi> ¤¾¤¾
+[00:38] <[á¡Øª]¹Ì¸£> ¾Ç.....
+[00:38] <prosager> w ·Î ´Ù idle È®ÀÎÇßÀ½-_-v
+[00:39] <[á¡Øª]¹Ì¸£> ¸Þ¸ðÀå¿¡ ºÙ¿©³õ°í
+[00:39] <[á¡Øª]¹Ì¸£> ÀÛ¾÷ÁßÀÎµ¥ ÇªÈ÷Èý
+[00:40] <prosager> ÇÏ±Þ»ý TV ÆÇ ºÃ¾î¿ä~ ¾îÁ¦..
+[00:40] <mongii> ¿ÀÄÉÀÌ ´ÙÇß¾î¿ä
+[00:40] <prosager> ¿ÀÄÉ
+[00:40] <mongii> ÀÚ²ÙÇÏ´Ï±î ³ëÇÏ¿ì°¡ »ý±â³×¿ä
+[00:40] <prosager> ´ÊÀº ¸ùÀÌ´ÔÀÌ ´Ù ÇÏ¼ÌÀ¸´Ï
+[00:40] <prosager> ¼Ò½º °ø°³ÇÕ´Ï´Ù..^^
+[00:40] <prosager> º¸¼¼¿ä~
+[00:41] <prosager> ±×¸®°í ÀÌÁ¦ºÎÅÍ ±Ã±ÝÁõ ÇØ°áÀÇ ½Ã°£!!
+[00:41] <ÄÚÄ«½º> ¾Ñ..
+[00:41] <ÄÚÄ«½º> Æ²·È´Ù.. -_-
+[00:41] <prosager> ÄÚÄ«½º// ¸¶Áö¸· break ´Â..
+[00:41] <ÄÚÄ«½º> ¾Æ..
+[00:41] <prosager> ±¸º°ÇÒ ¹æ¹ýÀÌ ¾ø¾î-_-;;
+[00:41] <ÄÚÄ«½º> ÃÖÀûÈ­·Î
+[00:41] <ÄÚÄ«½º> ¤Ñ.¤Ñ
+[00:41] <ÄÚÄ«½º> ÃÖÀûÈ­µµ ¾Æ´Ï±¸³ª..
+[00:41] <prosager> ³»°¡ •û°í ÄÄÆÈÇØºÃ´Âµ¥..
+[00:42] <ÄÚÄ«½º> ±×·±µ¥ ¸»ÀÌÁÒ...
+[00:42] <prosager> ±×·¡µµ..°°Àº ÄÚµå´õ¶ó±¸..
+[00:42] <ÄÚÄ«½º> Àü º¯¼ö°¡ Ã³À½¿¡ 4°³ ¼±¾ðµÈ ÁÙ ¾Ë¾Ò¾î¿ä.
+[00:42] <prosager> À½...±×°Ô switch~
+[00:42] <ÄÚÄ«½º> ±×´ë·Î ¾È¾²°í switch¿¡¼­ »õ·Î ¿Å°Ü¼­ ¾²³×¿ä
+[00:42] <mongii> »ý°¢ÇÑ°Å¶û ¿ÏÀü µýÆÇÀÌ³×
+[00:42] <prosager> ³ªµµ ³î·¨¾î..
+[00:42] <prosager> ÀÚ~ º¯¼ö 4°³ ÀâÀ¸½ÅºÐ ¼Õµå¼¼¿ä~
+[00:42] <ÄÚÄ«½º> Ã³À½¿¡´Â 4°³.. ¤Ñ¤Ñ;;
+[00:42] <prosager> Àúµµ ÄÚµå¸¸ º¸¸é 4°³ Àâ¾ÒÀ»°Ì´Ï´Ù-_-;;
+[00:42] <ÄÚÄ«½º> ¾Æ¸¶..
+[00:43] <ÄÚÄ«½º> 0xbfffffec(%ebp
+[00:43] <ÄÚÄ«½º> )
+[00:43] <ÄÚÄ«½º> ´Ùµé ÇÑ¹ø¾¿Àº.. ^_^
+[00:43] <prosager> 0x0804832b <main+3>: sub $0x18,%esp
+[00:43] <prosager> ÀÌ ºÎºÐ¿¡¼­ º¸¸é. sub À» 24°³¸¦ ÇÏÁÒ
+[00:43] <prosager> Á¦°¡ ¼±¾ðÀº ´Þ¶û 8¹ÙÀÌÆ®..
+[00:43] <naskazi> Àú¿ä~
+[00:43] <naskazi> Àú 4°³ Àâ¾ÒÀ½.. ¤»¤»
+[00:43] <[á¡Øª]¹Ì¸£> ¤Ì.,¤Ì
+[00:43] <naskazi> ¿Í.. ¿ÏÀüÈ÷ ¾îÀÌ ¾ø³×
+[00:43] <[á¡Øª]¹Ì¸£> ¼Ò½º°ø°³´Â
+[00:44] <[á¡Øª]¹Ì¸£> °Å±â´Ù ÇÏ³ª¿ä?
+[00:44] <prosager> ³Ü
+[00:44] <naskazi> ÄÄÆÄÀÏ·¯ Á¹¶ó ¸ÛÃ»ÇÏ´Ù
+[00:44] <prosager> /tmp/disa~~
+[00:44] <[á¡Øª]¹Ì¸£> ¿ÀÈ«
+[00:44] <prosager> -_-;;
+[00:44] <naskazi> Àú·¸°Ô °£´ÜÇÑ°É ÀÌ·¸°Ô º¹ÀâÇÏ°Ô ¾î¼ÀºíÇÏ´Ù´Ï
+[00:44] <prosager> º¸¼ÌµíÀÌ..ÄÄÆÄÀÏ·¯°¡...
+[00:44] <[á¡Øª]¹Ì¸£> º¯¼ö µÎ°³Àâ¾Ò´Âµ¥....
+[00:44] <prosager> switch ¾µ¶§..
+[00:44] <prosager> º¯¼ö¸¦ ÇÒ´çÇÕ´Ï´Ù
+[00:44] <prosager> [i][j][sfp][ret]
+[00:44] <prosager> ÀÌ·¨´Âµ¥
+[00:44] <prosager> [switch i][i][j][sfp][ret]
+[00:45] <prosager> ÀÌ·¸°Ô µÇÁÒ??
+[00:45] <naskazi> ¾Ö Àú·± ºñÈ¿À²ÀûÀÎ ¹æ¹ýÀ» »ç¿ëÇÒ°¡¿ä?
+[00:45] <prosager> 0xbfffe030 14 0a 13 42 60 c6 00 40 02 00 00 00 01 00 00 00 ...B`..@........
+[00:45] <prosager> 0xbfffe040 01 00 00 00 02 00 00 00 68 e0 ff bf 74 55 01 42 ........h...tU.B
+[00:45] <naskazi> ±×³É ±×´ë·Î °®´Ù ½áµµ µÇ´Âµ¥
+[00:45] <ÄÚÄ«½º> naskazi//-Os·Î ÄÄÆÄÀÏ ÇÏ½Ã¸é ±â°¡¸·Èù ¾î¼ÀºíÀ» º¼ ¼ö ÀÖ¾î¿ä.. ^_^
+[00:45] <prosager> ´ýÇÁÀÎµ¥..
+[00:45] <prosager> º¸¸é ¾Ë°ÚÁö¸¸..
+[00:45] <naskazi> ÄÚÄ«½º//±×°Ô ¹ºµ¥?
+[00:45] <naskazi> ±× ¿É¼ÇÀÌ ¸Ó¾ß?
+[00:45] <ÄÚÄ«½º> ¼Ò½ºÄÚµå Å©±â ÁÙÀÌ´Â ÃÖÀûÈ­¿ä...
+[00:46] <naskazi> ¾Æ..
+[00:46] <prosager> ¾Æ·§ÁÙÀº 16¹ÙÀÌÆ®²ËÃ¤¿ì°í ±× À§·Î 1,2 °¡ º¹»çµÈ°É º¸¿©ÁÝ´Ï´Ù
+[00:46] <naskazi> ¸ÚÁö°Ú±º
+[00:46] <ÄÚÄ«½º> Optimize size·Î ¾Ë°í ÀÖ¾î¿ä..
+[00:46] <naskazi> ±Ùµ¥ Á¦ ¼Ò½º ÄÄÆÄÀÏÇØµµ
+[00:46] <prosager> -Os ¸Â¾î?
+[00:46] <ÄÚÄ«½º> ³×
+[00:46] <naskazi> ¶È°°Àº ¾î¼Àºí ³ª¿À³×¿ä
+[00:46] <prosager> ±×·±µ¥ ³­ ¾ÈµÈ´Ù..ÄÄÆÈ-_-
+[00:46] <naskazi> Àü 4°³ ¼±¾ðÇÏ°í Áß°£ Áß°£¿¡ c=a, d=bÀÖ°Åµç¿ä
+[00:47] <mongii> ³»°¡ º¸±â¿£
+[00:47] <naskazi> ¾î¼À ÄÚµå´Â ¶È°°À½.. -_-;
+[00:47] <mongii> ¸¸¾à
+[00:47] <mongii> switch(i) {
+[00:47] <mongii> case 1: printf("See ya\n"); break;
+[00:47] <mongii> case 2: printf("What!@#\n"); break;
+[00:47] <mongii> }
+[00:47] <mongii> ¿ä·± ÄÚµå°¡ ÀÖ´Âµ¥
+[00:47] <mongii> Àú°Ô ¾Æ´Ï°í ¸¸¾à ´ÙÀ½°ú °°¾Ò´Ù¸é
+[00:47] <mongii> switch(i) {
+[00:47] <mongii> case 1: i=2; break;
+[00:47] <mongii> case 2: i=3); break;
+[00:47] <mongii> }
+[00:47] <mongii> º¯¼ö¸¦ µû·Î ÇÒ´çÇØ¼­ º¹»çÇÏÁö ¾Ê¾ÒÀ» ¶§
+[00:47] <mongii> Á¦´ë·Î µ¹¾Æ°¡Áö ¾ÊÀ»°Å °°Àºµ¥
+[00:47] <prosager> ¾Æ....
+[00:47] <prosager> ¹®Á¦°¡ ¹ß»ýÇÏ´Â±¸³ª..
+[00:47] <mongii> ¸Â³ª?
+[00:48] <mongii> ¾î¼À¸¸ ºÁ¼­´Â
+[00:48] <mongii> ¹®Á¦°¡ »ý±æ°Å °°Àº~
+[00:48] <naskazi> ÇÏÁö¸¸ °ð¹Ù·Î —Í ÇÏÀÝ¾Æ¿ä
+[00:48] <mongii> ±×°Å¾ß
+[00:48] <naskazi> º¯¼ö °ª ¹Ù²îÀÚ ¸¶ÀÚ ”î
+[00:48] <mongii> Àú ÄÚµå¿¡¼­¸¸ ÇØ´çÇÏÁö
+[00:48] <mongii> —Å ¾ÈÇÏ¸é?
+[00:48] <ÄÚÄ«½º> ”îÀ» ¾ÈÇÏ¸é..
+[00:48] <naskazi> ¸¸¾à¿¡
+[00:48] <mongii> ±×·³ »à»ç¸® ³¯°Å °°Àºµð
+[00:48] <naskazi> ”îÀ» ¾ÈÇÑ´Ù¸é
+[00:48] <naskazi> ±×°Ç ÇÁ·Î±×·¡¸ÓÀÇ ½Ç¼öÁÒ
+[00:48] <mongii> ¾Æ´ÏÁö
+[00:48] <mongii> —Å ¾ÈÇÏ´Â °æ¿ìµµ ¸¹¾Æ
+[00:48] <naskazi> ³í¸®ÀûÀ¸·Î ±×°Ç ¿À·ù°¡ ÀÖ´Â ÄÚµå°¡ µÇÁÒ
+[00:48] <prosager> º¯¼ö°ªÀÌ ¹Ù²Ù¸é..
+[00:48] <naskazi> ºñ±³ÇÏ´Â º¯¼ö°ªÀ» ¹Ù²å´Âµ¥
+[00:48] <mongii> 2~3°¡Áö Á¶°Ç¿¡ ´ëÇÏ¿© °°Àº ·çÆ¾À» ¼öÇàÇÒ¶§
+[00:49] <mongii> —Å ÇÒ ÇÊ¿ä°¡ ¾øÁö
+[00:49] <prosager> i ÀÇ °ªÀ» ¹Ù²Ù´Â ÄÚµå¸¦ ³Ö°í ”î ÇÏ¸é ¾îÄÉ µÉ±î¿ä?
+[00:49] <naskazi> ¿¹ ÇÏ³ª¸¸ µé¾îÁÖ¼¼¿ä.. ÀÌÇØ°¡ Àß ¾ÈµÇ¼­;;
+[00:49] <mongii> ±×·³
+[00:49] <mongii> ºÁ¹Ù
+[00:49] <mongii> À©µµ¿ì ÇÃ¹ÖÀ» ÇÏ´Âµ¥
+[00:49] <mongii> ¸¶¿ì½º ¿À¸¥ÂÊ ¹öÆ° ´­·¶À» ¶§¶û
+[00:49] <mongii> ¿ÞÂÊ ¹öÆ° ´­·¶À» ¶§¶û
+[00:49] <mongii> µÑ ´Ù ¸ðµÎ ÇÁ·Î±×·¥ÀÌ Á¾·áµÇµµ·Ï ÇÏ°í½ÍÀ»¶§
+[00:49] <mongii> case "¿ÞÂÊ":
+[00:49] <mongii> case "¿À¸¥ÂÊ"
+[00:49] <mongii> DestroyWindow();
+[00:49] <mongii> —Å;
+[00:49] <mongii> ÀÌ·¸°Ô µÉ ¼ö ÀÖÀÝ¾î
+[00:49] <naskazi> ³×
+[00:50] <mongii> ±Ùµ¥ ¸¸¾à
+[00:50] <mongii> case "¿ÞÂÊ":
+[00:50] <mongii> i = ¿ÀÈÄ¾Ó;
+[00:50] <mongii> case "¿À¸¥ÂÊ"
+[00:50] <mongii> DestroyWindow();
+[00:50] <mongii> —Å;
+[00:50] <naskazi> ??
+[00:50] <mongii> -_-;;;
+[00:50] <mongii> ¿¡ÀÌ
+[00:50] <ÄÚÄ«½º> ±×·±µ¥¿ä.
+[00:50] <ÄÚÄ«½º> ÀÏ´Ü
+[00:50] <prosager> -_-;;
+[00:50] <naskazi> ºñ±³ÇØ¾ß ÇÒ °ªÀ» ¹Ù²Ü¸®°¡ ¾øÀÝ¾Æ¿ä
+[00:50] <ÄÚÄ«½º> ÇÑ¹ø ºñ±³ÇÑ °ªÀÌ¸é
+[00:50] <ÄÚÄ«½º> ´õÀÌ»ó ±× ½ºÀ§Ä¡¹® ³»¿¡¼­´Â ºñ±³ ¾ÈÇÏÁö ¾Ê³ª¿ä?
+[00:50] <ÄÚÄ«½º> ±×·¯¸é ±»ÀÌ ¿Å±æ ÇÊ¿äµµ ¾øÀ» °Í °°Àºµ¥...
+[00:51] <mongii> »ý°¢À» ´õ ÇØº¸°ÚÀ½
+[00:51] <naskazi> ÄÚÄ«½º//±×·¸°Ú´Ù~
+[00:51] <prosager> À½...
+[00:51] <prosager> ¿©ÇÏÆ° switch ´Â º¯¼ö¸¦ µû·Î ÇÏ³ª ÇÒ´çÇØ¼­ »ç¿ëÇÏ³×¿ä
+[00:51] <naskazi> ³Ü
+[00:52] <prosager> ±×¸®°í ´õ¹Ì´Â ¿ÞÂÊ..-_-
+[00:52] <prosager> ±×°Í¸»°í´Â 1¹ø switch ´Â º°·Î ¹®Á¦ ¾øÀÌ Ç®¸®´Âµ¥..
+[00:52] <prosager> 2¹øÂ° switch ¹®¿¡¼­´Â..
+[00:52] <prosager> ÇÔÁ¤ÀÌ ÀÖÁö¿ä..^^
+[00:52] <prosager> º¸½Ã´Ù½ÃÇÇ break °¡ ¾øÁÒ..
+[00:53] <prosager> ±×¸®°í 3¹øÂ° break °¡ ÀÖ´ÂÁö ¾ø´ÂÁö´Â...¾î¼ÀÀ¸·Î´Â ¾Ë¼ö°¡ ¾ø³×¿ä...
+[00:53] <prosager> ±× µÚÀÇ ÄÚµå°¡ ¾ø´Â °ü°è·Î..
+[00:54] <mongii> À½~ ¾Æ±î ³»°¡ ¸»ÇÑ´ë·Î ÄÚµåÂ¥·Á´Ï ³Ê¹« ¾ïÁö°¡ µÈ´Ù
+[00:54] <[á¡Øª]¹Ì¸£> 2¹ø½ºÀ§Ä¡...
+[00:54] <[á¡Øª]¹Ì¸£> ¿¡¼­ ¸·Çû´Âµ¥
+[00:55] <prosager> Á¦°¡ Áú¹®ÇÏ³ª ÇÒ±î¿ä?
+[00:55] <mongii> ³×
+[00:55] <naskazi> ¸ùÀÌ//ÇüÀÌ ¸»ÇÑ °æ¿ì°¡ ÀÖÀ» °Í °°±ä ÇÑµ¥ ¸Å¿ì µå¹°°Í °°¾Æ¿ä..
+[00:55] <prosager> 0x08048382 <main+90>: cmpl $0x2,0xfffffff0(%ebp)
+[00:55] <prosager> 0x08048386 <main+94>: je 0x80483b0 <main+136>
+[00:55] <prosager> 0x08048388 <main+96>: cmpl $0x2,0xfffffff0(%ebp)
+[00:55] <prosager> ---Type <return> to continue, or q <return> to quit---
+[00:55] <prosager> 0x0804838c <main+100>: jg 0x8048396 <main+110>
+[00:55] <prosager> À§ÀÇ ºÎºÐ¿¡¼­ º¸¸é¿ä..
+[00:55] <[á¡Øª]¹Ì¸£> °Å±â...
+[00:55] <prosager> cmpl ¸¦ 2¹øÇÏÁÒ
+[00:55] <[á¡Øª]¹Ì¸£> ¿¹
+[00:55] <prosager> ¿Ö 2¹øÇÒ±î¿ä?
+[00:56] <prosager> switch ¹®ÀÌ µ¹¾Æ°¡´Â ¹æ½ÄÀÏ±î¿ä??
+[00:56] <[á¡Øª]¹Ì¸£> 2¹øÂ°¿¡
+[00:56] <[á¡Øª]¹Ì¸£> ºê·¹ÀÌÅ©°¡ ¾ø¾î¼­ÀÎ°¡
+[00:56] <prosager> 2¹ø¿¡ ”î~ÀÌ ¾ø¾î¼­..jmp ÇÏ´Â°Ç ÀÌÇØ°¡ °¡´Âµ¥..
+[00:56] <prosager> ¸¸¾à¿¡ 2º¸´Ù Å©¸é 3¹øÀÇ cmpl ·Î ¶Ù³×¿ä
+[00:56] <naskazi> ”îÀÌ ¾ø¾î¼­ ±×·±°¡ºÁ¿ä
+[00:56] <[á¡Øª]¹Ì¸£> ±×·±µí....
+[00:56] <[á¡Øª]¹Ì¸£> ”îÀÌ ºê·¹ÀÌÅ©¸¦ ¸»ÇÑ°Å¿³±¸³ª ¤Ñ,.::
+[00:57] <naskazi> -0-;;
+[00:57] <[á¡Øª]¹Ì¸£> main+102¹øÂ°´Â
+[00:57] <[á¡Øª]¹Ì¸£> ¹¹ÁÒ...
+[00:58] <prosager> ¾Æ´¢
+[00:58] <prosager> ”îÀÌ ÀÖ¾îµµ
+[00:58] <prosager> jg ºÎºÐÀÌ ³ª¿Í¿ä
+[00:58] <prosager> ´ÜÁö ”îÀÌ ÀÖÀ¸¸é..
+[00:58] <[á¡Øª]¹Ì¸£> jg¸é ¹¹ÀÇ ¾àÀÚÁö..
+[00:58] <prosager> 2¹ø printf ¹®µÚ¿¡ 0x080485f9 <main+159>: jmp 0x804860b <main+177>
+[00:58] <prosager> ÀÌ ºÎºÐÀÌ »ý±â´Â°ÅÁÒ
+[00:58] <prosager> jump greater
+[00:58] <prosager> ÀÏµí
+[00:58] <[á¡Øª]¹Ì¸£> ¾ÆÇ×
+[00:58] <prosager> ¿Ö? Àú±â¼­ ´ë¼Ò ºñ±³¸¦ ÇÏÁÒ?-_-
+[00:59] <ÄÚÄ«½º> ÁË¼ÛÇÕ´Ï´Ù.. ¸ÕÀú µé¾î°¥²²¿ä..
+[00:59] <[á¡Øª]¹Ì¸£> ¼³¸¶ Àú ÄÉÀÌ½º¹® 2,3¿¡¼­
+[00:59] <[á¡Øª]¹Ì¸£> ºê·¹ÀÌÅ©°¡ »çÀÌ¿¡ ¾ø±â¿¡
+[00:59] <prosager> ¾û..¼ö°íÇß¾î
+[00:59] <prosager> Ä«½º¾ß
+[00:59] <ÄÚÄ«½º> ³×?
+[00:59] <prosager> ·Î±× º¸°í..³ª¸ÓÁö´Â ¹è¿ö~
+[00:59] <[á¡Øª]¹Ì¸£> 2, 3³¢¸® ºñ±³ÇÏ´Â°Ç ¾Æ´Ï°ÚÁÒ? ¤Ñ,.¤Ñ
+[00:59] <ÄÚÄ«½º> ³×
+[00:59] <[á¡Øª]¹Ì¸£> Ä«½º ÀßÀÚ~
+[00:59] <naskazi> ¤³~
+[00:59] <prosager> ³ª½ºÄ«¾ß
+[00:59] <ÄÚÄ«½º> ´Ùµé ¾È³çÈ÷... (_ _)
+[00:59] <mongii> ±×¸®°í
+[00:59] <prosager> ¿Ö jg ºÎºÐÀÌÀÖ¾ö?
+[00:59] <mongii> µÎ ¹øÂ° switch¿¡¼­ ¿Ö 1ºÎÅÍ ¾ÈÇÏ±¸ 2ºÎÅÍ ºñ±³ÇÒ°¡¿ä?
+[01:00] <[á¡Øª]¹Ì¸£> ±×·¯°Ô¿ä
+[01:00] <prosager> ±×·¯°Ô¿ä...
+[01:00] <naskazi> Á¦°¡ º¼¶© ¸»ÀÌÁÒ
+[01:00] <naskazi> ÀÏÁ¾ÀÇ ¾Ë°í¸®ÁòÀÎµí
+[01:00] <[á¡Øª]¹Ì¸£> È¤½Ã
+[01:00] <naskazi> 2Áø Å½»ö
+[01:00] <[á¡Øª]¹Ì¸£> ¾Æ!
+[01:00] <[á¡Øª]¹Ì¸£> jº¯¼ö¿¡
+[01:00] <[á¡Øª]¹Ì¸£> 2°¡ µé¾î°¡ÀÖÀÝ¾Æ¿ä
+[01:00] <[á¡Øª]¹Ì¸£> °ªÀÌ
+[01:00] <[á¡Øª]¹Ì¸£> »ó°ü ¾ø³ª ¤Ñ,.¤Ñ::
+[01:00] <naskazi> ¾Æ..
+[01:00] <naskazi> ¸Â´Ù
+[01:00] <[á¡Øª]¹Ì¸£> ±×ÁÒ?
+[01:00] <naskazi> ¹Ì¸£Çü ¸»ÀÌ ¸Â´Âµí
+[01:00] <[á¡Øª]¹Ì¸£> ±×·¡¼­ ÄÉÀÌ½º 2¹øÀ¸·Î
+[01:00] <[á¡Øª]¹Ì¸£> ¹Ù·Î °£µÚ¿¡
+[01:00] <naskazi> ¾Æ
+[01:00] <naskazi> ±Ùµ¥
+[01:00] <naskazi> ³ë³ë
+[01:00] <[á¡Øª]¹Ì¸£> ¾Æ³Ä?
+[01:00] <naskazi> »ý°¢ÇØ º¸´Ï
+[01:01] <naskazi> º¯¼ö°ªÀÎµ¥
+[01:01] <naskazi> º¯¼ö°ªÀº ´Ã ¹Ù²î´Âµ¥
+[01:01] <naskazi> ±×°Ç ¾Æ´ÏÁÒ
+[01:01] <naskazi> ¸¸¾à
+[01:01] <[á¡Øª]¹Ì¸£> À¸Èì..±ÛÄï
+[01:01] <naskazi> º¯¼ö°ªÀ» ÇÒ´çÇÏ´Ï ¾Ê°í ÀÔ·Â ¹Þ´Â´Ù¸é ³¶ÆÐ
+[01:01] <naskazi> ¾Æ¸¶µµ 2Áø Å½»ö°ú °°Àº ¾Ë°í¸®ÁòÀÎµí
+[01:01] <prosager> ¾ó·¡..
+[01:01] <[á¡Øª]¹Ì¸£> ¾Æ..±Ùµ¥
+[01:01] <naskazi> ¹«½ÄÇÏ°Ô
+[01:01] <prosager> break ¿Í °ü°è¾ø¤·
+[01:01] <[á¡Øª]¹Ì¸£> ¿ø·¡ switch¹®¾²¸é
+[01:01] <naskazi> ¸ðµÎ ºñ±³ÇÏÁö ¾Ê°í
+[01:01] <[á¡Øª]¹Ì¸£> µðÆúÆ®µµ Á¤ÇØÁÖÁö ¾Ê³ª?
+[01:01] <[á¡Øª]¹Ì¸£> µðÆúÆ®µµ Á¤ÇØÁà¼­ ±âº»À¸·Î º¯¼ö°© ÇÒ´ç ¾ÈÇØÁàµµ
+[01:01] <naskazi> ÃÖ¼ÒÇÑÀ¸·Î ºñ±³ÇÏ±â À§ÇØ ±×·±µí
+[01:01] <prosager> ±×¸®°í case °¹¼ö°¡ ´Ã¾îµµ °ü°è¾ø¾î
+[01:02] <[á¡Øª]¹Ì¸£> ±× º¯¼ö°ªÀÌ µðÆúÆ®·Î µé¾î°¥ ¼ö ÀÖµµ·Ï ÇÏÁö ¾Ê³ª
+[01:02] <[á¡Øª]¹Ì¸£> ³»°¡ ¿¿³¯¿¡ switch¹®½áºÃÀ»¶§...º¯¼ö°ª¿¡µû¶ó
+[01:02] <naskazi> ¿ª½Ã ¿À´Ãµµ ¿ì¸®ÀÇ Åä·ÐÀº ¾î¼À ¹®¹ýÀÌ ¾Æ´Ï¶ó.. ±¸Çö ¹æ½Ä¿¡ ºÒ¸¸À» °®°í.. ¤»¤»
+[01:02] <prosager> ¿ì¿Í..
+[01:02] <[á¡Øª]¹Ì¸£> ½ºÀ§Ä¡ ÄÉÀÌ½º¹®À¸·Î ¹Ù·Î ³Ñ¾î°¡´øµ¥
+[01:02] <prosager> ¾Æ¹«·± °ü°è¾øÀÌ 2¸¦ ¸ÕÀú ºñ±³ÇÏ³×..
+[01:02] <[á¡Øª]¹Ì¸£> ±×°Å 1·Î ³ÖºÁ¿ä
+[01:03] <[á¡Øª]¹Ì¸£> º¯¼ö°ªÀ»
+[01:03] <prosager> º¯¼ö¹Ù²ãµµ »ó°ü¾ø±¸¿ä
+[01:03] <[á¡Øª]¹Ì¸£> »ó°ü ¾ø¾î¿ä?
+[01:03] <prosager> break ¾ø¾îµµ »ó°ü¾ø±¸¿ä
+[01:03] <prosager> case °¹¼ö¿¡ µû¶ó ¹Ù²ðÁö ¾Ë¾Ò´Âµ¥..
+[01:03] <prosager> ±×°Íµµ ¾Æ´Ñ°Å °°±¸¿ä
+[01:03] <naskazi> 8±îÁö ³Ö¾îºÁ¿ä
+[01:03] <naskazi> case¸¦.. ¤»¤»
+[01:03] <naskazi> ±×·¯¸é ´Ù¸¦µí
+[01:03] <naskazi> »ó¿øÇü
+[01:03] <naskazi> ¸î°³±îÁö ³Ö¾îºÃ¾î¿ä? case
+[01:04] <[á¡Øª]¹Ì¸£> »ó°ü ¾ø³×
+[01:04] <prosager> 8°³ ³Ö¾ú¾î
+[01:04] <naskazi> ¾î¶§¿ä?
+[01:04] <naskazi> ±×·¡µµ 2ºÎÅÍ ÇØ¿ä?
+[01:04] <naskazi> -_-;
+[01:04] <prosager> ¹Ù²¼¾î
+[01:04] <naskazi> ±×ÃÝ?
+[01:04] <naskazi> ¤»¤»
+[01:04] <naskazi> 4?
+[01:04] <naskazi> 3?
+[01:04] <prosager> ¾Æ´Ï
+[01:05] <prosager> ¾î¼ÀÄÚµå ÀÚÃ¼°¡ ¹Ù²¼¾î-_-
+[01:05] <naskazi> -_-;;
+[01:05] <prosager> shl ÀÌ ¹¹ÇÏ´Â ¸í·É¾î³Ä?
+[01:05] <naskazi> ¿À.. ³î¶ó¿ö¶ó
+[01:05] <prosager> ja ´Â ¶Ç ¹¹¾ß?
+[01:05] <naskazi> ja´Â
+[01:05] <[á¡Øª]¹Ì¸£> switch¹®Àº °ªÀÌ ÀÏÄ¡ÇÏ´Â ÅÛÇÃ¸´À¸·Î ºÐ±âÇÑ´Ù. ±×·¯³ª °ªÀÌ ÀÏÄ¡ÇÏ´Â
+[01:05] <[á¡Øª]¹Ì¸£> ÅÛÇÃ¸´¿¡ Æ÷ÇÔµÈ ¹®Àå¸¸ ½ÇÇàÇÏ±â À§ÇØ¼­´Â ÇÊ¿äÇÑ ºÎºÐ¿¡ break¹®À» Æ÷ÇÔ½ÃÄÑ¾ß ÇÑ´Ù
+[01:05] <naskazi> jg¶û °°Àº¤·°Çµ¥¿ä
+[01:05] <naskazi> ¹«½¼ ¾Ë°í¸®ÁòÀÌÁö..
+[01:05] <naskazi> Âü ¿ä»óÇÏ³×..
+[01:05] <naskazi> »ó¿øÇü »Ñ·ÁÁà¿ä
+[01:05] <naskazi> switchºÎºÐ¸¸
+[01:05] <[á¡Øª]¹Ì¸£> ÀÌ¸»Àº ½ºÀ§Ä¡¹®ÀÇ Ç¥Çö°ª¿¡ µû¶ó¼­
+[01:06] <[á¡Øª]¹Ì¸£> ÄÉÀÌ½º°¡ ½ÇÇàµÈ´Ù´Â¸» ¾Æ³Ä?
+[01:06] <naskazi> ³×?
+[01:06] <naskazi> Ç¥Çö°ªÀÌ¶ó´¢?
+[01:06] <prosager> ¾û
+[01:06] <prosager> 0x080485ae <main+84>: cmpl $0x8,0xfffffffc(%ebp)
+[01:06] <prosager> 0x080485b2 <main+88>: ja 0x8048650 <main+246>
+[01:06] <prosager> 0x080485b8 <main+94>: mov 0xfffffffc(%ebp),%eax
+[01:06] <prosager> 0x080485bb <main+97>: shl $0x2,%eax
+[01:06] <prosager> 0x080485be <main+100>: mov 0x8048774(%eax),%eax
+[01:06] <[á¡Øª]¹Ì¸£> switch(expresion) ÀÌÀÝ¾Æ
+[01:06] <prosager> ÀÌ·¸°Ô ¶°
+[01:06] <[á¡Øª]¹Ì¸£> ÀÍ½ºÇÁ·¹¼ÇÀº ¼ö½ÄÀ» ³ªÅ¸³»´Â°Å°í
+[01:06] <[á¡Øª]¹Ì¸£> º¯¼ö°ªÀÌ ¿Ã¼öµµ ÀÖÁö
+[01:06] <[á¡Øª]¹Ì¸£> ±Ùµ¥ ±× º¯¼ö°ª¿¡ ¸ÂÃç¼­ ÄÉÀÌ½º¹®À» º¸¿©ÁÖ´Â°Å ¾Æ´Ï³Ä°í
+[01:06] <naskazi> ±×·²¼ö°¡ ¾øÁÒ
+[01:06] <naskazi> ¾Æ±î ¸»ÇßµíÀÌ º¯¼ö°ªÀÌ ÀÔ·Â¹Þ´Â °Å¶ó¸é
+[01:07] <naskazi> ¾îÄÉ ÇÏÁÒ?
+[01:07] <[á¡Øª]¹Ì¸£> ÀÔ·Â¹Þ´Â°Å¿´À»¶©
+[01:07] <[á¡Øª]¹Ì¸£> default¸¦ Á¤ÇØÁà¾ßÇÏÁö
+[01:07] <prosager> ¾Æ..ÀÌÇØÇß´Ù
+[01:07] <prosager> º¯¼ö ¿Ö »õ·Ó°Ô ÇÒ´çÇÏ´ÂÁö
+[01:07] <[á¡Øª]¹Ì¸£> ¿ø·¹ switch() { case~~; breake; default~ ÀÝ¾Æ
+[01:07] <naskazi> ¾Æ±î »ó¿øÇüÀÌ º¯¼ö°ª ¹Ù²ãºÃ¾úÀÝ¾Æ¿ä
+[01:07] <prosager> switch(num[1]+num[0]){
+[01:07] <[á¡Øª]¹Ì¸£> À¸Èì...
+[01:07] <prosager> ÀÌ·±½ÄÀ¸·Î ÇÏ´Ï±ñ..
+[01:08] <naskazi> ±×·¸³×¿ä~
+[01:08] <prosager> switch °¡ ÀúÀåÇÏ´Â°ªÀº..
+[01:08] <prosager> ¼ö½ÄÀÌ µé¾î°¥°æ¿ìÀÇ °è»ê°ªµµ µé¾î°¥ °¡´É¼ºÀÌ ÀÖÀÚ³ª
+[01:08] <prosager> ±×·±°æ¿ì¸¦ À§ÇØ¼­ÀÎ°Å °°¾Æ
+[01:08] <naskazi> ³×
+[01:08] <naskazi> Àá½Ã¸¸¿ä
+[01:08] <prosager> ÇÑ¹øÇØºÁ
+[01:08] <naskazi> shl¸í·É¾î Ã£¾Æº¼²²¿ä
+[01:08] <[á¡Øª]¹Ì¸£> shl?
+[01:08] <prosager> ±×¸®°í 8°³ case ³Ñ¾î°¡´Ï±ñ..¾î¼ÀÄÚµåÀÚÃ¼°¡ ¹Ù²¸-_-
+[01:08] <[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ
+[01:08] <prosager> µð½º¾î¼ÀÇÕ´Ï´å
+[01:08] <[á¡Øª]¹Ì¸£> switch·Î´Â 8°³°¡ ±âº»ÀÎ°Ç°¡¿ä?
+[01:10] <prosager> Áß¿äÇÑ°Ç
+[01:10] <prosager> cmpl $0x8 ÀÌ¶ó´Â°ÅÁö
+[01:10] <prosager> 7°³¸é cmpl 7
+[01:10] <[á¡Øª]¹Ì¸£> ?
+[01:10] <[á¡Øª]¹Ì¸£> ¾ÆÇ×
+[01:11] <[á¡Øª]¹Ì¸£> ?
+[01:11] <prosager> Á¨Àå-_-
+[01:11] <[á¡Øª]¹Ì¸£> ¾ÆÁ÷µµ ÀÌÇØ°¡ Àß ¾È°¡´Âµ¥¿ä....¿Ö ÀÌ·¸°Ô µÇ´Â°ÇÁö
+[01:11] <prosager> ¿Ö 6°³ µé¾î°¬´Âµ¥µµ 7·Î ºñ±³ÇÏ´Â°Å¾ß..-0-
+[01:11] <[á¡Øª]¹Ì¸£> 00 ºÎÅÍ ÇÏ´Â°Å ¾Æ´Ò±î¿ä ¤Ñ.,¤Ñ
+[01:12] <[á¡Øª]¹Ì¸£> 6°³ ÄÉÀÌ½º¹®À» ½è´Âµ¥
+[01:12] <[á¡Øª]¹Ì¸£> 7°³·Î ºñ±³ÇØ¿ä?
+[01:12] <naskazi> shl¾Ë¾ÒÀ½
+[01:12] <[á¡Øª]¹Ì¸£> shlÀÌ ¹¹¾ß
+[01:12] <naskazi> ¿ÞÂÊÀ¸·Î ½¬ÇÁÆ® ¿¬»êÇÏ´Â°Í
+[01:12] <[á¡Øª]¹Ì¸£> ½¬ÇÁÆ® ·¹ÇÁÆ®
+[01:12] <[á¡Øª]¹Ì¸£> ±¸³ª ¤Ñ,.¤Ñ::
+[01:12] <naskazi> Áï
+[01:13] <naskazi> ÇØ´ç º¯¼ö°ªÀ»
+[01:13] <naskazi> ¿ÞÂÊÀ¸·Î ½¬ÇÁÆ®~
+[01:13] <[á¡Øª]¹Ì¸£> ¸ùÀÌ´ÔÀº
+[01:13] <[á¡Øª]¹Ì¸£> ¹«¾ùÀ»?
+[01:13] <mongii> ³×
+[01:13] <mongii> ³×?
+[01:13] <[á¡Øª]¹Ì¸£> ¾Æ´¢
+[01:13] <prosager> ¾î..¹º°¡ ÀÌ»óÇØ..¹º°¡°¡ ÀÌ»óÇØ..-_-
+[01:14] <[á¡Øª]¹Ì¸£> À¸Èì...¾Æ¸®±î¸®
+[01:14] <naskazi> Á» ÀÌ»óÇÏ³×
+[01:14] <naskazi> ¿ÞÁ·À¸·Î ½¬ÇÁÆ® ÇÏ¸é ´õ Ä¿Áö´Âµ¥
+[01:14] <prosager> À¹..
+[01:14] <prosager> ¹º°¡°¡ ÀÌ»óÇØ..¹º°¡°¡.
+[01:14] <prosager> ¸ùÀÌ´Ô ¿ì¼± º¯¼ö »õ·Î ÇÒ´çÇÏ´Â ÀÌÀ¯´Â ¾Ë¾Æ³Â±¸¿ä
+[01:14] <naskazi> mov 0x8048774(%eax),%eax
+[01:14] <mongii> ³× ºÃ¾î¿ä
+[01:14] <naskazi> ÀÌ°Ç¶Ç ¹¹ÇÏ´Â ÁþÀÎÁö.. -_-;
+[01:14] <mongii> ±×°Ô È®½ÇÇÑ°Å °°³×¿ä
+[01:14] <[á¡Øª]¹Ì¸£> º¯¼ö »õ·Î ÇÒ´çÇÏ´ÂÀÌÀ¯Á»
+[01:14] <[á¡Øª]¹Ì¸£> ¼³¸íÇØÁÖ¼¼¿ä ¤Ì.,¤Ì
+[01:15] <prosager> switch(expression ) ÀÌÀÚ³ª¿ä
+[01:15] <prosager> expression ¿¡¼­ ¿¬»êµÉ°æ¿ì¿¡..
+[01:15] <[á¡Øª]¹Ì¸£> ¿¹
+[01:15] <prosager> ±× ¿¬»êÀÌ case ¿¡ °ü°èµÇ´Ï±ñ..
+[01:15] <[á¡Øª]¹Ì¸£> ¼ö½Äµµ °¡´ÉÇÏ±â¶§¹®¿¡
+[01:15] <[á¡Øª]¹Ì¸£> µû·Î º¯¼ö »ç¿ëÇØ¼­
+[01:15] <prosager> ±×°É À§ÇØ¼­ ÇÒ´çÇÏ´Â°Å³×¿ä
+[01:15] <[á¡Øª]¹Ì¸£> ºñ±³ÇÑ´Ù´Â°Å¿¡¿ä?
+[01:15] <[á¡Øª]¹Ì¸£> ¾Æ.....
+[01:15] <[á¡Øª]¹Ì¸£> ¤·¤»...
+[01:16] <[á¡Øª]¹Ì¸£> ³ª½»ÀÌ »Ñ¸°°Ç ¹¹Áö ¤Ñ.,¤Ñ::
+[01:16] <naskazi> »ó¿øÇüÀÌ »Ñ¸°°Å ¸Ç ¹Ø¿¡ ÀÖ´Â°Å¿ä
+[01:16] <naskazi> ¤¾¤¾
+[01:16] <naskazi> Àú·±°Ç Ã·º½.. -__;;
+[01:16] <naskazi> ¿Ö eax¸¦ -_-;;
+[01:16] <naskazi> ±× ¹Ø¿¡ ÄÚµå¸¦ ºÁ¾ß ¾Ëµí..
+[01:17] <[á¡Øª]¹Ì¸£> À¸Èì ¤Ñ.,¤Ñ;:
+[01:17] <naskazi> ¸ùÀÌÇü~
+[01:17] <mongii> ¾î~
+[01:17] <naskazi> Æ¼¼ÅÃ÷ ¾ðÁ¦ ¿Í¿ä? È÷È÷
+[01:17] <[á¡Øª]¹Ì¸£> ½ºÀ§Ä¡ºÎºÐ¸¸ ¾î¶»°Ô º¸´Â°ÅÁö...
+[01:17] <mongii> °ð º¸³»ÁÙ²²
+[01:17] <naskazi> ¹Ì¸® 3Ãµ¿ø µé°í ÁØºñÇÏ±¸ ÀÖ¾î¾ßÁö.. +_+
+[01:17] <mongii> ÇÑ¹ø¿¡ ´Ù º¸³»·Á°í ±â´Ù¸®´Â Áß
+[01:17] <naskazi> ¾Æ.. ³Ü
+[01:17] <prosager> À½..³ª½ºÄ«¾ß
+[01:17] <naskazi> ³×?
+[01:17] <prosager> shl $0x2,%eax
+[01:18] <prosager> ÀÌ°Å ¿¬»êÇÏ¸é ¾îÄÉµÅ?
+[01:18] <prosager> mov 0x8048734(%eax),%eax
+[01:18] <prosager> ¶Ç ÀÌ°Ç¹¹¾ß-_-;;;;;;;;;;
+[01:18] <[á¡Øª]¹Ì¸£> switch ºÎºÐ¸¸ ¾î¶»°Ô ±×·¸°Ô ºÁ¿ä? ¤Ñ.,¤Ñ::
+[01:18] <naskazi> Çæ
+[01:18] <naskazi> Á¤¸» ¿ô±â³×..
+[01:18] <prosager> 0x080485c0 <main+102>: jmp *%eax
+[01:18] <naskazi> ¹Ì¸£Çü//ÁüÀÛÇØ¼­ ºÁ¾ßÁÒ~
+[01:18] <prosager> °Å±â´Ù°¡ ÀÌ¾Æ·¡±îÁö-_-
+[01:18] <[á¡Øª]¹Ì¸£> À¸Èì..ÁÖ¼Ò°ªÀ»?
+[01:18] <naskazi> Çæ.. »ÇÀÎÅÍ »ç¿ëÇß´ç
+[01:18] <mongii> ÈìÈì
+[01:18] <prosager> eax ÁÖ¼Ò¿¡¼­ 0x~ ¸¦ °è»êÇÏ°í °Å±â´Ù°¡ * jmp ¶ó°í?-_-
+[01:18] <[á¡Øª]¹Ì¸£> À¸ÈìÀ¸Èì.. ¤Ñ.,¤Ñ
+[01:18] <naskazi> ºÐ¸í
+[01:18] <naskazi> ¹«½¼ ¾Ë°í¸®Áò °°ÁÒ?
+[01:18] <prosager> ¾û..
+[01:19] <naskazi> ´Ü¼øÇÑ ¹æ¹ýÀ¸·Î ÇÑ°Í °°Áø ¾Ê³×¿ä
+[01:19] <naskazi> È®½ÇÈ÷..
+[01:19] <prosager> ¹«½¼ ¾Ë°í¸®ÁòÀÌ ºÐ¸íÇØº¸¿©..
+[01:19] <naskazi> È¿À²ÀûÀÎ ºñ±³¸¦ À§ÇÑ°Í °°¾Æ¿ä
+[01:19] <prosager> ºÐ¸íÇÑ°Ç..
+[01:19] <[á¡Øª]¹Ì¸£> ¾î¼À¿¡¼­ Æ÷ÀÎÅÍ°¡ °¡´ÉÇØ?
+[01:19] <prosager> case ÀÇ °¹¼ö¿¡ µû¶ó¼­..
+[01:19] <naskazi> ³×
+[01:19] <[á¡Øª]¹Ì¸£> ¿ÀÈ«
+[01:19] <prosager> ¾Ë°í¸®ÁòÀÌ º¯ÇÑ´Ù´Â°Å¾ß
+[01:19] <prosager> 4°³ ÀÌÇÏÀÏ°æ¿ì¿¡´Â..±×³É ÇØ
+[01:19] <naskazi> ¿ÀÈ£..
+[01:19] <naskazi> ÁÁ¾Ò¾î¿ä
+[01:19] <prosager> ÇÏÁö¸¸ 5°³·Î µÇ¸é¼­ºÎÅÍ
+[01:19] <[á¡Øª]¹Ì¸£> È¤½Ã °¡¿îµ¥¿¡¼­ºÎÅÍ ºñ±³ÇÏ´Â°É±î ¤Ñ,.¤Ñ
+[01:19] <naskazi> ÀÌ ¾Ë°í¸®Áò
+[01:19] <prosager> shl ÀÌ µÇ°í
+[01:19] <naskazi> ¿¬±¸ÇØ¼­
+[01:19] <naskazi> ¹®¼­³»¾ßÁö
+[01:19] <naskazi> ¤Ñ,.¤Ñ
+[01:19] <prosager> eax ÀÌ»óÇÑ ºÎºÐÀÌ »ý°Ü-_-
+[01:20] <naskazi> ´Ü½Ã°£¿¡ ¾Ë¾Æ³»±ä Èûµéµí..
+[01:20] <prosager> shl 0x2 0x2
+[01:20] <prosager> ÇÏ¸é ¾îÄÉµÅ?
+[01:20] <prosager> shift 2°³
+[01:20] <naskazi> ¸ô¶ó¿ä -0-;
+[01:20] <naskazi> ¾ÈÇØºÁ¼­
+[01:20] <naskazi> ´ÜÁö
+[01:20] <naskazi> ½¬ÇÁÆ® ¿¬»êÇÑ´Ù´Â °Å¹Û¿¡´Â
+[01:20] <naskazi> shl°ú shrÀÌ ÀÖ°Åµç¿ä
+[01:20] <[á¡Øª]¹Ì¸£> ½¬ÇÁÆ® ¶óÀÌÆ®
+[01:21] <[á¡Øª]¹Ì¸£> ·¹ÇÁÆ®°¡ ÀÖÀ¸¸é ¶óÀÌÆ®´Â ´ç±Ù ÀÖ°ÚÁö ¤Ñ,.¤Ñ:::
+[01:21] <[á¡Øª]¹Ì¸£> ¿ÞÂÊÀ¸·Î ÀÌµ¿ÇÏ¸é »ý±â´Â
+[01:21] <[á¡Øª]¹Ì¸£> º¯È­¿¡ ´ëÇØ¼­ ¾Ë¾ÆºÁ¾ßÇÏ³ª ¤Ñ,.¤Ñ
+[01:21] <mongii> shl 0x2 0x2ÇÏ¸é¿ä
+[01:21] <prosager> ³» Ã¥Àº ³Ê¹« ¿À·¡µÈ°Å¶ó..¾ø³×..shift ¿¬»êÀÌ..
+[01:21] <mongii> ÀÏ´Ü ¾Õ¿¡ 2´Â ¿ÞÂÊÀ¸·Î 2Ä­ ¿Å±â´Â°Å°í
+[01:21] <[á¡Øª]¹Ì¸£> ¿¹
+[01:21] <mongii> µÚ¿¡ 2´Â 2Áø¼ö·Î Ç¥ÇöÇÏ¸é
+[01:21] <[á¡Øª]¹Ì¸£> µÚ¿¡ 0x2´Â?
+[01:21] <mongii> 00000010 ÀÌÁÒ?
+[01:21] <[á¡Øª]¹Ì¸£> ¿¹
+[01:21] <prosager> ³Ü
+[01:22] <mongii> ¿©±â¼­ ¿ÞÂÊ µÎÄ­ ¹Ð¸é
+[01:22] <mongii> 0001000 ÀÌ µÇ°ÚÁÒ
+[01:22] <prosager> 8
+[01:22] <[á¡Øª]¹Ì¸£> ¿¹
+[01:22] <[á¡Øª]¹Ì¸£> ¾ÆÇ×
+[01:22] <mongii> ÀÌ °ªÀ» ´Ù½Ã 10Áø¼ö·Î ¹Ù²Ù¸é
+[01:22] <mongii> °á°ú°¡ ³ª¿À°ÚÁÒ
+[01:22] <prosager> mov 0x8048748(%eax),%eax
+[01:22] <prosager> ÀÌºÎºÐÀº ¾î¶»°Ô »ý°¢ÇÏ¼¼¿ä?
+[01:22] <mongii> Èì
+[01:22] <prosager> jmp *%eax
+[01:22] <prosager> ±× ´ã¿¡ ÀÌ·±ÄÚµå°¡-_-
+[01:22] <mongii> °è¼Ó º¸°íÀÖ¾î¿ä
+[01:22] <[á¡Øª]¹Ì¸£> ¾î¶»°Ô º¸´Â°ÅÁö ¤Ì.,¤Ì
+[01:22] <naskazi> eax°ªÀÌ ÁÖ¼ÒÀÏÅ×°í
+[01:22] <naskazi> ±× ÁÖ¼Ò¿¡´Â ¶Ç´Ù¸¥ ÁÖ¼Ò°ªÀÌ ÀÖ°ÚÁÒ
+[01:23] <naskazi> long *eax;·Î ¼±¾ðÇÏ°í
+[01:23] <prosager> 0x8048748(%eax) <-- ÀÌºÎºÐÀÌ Á¤È®ÇÑ ÆÄ¾ÇÀÌ ¾ÈµÇ°í ÀÖ¾î..
+[01:23] <mongii> ÆÄÀÏ¸íÀÌ ¹ºµ¥¿ä?
+[01:23] <naskazi> ¾Æ. ¾Æ´Ï´Ù..
+[01:23] <naskazi> long **eax;·Î ¼±¾ðÇÏ°í
+[01:24] <naskazi> ¾ÏÆ° »ÇÀÎÆ® °³³ä
+[01:24] <prosager> /tmp/di~~/pro ÀÔ´Ï´Ù.
+[01:24] <naskazi> ¿¡°í ¸· Çò°¥¸±¶ó ÇÏ³×
+[01:24] <prosager> ÀÌ°Å µð½º¾î¼ÀÇØº¸¼¼¿ä
+[01:24] <prosager> ¼Ò½º·Î ³Ö¾îµå¸±²¾¿ä
+[01:24] <[á¡Øª]¹Ì¸£> ÇÔ¼ö°¡..½ºÀ§Ä¡¹®ÀÇ Ç¥Çö¹®À¸·Î µé¾î°¡±âµµ ÇÏ³× ¤Ñ,.¤Ñ
+[01:24] <naskazi> if¹®¿¡µµ µé¾î°¥¼ö ÀÖÀÜ¾Æ¿ä.. ^^;
+[01:25] <[á¡Øª]¹Ì¸£> ¾û
+[01:25] <[á¡Øª]¹Ì¸£> ±ÛÄï
+[01:26] <prosager> 0x8048748(%eax)
+[01:26] <prosager> ¿¬»ê°á°ú
+[01:26] <prosager> 0x80485d4
+[01:26] <prosager> ÀÌ°Å°í
+[01:26] <prosager> jmp * 0x80485d4
+[01:26] <prosager> ³×
+[01:26] <[á¡Øª]¹Ì¸£> ¾î¶²¿¬»ê°á°ú¿ä?
+[01:26] <[á¡Øª]¹Ì¸£> ½¬ÇÁÆ®?
+[01:26] <mongii> -_-;
+[01:26] <prosager> ³ë³ë ½¬ÇÁÆ®´Â ÀÌ¹Ì °ªÀÌ 8ÀÌÁÒ
+[01:26] <[á¡Øª]¹Ì¸£> ¾Æ
+[01:26] <prosager> <main+96>: mov 0x8048748(%eax),%eax
+[01:26] <prosager> ÀÌ ¿¬»êÀ» ÇÏ´Â°Ç..%eax ¿¡ »õ·Î °ªÀ» ³Ö¾î¹ö¸®ÀÚ³ª¿ä
+[01:26] <prosager> ±×¸®°í jmp ÇÏ´Ï±ñ..
+[01:26] <prosager> jmp À§Ä¡¸¦ ¾Ë¾Æ³»·Á°í..
+[01:27] <prosager> °á±¹Àº...¹¹ÇÏÀÚ´Â¼Ò¸®¾ß...-_-
+[01:28] <[á¡Øª]¹Ì¸£> È¤½Ã ±× ¿¬»êµÈ °á°ú°¡ 0x8048748¿¡ À§Ä¡ÇÏ°Ô µÇ´Â°Ç°¡¿ä?
+[01:28] <[á¡Øª]¹Ì¸£> ¾Æ´Ñµ¥
+[01:29] <naskazi> ^^;
+[01:29] <naskazi> ¿ª½Ã ¾î¼ÀÀº Àç¹Õžj
+[01:29] <naskazi> ¾î¼Àº¸´Ùµµ gcc°¡ ´õ Àç¹Õ³×¿ä
+[01:29] <[á¡Øª]¹Ì¸£> ¾î..±Ùµ¥
+[01:29] <naskazi> gcc°¡ ´õ ¿¬±¸ ´ë»ó..
+[01:29] <[á¡Øª]¹Ì¸£> ¿Ö »ó¿ø´Ô ±× pro¿¡¼±
+[01:29] <[á¡Øª]¹Ì¸£> µÎ¹øÂ° ½ºÀ§Ä¡¹®¿¡ ºñ±³¸¦ ¾ÈÇØ¿ä?
+[01:30] <[á¡Øª]¹Ì¸£> ¾Æ ÇÏ±¸³ª
+[01:30] <[á¡Øª]¹Ì¸£> ¤Ñ,.¤Ñ::
+[01:30] <[á¡Øª]¹Ì¸£> ¿Ö Ã³À½°ú µÎ¹øÂ°°¡ ´Þ¶ó¿ä?
+[01:30] <prosager> ¿ì¿Í..´ë»§½Å±â..-0-
+[01:30] <prosager> shl ¿¬»êÀ» ÇÏ¸é¼­..
+[01:30] <prosager> 00000010
+[01:30] <prosager> ÀÌ°É·Î
+[01:30] <prosager> mov 0x8048748(%eax),%eax
+[01:31] <prosager> ÀÌ ¿¬»ê°á°ú¸¦ º¸¸é¿ä..
+[01:31] <prosager> jmp À§Ä¡°¡ ´Þ¶óÁö´Â°É ÀÌ¿ëÇØ¼­..
+[01:31] <prosager> case ¸¦ ÀüºÎ´Ù ´Ù·ï¿ä..
+[01:31] <[á¡Øª]¹Ì¸£> ?
+[01:31] <prosager> Áï...case 1,2,3,4,5,6,7,8,9, ÀÌ·±°Å ÀüºÎ´Ù ÇÏ³ª¾¿ ºñ±³ÇÏ´Â°Ô ¾Æ´Ï±¸¿ä
+[01:31] <prosager> À§ÀÇ mov~ ÇÑ¹ø¸¸À¸·Î
+[01:31] <prosager> jmp ÇØ¼­..
+[01:31] <[á¡Øª]¹Ì¸£> ¤Ñ,.¤Ñ
+[01:31] <prosager> case ¸¦ ´Ù·é´Ù´Â°ÅÁÒ
+[01:31] <[á¡Øª]¹Ì¸£> ±×·¯´Ï±î ½Å±âÇÏ´Ù±¸¿ä..
+[01:32] <[á¡Øª]¹Ì¸£> ¿Ö Ã¹¹øÂ°¶û µÚ¿¡²¨¶û
+[01:32] <[á¡Øª]¹Ì¸£> ´Þ¸£°Ô ¿òÁ÷ÀÌÁÒ ¤Ñ.,¤Ñ
+[01:32] <prosager> eax=2
+[01:32] <prosager> 0x8048748(%eax) °á°ú
+[01:32] <prosager> 0x80485d4
+[01:32] <prosager> eax=1
+[01:32] <prosager> 0x8048748(%eax) °á°ú
+[01:32] <prosager> 0x80485c2
+[01:32] <prosager> eax ÀÇ °ªÀÌ 00000010
+[01:32] <[á¡Øª]¹Ì¸£> ¤Ñ.,¤Ñ
+[01:32] <prosager> ÀÏ¶§..shl 2 ÇÏ¸é °ªÀÌ 8ÀÌ µÇ°í
+[01:32] <prosager> eax 1 ÀÌ¸é shl 2 ÇÏ¸é °ªÀÌ 4ÁÒ
+[01:32] <mongii> ³×
+[01:33] <prosager> ±×·²°æ¿ìÀÇ eax °ªÀÌ <main+96>: mov 0x8048748(%eax),%eax
+[01:33] <prosager> ¿¬»ê¿¡ ÀÇÇØ¼­..%eax ¿¡ ÀúÀåµË´Ï´Ù
+[01:33] <prosager> ±×¸®°í³ª¼­..
+[01:33] <prosager> <main+102>: jmp *%eax
+[01:33] <prosager> Á¡ÇÁÇÏÁÒ
+[01:33] <prosager> ÇÏÁö¸¸ À§¿¡¼­ º¸½Ã´Â¹Ù¿Í °°ÀÌ eax °ªÀÇ º¯È­¿¡ ÀÇÇØ¼­ case °æ¿ì¸¦ ÀüºÎ´Ù ºñ±³ÇÏÁö ¾Æ´ÏÇÏ°í
+[01:33] <prosager> ´Ü¼øÇÏ°Ô jmp ·Î case ÀÇ À§Ä¡¸¦ Ã£¾Æ¼­ °£´Ù´Â°ÅÁÒ
+[01:34] <mongii> ±×·¯³×¿ä
+[01:34] <prosager> ÀÌÇØ´Â ÇÏÁö¸¸..
+[01:34] <prosager> mov 0x8048748(%eax),%eax
+[01:34] <[á¡Øª]¹Ì¸£> ¿ì¸®°¡»ç¿ëÇÒ¶© ÄÉÀÌ½º¹®ÀÌ 1,2,3ÀÌ·¸°Ô Áõ°¡ÇÏÁö¸¸ ÄÄÇ»ÅÍÀÔÀå¿¡¼± 2ÀÇ º¸¼ö½ÄÀ¸·Î ÀÌµ¿ÇÏ´Â°Å¶ó°í Á¦°¡ 
+»ý°¢ÇÑ°Å´Â ÅÍ¹«´Ï¾ø´Â°Å°ÚÁÒ?
+[01:34] <prosager> ÀÌ ¿¬»êÀÇ µ¿ÀÛ¿ø¸®°¡ ±Ã±ÝÇØÁ® ¹ö·È¾î¿ä-_-
+[01:35] <mongii> ÈìÈì
+[01:36] <prosager> ¾î¶»°Ô µ¿ÀÛÇÏ´ÂÁö ³»ºÎ´Â ¸øµé¿©´Ù º¸³ª-_-;;±Ã±ÝÇØÁö³×..-0-
+[01:36] <prosager> switch ¹® ±æ°Ô Àû¾úÀ¸¸é..Å«ÀÏ³¯»·Çß³×-0-
+[01:36] <[á¡Øª]¹Ì¸£> ¤Ñ,.¤Ñ::
+[01:37] <[á¡Øª]¹Ì¸£> ½ºÀ§Ä¡¹® °ÅÄ£ÈÄ edx¿¡´Â
+[01:37] <[á¡Øª]¹Ì¸£> ºñ±³µÉ case¹®°³¼öÀÎ°Ç°¡¿ä?
+[01:39] <mongii> ¿À´ÃÀº ÀÌÁ¤µµ·Î ÇÏ´Â°Ô ³´°Ú³×¿ä
+[01:39] <mongii> ±×·¡µµ ¸¹ÀÌ ¹è¿üÀ½~
+[01:40] <prosager> À½..³×..
+[01:40] <[á¡Øª]¹Ì¸£> Á¤¸®Á» ÇØÁà¿ä ¤Ì.,¤Ì
+[01:40] <prosager> ¿Ö..´õ¿í´õ ÆÄ°íµé¼ö·Ï...ÀÌÇØ°¡ ¾ÈµÇ´Â°ÇÁö..¤Ð_¤Ð
+[01:40] <naskazi> È÷;;
+[01:40] <prosager> ÄÄÆÄÀÏ·¯¸¸µç »ç¶÷Àº ¹¹ÇÏ´Â ÀÎ°£ÀÏÁö ±Ã±ÝÇØÁ® ¹ö·ÈÀ½-_-
+[01:41] <[á¡Øª]¹Ì¸£> À½....2ÀÇ º¸¼ö½ÄÀ¸·Î ÀÌµ¿ÀÌµÇ´Âµ¥
+[01:41] <[á¡Øª]¹Ì¸£> µÎ¹øÀ» ±×·¸°Ô ÇÏ³×...
+[01:41] <[á¡Øª]¹Ì¸£> 2ÀÇ 2^½ÂÀÎ°Ç°¡
+[01:41] <[á¡Øª]¹Ì¸£> ³Ê¹« Ä¿Á®¹ö¸®´Âµ¥..
+[01:42] <[á¡Øª]¹Ì¸£> À½.....
+[01:42] <prosager> ±×·ì½ºÅÍµð °Ô½ÃÆÇ¿¡ ¿Ã¸®°Ú½À´Ï´Ù.
+[01:43] <prosager> ÀÌ ¹®Á¦¿¡ ´ëÇØ¼­´Â Á»´õ ³ªÁß¿¡ »ý°¢ÇØº¸ÁÒ..
+[01:43] <mongii> ³Ü
+[01:43] <[á¡Øª]¹Ì¸£> °á±¹ ½ºÀ§Ä¡¹® µð½º¾î¼ÀÇÏ´Â°Ç
+[01:43] <[á¡Øª]¹Ì¸£> ¸Ó¸®ºü°ÔÁø´Ù´Â? ¤Ñ,.¤Ñ::
+[01:43] <mongii> ÀÇ¹®µÇ´Â ºÎºÐ¿¡ ´ëÇØ¼± ²À °­Á¶¸¦ ÇØÁÖ¼¼¿ä
+[01:43] <prosager> ³Ü!
+[01:43] <mongii> ³ªÁß¿¡¶óµµ Ç® ¼ö ÀÖµµ·Ï
+[01:43] <prosager> °¹¼ö°¡ ÀÛÀº switch ¹®ÀÌ±æ ¹Ù¶ó´Â¼ö ¹Û¿¡ ¾ø´Ù´Ï..-0-
+[01:43] <[á¡Øª]¹Ì¸£> ¤Ì.,¤Ì
+[01:44] <[á¡Øª]¹Ì¸£> ¾Æ ±Ùµ¥¿ä
+[01:44] <[á¡Øª]¹Ì¸£> ¿Ö »ó¿ø´ÔÀÌ ³ªÁß¿¡ ¸¸µç pro¶ó´Â ¼Ò½º¿¡¼±
+[01:44] <[á¡Øª]¹Ì¸£> shl°¡ ³ª¿À°í
+[01:44] <[á¡Øª]¹Ì¸£> ±× Àü¿¡3rd¿¡¼± ¾Èº¸¿´¾ú¾î¿ä?
+[01:44] <prosager> ³Ü
+[01:44] <prosager> 3rd ¿¡¼­´Â..
+[01:44] <prosager> 0x02 ·Î ºñ±³ÇØ¼­
+[01:44] <prosager> ±×ÀÌÀ¯¸¦ Ã£À¸·Á°í
+[01:44] <prosager> case °¹¼ö ´Ã·È´Ù°¡
+[01:44] <prosager> ´õÅ« ÀÇ¹®¿¡ ÀÇÇØ¼­..
+[01:44] <prosager> ³¶ÆÐ..-0-
+[01:45] <[á¡Øª]¹Ì¸£> À¸Èì..¤Ñ.,¤Ñ::
+[01:45] <[á¡Øª]¹Ì¸£> ¾Ë·ÁÁà¿ä ¾Ë·ÁÁà¿ä~ ¤Ì.,¤Ì
+[01:45] <[á¡Øª]¹Ì¸£> shlÀº ¿Ö³ª¿Â°ÅÁÒ
+[01:46] <naskazi> ½¬ÇÁÆ® ¿¬»êÇÒ·Á±¸ ³ª¿ÔÀÝ¾Æ¿ä;;
+[01:46] <[á¡Øª]¹Ì¸£> ±×·¯´Ï±î
+[01:46] <mongii> ¿¡ÀÌ ¹Ì¸£´ÔÀº °øºÎÇÒ ¶§ ´Ù¸¥°Å ÇÏ½Ã´Ù°¡ ²À µÞºÏÄ¡½Ã³×
+[01:46] <[á¡Øª]¹Ì¸£> ¿Ö ÇÏ´Â°Å³Ä°í...Ã³À½²¨¿¡¼± ¾È³ª¿À´õ´Ï
+[01:46] <naskazi> ;;
+[01:46] <[á¡Øª]¹Ì¸£> ¤Ñ,.¤Ñ:: °è¼Ó Àß ÁÖ½ÃÇÏ°í ÀÖ´Âµ¥
+[01:46] <[á¡Øª]¹Ì¸£> Ä¡´Â °Å¿¡¿ä ¤Ì.,¤Ì
+[01:46] <naskazi> ¾Æ±î ´Ù ¼³¸íÇÑ°Í °°Àºµ¥¿ä.. ^6;
+[01:46] <[á¡Øª]¹Ì¸£> ¿¨?
+[01:46] <naskazi> ½¬ÇÁÆ®·Î eax°ªÀ» ¹Ù²ãÁÖ¸é¼­
+[01:46] <[á¡Øª]¹Ì¸£> ¸ø”f´Âµ­...
+[01:47] <naskazi> ºÐ±âÇÏÀÝ¾Æ¿ä
+[01:47] <naskazi> jmp
+[01:47] <[á¡Øª]¹Ì¸£> ¾Æ´Ï¾Æ´Ï...
+[01:47] <[á¡Øª]¹Ì¸£> ¿Ö 3rdºÐ¼®ÇÏ´Â°Í¿¡¼± ¾î¼ÀÄÚµå·Î ½¬ÇÁÆ®¿¬»êÇÏ´ÂºÎºÐÀÌ ¾È³ª¿Ô¾ú´Âµ¥ pro¿¡¼± ³ª¿À³Ä°í
+[01:47] <[á¡Øª]¹Ì¸£> ÄÉÀÌ½º¹® °³¼öÀÇ Â÷ÀÌÀÎ°¡?
+[01:48] <naskazi> sp
+[01:48] <naskazi> ³×
+[01:48] <[á¡Øª]¹Ì¸£> ¾Æ..±ÛÄí³ª
+[01:48] <[á¡Øª]¹Ì¸£> ÄÉÀÌ½º¹®ÀÌ ´Ã¾î³ª¸é Àú¸®µÇ´Â±¸³ª ¤Ñ,.¤Ñ:::
+[01:49] <[á¡Øª]¹Ì¸£> Á»´õ ½±°Ô ÄÉÀÌ½º¹®À¸·Î ¿¬°á½ÃÄÑÁÖ±â À§ÇÑ°Ç°¡...
+[01:50] <[á¡Øª]¹Ì¸£> 5°³ÀÌ»ó¿¡¼± ±×·¯³×...
+[01:50] <mongii> ±×·³ ¿À´Ã ½ºÅÍµð´Â ¿©±â¼­ ¸¶Ä¡±¸¿ä
+[01:51] <mongii> Åä¿äÀÏ¿¡ ¶Ç Àç¹ÌÀÖ°Ô °øºÎÇÕ½Ã´Ù^^
+End of #wiseguys buffer    Fri Sep 26 01:51:04 2003
+

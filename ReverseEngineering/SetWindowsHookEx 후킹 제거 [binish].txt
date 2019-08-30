@@ -1,0 +1,112 @@
+사실 이 방법은 많은 사람들이 알고 있을 만한 방법입니다만 간략히 다시 정리해 보겠습니다. 진짜 간략하게..
+
+PTHREADINFO pti = NULL;
+
+__asm
+{
+        mov eax, fs:[0x18] ; get address of TEB
+        mov eax, [eax+0x40] ; get address of Win32ThreadInfo
+        mov pti, eax ; okay!
+}
+
+이렇게 하면 pti 변수를 통해 PTHREADINFO 구조체를 얻게 되죠..?
+pti->pDeskInfo->aphkStart[] 배열에 바로 SetWindowsHookEx()를 통해 전역 후킹된 함수가 등록 되니까,
+아래와 같은 예제를 통해 확인할 수 있습니다.
+
+aphkStart[ WH_KEYBOARD + 1 ]가 NULL이 아니라면?!
+aphkStart[ WH_KEYBOARD + 1 ]를 NULL로 만든다면?!
+
+good luck!
+
+※ 참고
+typedef struct tagTHREADINFO
+　　{
+　　 //W32THREAD;
+　　 //PTL ptl; // Listhead for thread lock list
+　　// W32THREAD 和 PTL 是我所不知道的??,通?SoftICE的?助,我知道了??的大小,
+　　//于是我弄了?????充?
+　　 PADDING(padding1 , 0x2c); 
+　　 PVOID ppi; // process info struct for this thread
+　　 // type is PPROCESSINFO
+　　 PVOID rpdesk; // type is PDESKTOP
+　　 PDESKTOPINFO pDeskInfo; // Desktop info visible to client
+　　 // type is PDESKTOPINFO
+　　 PCLIENTINFO pClientInfo; // Client info stored in TEB
+　　 // type is PCLIENTINFO
+　　 DWORD TIF_flags; // TIF_ flags go here.
+　　 PUNICODE_STRING pstrAppName; // Application module name.
+　　 PVOID psmsSent; // Most recent SMS this thread has sent
+　　 // type is PSMS
+　　 PVOID psmsCurrent; // Received SMS this thread is currently processing
+　　 // type is PSMS
+　　 PVOID psmsReceiveList; // SMSs to be processed
+　　 // type is PSMS
+　　 LONG timeLast; // Time, position, and ID of last message
+　　 ULONG_PTR idLast;
+　　 int cQuit;
+　　 int exitCode;
+　　 HDESK hdesk; // Desktop handle
+　　 // HDESK
+　　 int cPaintsReady;
+　　 UINT cTimersReady;
+　　 PVOID pMenuState; // type is PMENUSTATE
+　　 union {
+　　 PVOID ptdb; // Win16Task Schedule data for WOW thread
+　　 // type is PTDB
+　　 PVOID pwinsta; // Window station for SYSTEM thread
+　　// type is PWINDOWSTATION
+　　 };
+　　 PVOID psiiList; // thread DDEML instance list
+　　 // type is PSVR_INSTANCE_INFO
+　　 DWORD dwExpWinVer;
+　　 DWORD dwCompatFlags; // The Win 3.1 Compat flags
+　　 DWORD dwCompatFlags2; // new DWORD to extend compat flags for NT5+ features
+　　 PVOID pqAttach; // calculation variabled used in
+　　 // type is PQ
+　　 // zzzAttachThreadInput()
+　　 
+　　 PTHREADINFO ptiSibling; // pointer to sibling thread info
+　　 
+　　 PVOID pmsd; // type is PMOVESIZEDATA
+　　 
+　　 DWORD fsHooks; // WHF_ Flags for which hooks are installed
+　　 
+　　 PHOOK sphkCurrent; // Hook this thread is currently processing
+　　 // type is PHOOK
+　　 
+　　 PVOID pSBTrack; // type is PSBTRACK
+　　 
+　　 HANDLE hEventQueueClient;
+　　 PVOID pEventQueueServer; // type is PKEVENT
+　　 PVOID PtiLink; // Link to other threads on desktop
+　　 // type is LIST_ENTRY
+　　 int iCursorLevel; // keep track of each thread's level
+　　 
+　　 PADDING(padding2 , 4);
+　　 POINT ptLast;
+　　 
+　　 PWND spwndDefaultIme; // Default IME Window for this thread
+　　 // type is PWND
+　　 PVOID spDefaultImc; // Default input context for this thread
+　　 // type is PIMC
+　　 HANDLE hklPrev; // Previous active keyboard layout
+　　// type is HKL
+　　 int cEnterCount;
+　　 
+　　 MLIST mlPost; // posted message list.
+　　 USHORT fsChangeBitsRemoved;// Bits removed during PeekMessage
+　　 WCHAR wchInjected; // character from last VK_PACKET
+　　 DWORD fsReserveKeys; // Keys that must be sent to the active
+　　 // active console window.
+　　 PVOID *apEvent; // Wait array for xxxPollAndWaitForSingleObject
+　　 // type is PKEVENT
+　　 ACCESS_MASK amdesk; // Granted desktop access
+　　 UINT cWindows; // Number of windows owned by this thread
+　　 UINT cVisWindows; // Number of visible windows on this thread
+　　 
+　　 PHOOK aphkStart[CWINHOOKS]; // Hooks registered for this thread
+　　 // type is PHOOK
+　　 BYTE cti; // Use this when no desktop is available
+　　 // type is CLIENTTHREADINFO
+　　 
+　　 }THREADINFO ,* PTHREADINFO;

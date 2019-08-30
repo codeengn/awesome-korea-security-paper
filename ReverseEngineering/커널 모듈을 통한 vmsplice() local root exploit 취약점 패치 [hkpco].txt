@@ -1,0 +1,186 @@
+==========================================================
+커널 모듈을 통한 vmsplice() local root exploit 취약점 패치 
+
+
+by hkpco(박찬암)
+----------------------------
+mail     - hkpco@korea.com
+homepage - http://hkpco.kr/
+date     - 2008. 2. 11
+----------------------------
+==========================================================
+
+
+오늘(2/11) 우연히 vmsplice() root exploit이 공개된것을 보고 커널모듈을 통한 간단한 패치를 만들었습니다.
+
+현재까지 kernel 2.6 버전대에서 root exploit이 2개나 공개되었고, 그에대한 패치는
+
+sys_vmsplice() 에서 호출되는 몇가지 함수들의 내부에 kernel macro인 access_ok()를 사용해서
+
+속성을 체크하는 루틴을 추가시키는 것으로써 예를들면 다음과 같습니다.
+
+--- linux-2.6.orig/fs/splice.c
++++ linux-2.6/fs/splice.c
+@@ -1237,6 +1237,9 @@ static int get_iovec_page_array(const st
+                if (unlikely(!base))
+                        break;
+
++                if (unlikely(!access_ok(VERIFY_READ, base, len)))
++                        break;
++
+
+
+access_ok() macro는 사용자 공간의 메모리가 유효한지를 판단하는 함수로써 주로 사용자 영역을
+
+검증하기 위해 쓰여지며 만약 주소값이 커널영역에 존재할 경우에는 false를 리턴합니다.
+
+그러므로 익스플로잇 코드에서 커널 영역의 주소값이 삽입되는 부분(iov.iov_base = (void *)addr;) 혹은
+
+유효하지 않은 사용자 영역을 access_ok()로 체크하여 취약점을 방어하는 것입니다.
+
+또 하나는 vmsplice() system call을 제거하는 방법입니다.
+
+하지만, 두가지 방법 모두 커널을 다시 컴파일 해야하는 단점이 있습니다.
+( 그 이외에도 임시 패치에 대한 제시가 있었지만 불안정적이거나 vmsplice의 사용을 아예 막아버리는 등 비 효율적입니다. )
+
+그래서 간단한 방어모듈을 제작해 봤습니다.
+
+현재까지 나온 패치방법은 모두 커널 소스코드를 수정해야 하며,
+
+외국에선 아래 커널 함수들을 수정하는 형태로 공개되었습니다.
+
+vmsplice_to_pipe(), vmsplice_to_user(), get_iovec_page_array(), copy_from_user_mmap_sem()
+
+
+그런데 위 함수들은 다음과 같은 순서로 호출됩니다.
+
+sys_vmsplice() -> vmsplice_to_pipe() -> get_iovec_page_array() -> copy_from_user_mmap_sem()
+or
+sys_vmsplice() -> vmsplice_to_user()
+
+
+그리고 각 kernel api를 패치할 때 추가되는 루틴은 위 함수들에서 공통적으로 적용되는 인자값이기 때문에
+
+아예 sys_vmsplice() 에서 해당 인자값들을 체크하도록 한다면 보다 간단하게 취약점을 방어할 수 있습니다.
+
+아래는 방어모듈 소스 코드와 이를 컴파일 하기위한 Makefile 입니다.
+
+------------------------------
+http://hkpco.kr/code/vmpatch.c
+http://hkpco.kr/code/Makefile
+------------------------------
+
+
+다음은 방어모듈을 로드하기 전에 exploit을 테스트 한 결과입니다.
+
+===========================
+vmsplice local root exploit
+===========================
+
+[hkpco@localhost ~]$ id
+uid=500(hkpco) gid=500(hkpco) groups=500(hkpco) context=root:system_r:unconfined_t:SystemLow-SystemHigh
+
+[hkpco@localhost ~]$ gcc -o vm_exploit vm_exploit.c
+[hkpco@localhost ~]$ ./vm_exploit
+-----------------------------------
+Linux vmsplice Local Root Exploit
+By qaaz
+-----------------------------------
+[+] mmap: 0x0 .. 0x1000
+[+] page: 0x0
+[+] page: 0x20
+[+] mmap: 0x4000 .. 0x5000
+[+] page: 0x4000
+[+] page: 0x4020
+[+] mmap: 0x1000 .. 0x2000
+[+] page: 0x1000
+[+] mmap: 0xb7f85000 .. 0xb7fb7000
+[+] root
+
+[root@localhost ~]# id
+uid=0(root) gid=0(root) groups=500(hkpco) context=root:system_r:unconfined_t:SystemLow-SystemHigh
+
+
+다음은 방어모듈을 로드하는 과정입니다.
+
+====================
+protect module patch
+====================
+
+[root@localhost hkpco]# wget http://hkpco.kr/code/vmpatch.c
+--05:32:18--  http://hkpco.kr/code/vmpatch.c
+Resolving hkpco.kr... 220.80.107.55
+Connecting to hkpco.kr|220.80.107.55|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2287 (2.2K) [text/plain]
+Saving to: `vmpatch.c'
+
+100%[====================================================================================>] 2,287       --.-K/s   in 0s
+
+05:32:18 (62.0 MB/s) - `vmpatch.c' saved [2287/2287]
+
+[root@localhost hkpco]# wget http://hkpco.kr/code/Makefile
+--05:32:33--  http://hkpco.kr/code/Makefile
+Resolving hkpco.kr... 220.80.107.55
+Connecting to hkpco.kr|220.80.107.55|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 210 [text/plain]
+Saving to: `Makefile'
+
+100%[====================================================================================>] 210         --.-K/s   in 0s
+
+05:32:33 (12.2 MB/s) - `Makefile' saved [210/210]
+
+[root@localhost hkpco]# ls
+Makefile  vmpatch.c
+
+[root@localhost hkpco]# make
+make -C /lib/modules/2.6.18-1.2798.fc6/build SUBDIRS=/root/hkpco modules
+make[1]: Entering directory `/usr/src/kernels/2.6.18-1.2798.fc6-i586'
+  CC [M]  /root/hkpco/vmpatch.o
+  Building modules, stage 2.
+  MODPOST
+  CC      /root/hkpco/vmpatch.mod.o
+  LD [M]  /root/hkpco/vmpatch.ko
+make[1]: Leaving directory `/usr/src/kernels/2.6.18-1.2798.fc6-i586'
+
+[root@localhost hkpco]# ls -l vmpatch.ko
+-rw-r--r-- 1 root root 109481 Feb 11 05:42 vmpatch.ko
+
+[root@localhost hkpco]# insmod vmpatch.ko
+
+
+다음은 방어모듈을 로드한 후에 다시 익스플로잇을 적용시켜본 모습입니다.
+
+==========================
+vmplice local root exploit
+protect module loaded
+==========================
+
+[hkpco@localhost ~]$ id
+uid=500(hkpco) gid=500(hkpco) groups=500(hkpco) context=root:system_r:unconfined_t:SystemLow-SystemHigh
+
+[hkpco@localhost ~]$ gcc -o vm_exploit vm_exploit.c
+[hkpco@localhost ~]$ ./vm_exploit
+-----------------------------------
+Linux vmsplice Local Root Exploit
+By qaaz
+-----------------------------------
+[+] mmap: 0x0 .. 0x1000
+[+] page: 0x0
+[+] page: 0x20
+[+] mmap: 0x4000 .. 0x5000
+[+] page: 0x4000
+[+] page: 0x4020
+[+] mmap: 0x1000 .. 0x2000
+[+] page: 0x1000
+[+] mmap: 0xb7f85000 .. 0xb7fb7000
+[-] vmsplice: Bad address
+
+[hkpco@localhost ~]$ id
+uid=500(hkpco) gid=500(hkpco) groups=500(hkpco) context=root:system_r:unconfined_t:SystemLow-SystemHigh
+
+
+익스플로잇이 실패한것을 볼 수 있습니다.
+
+해당 패치는 취약한 모든 리눅스 시스템에서 적용이 가능합니다.

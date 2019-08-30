@@ -1,0 +1,1012 @@
+             ========================================================
+                      "바이너리 파일을 분석하여 소스로 만들기"
+                                2002/ 07/ 05
+             NaNu9 in Null@Root                  NaNuIX@null2root.org
+             ========================================================
+
+o. 무한한 삽질
+
+흔히 실전에서 바이너리만 있는 취약프로그램이 주어집니다.
+갑갑하죠.. 한번 부딪혀 보겠습니다.
+
+바이너리 프로그램을 분석해서 소스를 만드는 방법(?이라기 보다 과정)과 
+분석하는 방법을 찾아보겠습니다.
+
+이렇게 무식하게 덤빌수 있는것은 C 언어의 예약어(Reserved Word)가 
+몇개 않되고 대부분이 함수로 이루어져 있기 때문에 
+함수의 구성으로 소스를 만들어 가는 방법입니다.
+
+이번에 선택한 프로그램은 길이도 만만치 않은 레벨7->8 프로그램입니다.
+
+-r-sr-xr-x    1 level8   level7      15878 Jun 25 00:12 yupgigirl
+
+이렇게 되어 있네요
+
+1. 먼저 실행을 해서 어떻게 돌아가는지 간단하게 살펴보겠습니다.
+
+  실행에 앞서 길게 입력하기 번거로우니
+  ln -s /home/level7/yupgigirl lvl08
+  이렇게 간단하게 링크를 해두겠습니다.
+
+  ./lvl08
+  200 안녕하세요. (null)님!
+  이름 : qazwsxedcrfv            <-- 아무꺼나 입력해봄.
+  당신이 입력할 수 있는 문자 수는 20개 입니다.
+
+  Input char : asdfghjkl
+  Input char : Input char : Input char : 123
+  Input char : 12
+  Input char : 12
+  당신이 입력한 단어는 afj       <-- 입력에 대하여 출력이...건너뜀(?)
+  dhlwtsgxbdfsg
+  32입니다.
+
+  흠... 이렇게 돌아가는 프로그램 이라는것 밖에... 뭐가 뭔지 모르겠네요.
+  자.. 이제부터 본격적으로 분석을 하여 소스프로그램으로 만들어 보겠습니다.
+
+
+2. 이제 바이너리 프로그램을 분석해 보겠습니다.
+
+  여기서 사용하는 프로그램은 일반적으로 제공되어 있는 objdump와 gdb를 사용합니다.
+
+  먼저 objdump -S lvl08을 하여 프로그램을 역어셈블 시켜 봅니다.
+
+  여기에서 사용자 함수가 어떤것이 있는지 분석합니다.
+
+  Message, print_total, main 이 있네요.
+
+  좀더 세부적으로 들어가 보겠습니다.
+
+
+3. objdump에서는 출력 되지 않던 함수의 이름까지 출력해주는 gdb를 돌려 보겠습니다.
+
+  shell> $ gdb ./lvl08
+
+  gdb에서 역어셈블을 시켜 보겠습니다.
+
+disas Message 를 해보니 다음과 같이 나오네요...
+
+0x8048730 <Message>:    push   %ebp
+0x8048731 <Message+1>:  mov    %esp,%ebp
+0x8048733 <Message+3>:  sub    $0x8,%esp
+0x8048736 <Message+6>:  sub    $0x4,%esp   <-- 여기까지는 C 함수의 원형입니다.
+
+0x8048739 <Message+9>:  sub    $0x8,%esp
+0x804873c <Message+12>: pushl  0x8(%ebp)
+0x804873f <Message+15>: call   0x80485c8 <strlen>
+0x8048744 <Message+20>: add    $0xc,%esp
+
+0x8048747 <Message+23>: mov    %eax,%eax
+0x8048749 <Message+25>: push   %eax
+0x804874a <Message+26>: pushl  0x8(%ebp)
+0x804874d <Message+29>: push   $0x1
+0x804874f <Message+31>: call   0x8048568 <write>
+0x8048754 <Message+36>: add    $0x10,%esp
+
+0x8048757 <Message+39>: sub    $0xc,%esp
+0x804875a <Message+42>: pushl  0x8049c44
+0x8048760 <Message+48>: call   0x8048578 <fflush>
+0x8048765 <Message+53>: add    $0x10,%esp
+
+0x8048768 <Message+56>: leave               <-- 함수를 끝내는 부분 입니다.
+0x8048769 <Message+57>: ret    
+
+  음.. Message라는 함수에는
+  strlen, write, fflush 이렇게 3가지의 함수가 사용되었네요.
+
+  각각의 함수에 대한 기본적인 구성이 어떻게 되는지 알아 보겠습니다.
+  다 아는 방법으로 리눅스의 man 명령을 사용하면 됩니다.
+
+  man strlen을 해보니
+  size_t strlen(const char *s);
+  문자열 길이를 계산하는 함수로써 끝이 `\0'인 문자를 빼고 문자열 s의 길이를 계산해서
+  돌려주는 함수네요.
+
+  다음은 man write를 해보겠습니다.
+  이 write는 명령도 있고 함수도 있습니다.
+  그러므로 man -a write를 하여 Q를 누르면 함수에 대한 부분을 볼수 있습니다.
+  ssize_t write(int fd, const void *buf, size_t count);
+
+  마찮가지로 man fflush를 하면
+  int fflush(FILE *stream);
+  라는 것을 알수 있습니다.
+
+  다음은 역어셈블 리스트와 함수의 원형을 어떻게 연결할까요?
+
+  이것은 C 컴파일러가 규칙을 가지고 있습니다.
+  C 에는 2가지의 변수전달 방법이 있습니다.
+  하나는 직접 값을 전달하는 방법과, 포인트를 전달하는 방법입니다.
+
+  즉 size_t strlen(const char *s); 
+  이 함수의 s 변수를 전달을 하는 방법으로 변수의 번지를 스택에 저장하여
+  실행함수를 call 하여 실행하는 것 입니다.
+
+  변수의 번지를 전달하여, 이 번지에 그런 데이타가 있다.. 이런식이죠.
+
+  자.. 그럼 분석된 역어셈블 리스트를 보겠습니다.
+  바로 이부분이죠.
+
+0x8048739 <Message+9>:  sub    $0x8,%esp    <-- dummy
+0x804873c <Message+12>: pushl  0x8(%ebp)    <-- parameter
+0x804873f <Message+15>: call   0x80485c8 <strlen>
+0x8048744 <Message+20>: add    $0xc,%esp
+
+  size_t strlen(const char *s); 에는 전달변수가 하나 밖에 없는데
+  스택을 빼주는 군요..
+  이부분이 gcc의 버젼에 따라서 추가되는 dummy 부분입니다.
+
+0x804873c <Message+12>: pushl  0x8(%ebp)    <-- 이부분이 *s 의 번지입니다.
+           이 표현은 ebp 레지스터 + 8 번지의 내용을 스택에 저장하라는 의미 입니다.
+
+  엥.. 그런데 0x8(%ebp) 가 어디쯤 일까요?
+  자.. 이 Message 함수가 실행되는 메모리의 구조를 분석해보겠습니다.
+
+    0x0000 +---------------------+  <-- 메모리의 낮은 번지
+           |                     |
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           |        dummy        |  4 Byte
+     [ebp] +---------------------+  <-- 프로그램 시작시 [esp] 레지스터
+           |         ebp         |  4 Byte
+           +---------------------+
+           |     RET Address     |  <-- Message() 함수가 실행될때 [RET]
+   [ebp]+8 +---------------------+
+           |         str         |  <-- Message(*str)
+           +---------------------+  여기서 str 은 임의로 붙인 변수명 입니다.
+           |                     |  
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           |                     |  <-- Stack의 하위
+    0xFFFF +---------------------+  <-- 메모리의 높은 번지
+
+  str을 바로 스택에 저장하네요.
+
+  그래서 size_t strlen(const char *s); 함수는 strlen(*str); 으로 됩니다.
+
+  그리고 strlen()를 실행한 결과는 eax 레지스터로 돌려 줍니다.
+
+  이것을 보니 Message(*str)으로 구성이 된다는 것을 알수가 있습니다.
+
+  다음은 ssize_t write(int fd, const void *buf, size_t count); 가 
+  어떻게 컴파일 되어 있는지 보겠습니다.
+
+0x8048747 <Message+23>: mov    %eax,%eax   <-- strlen을 실행한 결과
+0x8048749 <Message+25>: push   %eax        <-- count
+0x804874a <Message+26>: pushl  0x8(%ebp)   <-- *buf = str
+0x804874d <Message+29>: push   $0x1        <-- fd = 1
+0x804874f <Message+31>: call   0x8048568 <write>
+0x8048754 <Message+36>: add    $0x10,%esp
+
+  따라서 ssize_t write(int fd, const void *buf, size_t count); 함수는
+  
+  write(1, str, strlen(str)); 이렇게 됩니다.
+
+  다음은 int fflush(FILE *stream); 부분을 살펴보겠습니다.
+
+0x8048757 <Message+39>: sub    $0xc,%esp   <-- dummy
+0x804875a <Message+42>: pushl  0x8049c44   <-- stdout (왜 stdout이냐구요? 설명은 아래에...)
+0x8048760 <Message+48>: call   0x8048578 <fflush>
+0x8048765 <Message+53>: add    $0x10,%esp
+
+  여기에서 pushl  0x8049c44 이 있군요.
+  이것은 objdump -x lvl08 을 하여 해당번지가 일치하는 부분을 찾습니다.
+
+08049c44 g     O .bss   00000004              stdout@@GLIBC_2.0
+
+  stdout이라는 번지와 일치하는 군요..
+
+  따라서 fflush(stdout); 으로 됩니다.
+
+  전체적으로 정리를 해보면 다음의 함수가 만들어 집니다.
+
+  void Message(char *str)
+  {
+    write(1, str, strlen(str));
+    fflush(stdout);
+  }
+
+
+  다음은 print_total 함수를 분석해 보겠습니다.
+
+  gdb에서 disas print_total 으로 역어셈블을 합니다.
+  그리고 각 해당 프로그램에서 분석을 해보겠습니다.
+
+(gdb) disas print_total
+0x804876c <print_total>:        push   %ebp
+0x804876d <print_total+1>:      mov    %esp,%ebp
+0x804876f <print_total+3>:      sub    $0x78,%esp
+
+0x8048772 <print_total+6>:      pushl  0xc(%ebp)
+0x8048775 <print_total+9>:      push   $0x8048a60
+0x804877a <print_total+14>:     push   $0x100
+0x804877f <print_total+19>:     push   $0x8049c80
+0x8048784 <print_total+24>:     call   0x80485f8 <snprintf>
+0x8048789 <print_total+29>:     add    $0x10,%esp
+
+0x804878c <print_total+32>:     sub    $0xc,%esp
+0x804878f <print_total+35>:     push   $0x8049c80
+0x8048794 <print_total+40>:     call   0x8048730 <Message>
+0x8048799 <print_total+45>:     add    $0x10,%esp
+
+중간 생략
+
+0x80487c8 <print_total+92>:     sub    $0xc,%esp
+0x80487cb <print_total+95>:     pushl  0x8049c48
+0x80487d1 <print_total+101>:    call   0x8048548 <fgetc>
+0x80487d6 <print_total+106>:    add    $0x10,%esp
+0x80487d9 <print_total+109>:    mov    %eax,%eax
+0x80487db <print_total+111>:    mov    %al,0xffffff97(%ebp)
+
+중간 생략
+
+0x8048851 <print_total+229>:    leave
+0x8048852 <print_total+230>:    ret    
+
+  다음.. print_total라는 함수에는
+  snprintf, Message, fgetc  이렇게 3가지의 함수가 사용되었네요.
+
+  중복되는 함수들이 나오는데 개별적으로 함수를 분석해보겠습니다.
+
+  먼저 print_total 함수가 실행될때 대략적인 메모리의 구조를 분석해 보겠습니다.
+
+    0x0000 +---------------------+  <-- 메모리의 낮은 번지
+           |                     |
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           |                     |  
+     ff8c  +---------------------+
+           |        int          |  
+     ff90  +---------------------+
+           |        char *       |
+     ff97  +---------------------+
+           |        char         |  4byte
+     ff98  +---------------------+  
+           |        char         |  90 byte
+           +---------------------+
+           |        dummy        |  8 Byte
+     [ebp] +---------------------+  <-- 프로그램 시작시 [ebp] 레지스터
+           |         ebp         |  4 Byte
+           +---------------------+
+           |     RET Address     |  <-- print_total(par1, par2) 함수가 실행될때 [RET]
+   [ebp]+8 +---------------------+
+           |         par1        |  <-- parameter 1
+   [ebp]+c +---------------------+  여기서 par1,2 는 임의로 붙인 변수명 입니다.
+           |         par2        |  <-- parameter 2
+           +---------------------+
+           |                     |  
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           |                     |  <-- Stack의 하위
+    0xFFFF +---------------------+  <-- 메모리의 높은 번지
+
+
+  그러면 snprintf를 분석해보겠습니다.
+  함수의 원형은 다음과 같습니다.
+  int snprintf(char *str, size_t size, const char *format, ...);
+
+  역어셈블된 상태를 보겠습니다.
+0x8048772 <print_total+6>:      pushl  0xc(%ebp)   <-- par2
+0x8048775 <print_total+9>:      push   $0x8048a60  <-- format = print할 포멧
+0x804877a <print_total+14>:     push   $0x100      <-- size = 0x100
+0x804877f <print_total+19>:     push   $0x8049c80  <-- pointer = tmp_buf
+0x8048784 <print_total+24>:     call   0x80485f8 <snprintf>
+0x8048789 <print_total+29>:     add    $0x10,%esp
+
+  여기에서 pushl  0x8048a60 이 있군요.
+  이것은 objdump -s lvl08 을 하여 해당번지가 일치하는 부분을 찾습니다.
+
+Contents of section .rodata:
+ 8048a60 b4e7bdc5 c0cc20c0 d4b7c2c7 d220bcf6  ...... ...... ..
+ 8048a70 20c0d6b4 c220b9ae c0da20bc f6b4c220   .... .... .... 
+ 8048a80 2564b0b3 20c0d4b4 cfb4d92e 0d0a0a00  %d.. ...........
+
+  뭔가를 출력하는 포멧인데 저 상태로는 뭔지 모르겠네요.
+  프로그램을 간단히 테스트 할때 출력한 상태를 기준으로 만들어 보면
+
+  "당신이 입력할 수 있는 문자 수는 %d개 입니다.\n" 인듯 합니다.
+
+  다음은 pushl  $0x8049c80 이 있군요.
+  이것은 objdump -x lvl08 을 하여 해당번지가 일치하는 부분을 찾습니다.
+
+08049c80 g     O .bss   00000100              tmp_buf
+
+  따라서 int snprintf(char *str, size_t size, const char *format, ...); 함수는
+  snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력할 수 있는 문자 수는 %d개 입니다.\n", par2);
+  이렇게 만들어 집니다.
+
+
+  다음은 Message를 분석해 보겠습니다.
+  그런데 이 함수는 저위에서 분석을 했었죠.
+  함수의 원형이   void Message(char *str); 이렇게 되었었죠.
+
+  역어셈블된 상태를 보겠습니다.
+0x804878c <print_total+32>:     sub    $0xc,%esp    <-- Dummy
+0x804878f <print_total+35>:     push   $0x8049c80   <-- 뭔가를 출력할 메시지의 주소이겠죠.
+0x8048794 <print_total+40>:     call   0x8048730 <Message>
+0x8048799 <print_total+45>:     add    $0x10,%esp
+
+  여기에서도 pushl  $0x8049c80 이 있군요.
+  이것은 objdump -x lvl08 을 하여 해당번지가 일치하는 부분을 찾습니다.
+
+08049c80 g     O .bss   00000100              tmp_buf
+
+  tmp_buf를 출력하는것을 알수가 있네요.
+  그러니까 snprintf()에서 조합해놓은 버퍼의 데이타를 출력하는 부분이군요.
+  Message(tmp_buf); 이렇게 프로그램 되어있었겠네요.
+
+
+  다음은 fgetc 함수가 뭔지 알아보겠습니다.
+  먼저 이 함수의 원형이 어떻게 되어있는지 알아봐야죠.
+  man fgetc를 해보겠습니다.
+  int fgetc(FILE *stream); 이렇게 구성되어 있네요.
+
+  마찬가지로 역어셈블된 상태를 보겠습니다.
+0x80487c8 <print_total+92>:     sub    $0xc,%esp    <-- Dummy
+0x80487cb <print_total+95>:     pushl  0x8049c48    <-- stdin
+0x80487d1 <print_total+101>:    call   0x8048548 <fgetc>
+0x80487d6 <print_total+106>:    add    $0x10,%esp
+
+  여기에서 pushl  0x8049c48 이 있군요.
+  이것은 objdump -x lvl08 을 하여 해당번지가 일치하는 부분을 찾습니다.
+
+08049c48 g     O .bss   00000004              stdin@@GLIBC_2.0
+
+  stdin이라는 번지와 일치하는 군요..
+  따라서 fgetc(stdin); 으로 됩니다.
+
+  이상 분석한 3가지 함수를 기준으로 print_total() 함수를 분석해 보겠습니다.
+
+(gdb) disas print_total
+0x804876c <print_total>:        push   %ebp
+0x804876d <print_total+1>:      mov    %esp,%ebp
+0x804876f <print_total+3>:      sub    $0x78,%esp   <-- 여기까지는 C 함수의 원형입니다.
+                                         +-> 내부 변수를 사용하는것을 알수가 있습니다.
+  char ff98[90];
+  char ff97;
+  char *ff90;
+  int  ff8c;
+
+  snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력할 수 있는 문자 수는 %d개 입니다.\n", par2);
+0x8048772 <print_total+6>:      pushl  0xc(%ebp)
+0x8048775 <print_total+9>:      push   $0x8048a60
+0x804877a <print_total+14>:     push   $0x100
+0x804877f <print_total+19>:     push   $0x8049c80
+0x8048784 <print_total+24>:     call   0x80485f8 <snprintf>
+0x8048789 <print_total+29>:     add    $0x10,%esp
+
+  Message(tmp_buf);
+0x804878c <print_total+32>:     sub    $0xc,%esp
+0x804878f <print_total+35>:     push   $0x8049c80
+0x8048794 <print_total+40>:     call   0x8048730 <Message>
+0x8048799 <print_total+45>:     add    $0x10,%esp
+
+  ff90 = ff98;
+0x804879c <print_total+48>:     lea    0xffffff98(%ebp),%eax <-- (ebp-0x68)번지를 eax로 가져옴
+0x804879f <print_total+51>:     mov    %eax,0xffffff90(%ebp) <-- eax 내용을 (ebp-0x70)번지에 저장함
+
+  for(ff8c=0; ff8c < par2; ff8c++) {
+0x80487a2 <print_total+54>:     movl   $0x0,0xffffff8c(%ebp) <-- ff8c = 0
+0x80487a9 <print_total+61>:     lea    0x0(%esi),%esi
+
+0x80487ac <print_total+64>:     mov    0xffffff8c(%ebp),%eax
+0x80487af <print_total+67>:     cmp    0xc(%ebp),%eax        <-- ff8c 와 par2 를 비교
+0x80487b2 <print_total+70>:     jl     0x80487b8 <print_total+76>
+0x80487b4 <print_total+72>:     jmp    0x8048820 <print_total+180>
+0x80487b6 <print_total+74>:     mov    %esi,%esi
+
+    Message("Input char : ");
+0x80487b8 <print_total+76>:     sub    $0xc,%esp
+0x80487bb <print_total+79>:     push   $0x8048a90
+0x80487c0 <print_total+84>:     call   0x8048730 <Message>
+0x80487c5 <print_total+89>:     add    $0x10,%esp
+
+    ff97 = fgetc(stdin);
+0x80487c8 <print_total+92>:     sub    $0xc,%esp
+0x80487cb <print_total+95>:     pushl  0x8049c48
+0x80487d1 <print_total+101>:    call   0x8048548 <fgetc>
+0x80487d6 <print_total+106>:    add    $0x10,%esp
+0x80487d9 <print_total+109>:    mov    %eax,%eax
+0x80487db <print_total+111>:    mov    %al,0xffffff97(%ebp)
+
+    *(ff90++) = ff97;
+0x80487de <print_total+114>:    mov    0xffffff90(%ebp),%edx
+0x80487e1 <print_total+117>:    mov    0xffffff97(%ebp),%al
+0x80487e4 <print_total+120>:    mov    %al,(%edx)
+0x80487e6 <print_total+122>:    lea    0xffffff90(%ebp),%eax
+0x80487e9 <print_total+125>:    incl   (%eax)
+
+    ff97 = fgetc(stdin);
+0x80487eb <print_total+127>:    sub    $0xc,%esp
+0x80487ee <print_total+130>:    pushl  0x8049c48
+0x80487f4 <print_total+136>:    call   0x8048548 <fgetc>
+0x80487f9 <print_total+141>:    add    $0x10,%esp
+0x80487fc <print_total+144>:    mov    %eax,%eax
+0x80487fe <print_total+146>:    mov    %al,0xffffff97(%ebp)
+
+    ff97 = fgetc(stdin);
+0x8048801 <print_total+149>:    sub    $0xc,%esp
+0x8048804 <print_total+152>:    pushl  0x8049c48
+0x804880a <print_total+158>:    call   0x8048548 <fgetc>
+0x804880f <print_total+163>:    add    $0x10,%esp
+0x8048812 <print_total+166>:    mov    %eax,%eax
+0x8048814 <print_total+168>:    mov    %al,0xffffff97(%ebp)
+
+0x8048817 <print_total+171>:    lea    0xffffff8c(%ebp),%eax
+0x804881a <print_total+174>:    incl   (%eax)                 <-- ff8c++;
+0x804881c <print_total+176>:    jmp    0x80487ac <print_total+64>
+0x804881e <print_total+178>:    mov    %esi,%esi
+  }
+  *ff90 = 0x00;
+0x8048820 <print_total+180>:    mov    0xffffff90(%ebp),%eax
+0x8048823 <print_total+183>:    movb   $0x0,(%eax)
+
+  snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력한 단어는 %s입니다.\n", ff98);
+0x8048826 <print_total+186>:    lea    0xffffff98(%ebp),%eax
+0x8048829 <print_total+189>:    push   %eax
+0x804882a <print_total+190>:    push   $0x8048aa0
+0x804882f <print_total+195>:    push   $0x100
+0x8048834 <print_total+200>:    push   $0x8049c80
+0x8048839 <print_total+205>:    call   0x80485f8 <snprintf>
+0x804883e <print_total+210>:    add    $0x10,%esp
+
+  Message(tmp_buf);
+0x8048841 <print_total+213>:    sub    $0xc,%esp
+0x8048844 <print_total+216>:    push   $0x8049c80
+0x8048849 <print_total+221>:    call   0x8048730 <Message>
+0x804884e <print_total+226>:    add    $0x10,%esp
+
+0x8048851 <print_total+229>:    leave                 <-- 함수를 끝내는 부분 입니다.
+0x8048852 <print_total+230>:    ret    
+
+  C 로 번역된 부분을 하나씩 모아서 소스로 만들어 보겠습니다.
+
+    void print_total(char *par1, int par2)
+    {
+      char ff98[90];
+      char ff97;
+      char *ff90;
+      int  ff8c;
+
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력할 수 있는 문자 수는 %d개 입니다.\n", par2);
+      Message(tmp_buf);
+      ff90 = ff98;
+      for(ff8c=0; ff8c<par2; ff8c++) {
+        Message("Input char : ");
+        ff97 = fgetc(stdin);
+        *(ff90++) = ff97;
+        ff97 = fgetc(stdin);
+        ff97 = fgetc(stdin);
+      }
+      *ff90=0x00;
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력한 단어는 %s입니다.\n", ff98);
+      Message(tmp_buf);
+    }
+
+  좀 딱딱해 보이긴 합니다만 이 상태로 gcc -g tst08.c -o tst08 이렇게 컴파일을 한다음
+  objdump -S tst08
+  역어셈블된 오리지널 파일과 비교하여 같은 상태를 만들어 줍니다.
+
+  다음은 딱딱한 변수를 좀더 이해하기 쉬운 변수로 바꿔보겠습니다.
+
+      char ff98[90];  <-- ff98은 buff로 변환.
+      char ff97;      <-- ff97은 ch로 변환.
+      char *ff90;     <-- ff90은 ptr로 변환.
+      int  ff8c;      <-- ff8c는 i로 변환.
+
+    void print_total(char *par1, int par2)
+    {
+      char buff[90];	// ff98
+      char ch;		// ff97
+      char *ptr;	// ff90
+      int  i;		// ff8c
+
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력할 수 있는 문자 수는 %d개 입니다.\n", par2);
+      Message(tmp_buf);
+      ptr = buff;
+      for(i=0; i<par2; i++) {
+        Message("Input char : ");
+        ch = fgetc(stdin);
+        *(ptr++) = ch;
+        ch = fgetc(stdin);
+        ch = fgetc(stdin);
+      }
+      *ptr=0x00;
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력한 단어는 %s입니다.\n", buff);
+      Message(tmp_buf);
+    }
+
+  소스처럼 비슷해 진것 같군요.
+
+
+  다음은 main 함수에 대한 작업을 해보겠습니다.
+  먼저 main 함수가 실행될때 대략적인 메모리의 구조를 분석해 보겠습니다.
+
+    0x0000 +---------------------+  <-- 메모리의 낮은 번지
+           |                     |
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           |        int          |  
+     ffc0  +---------------------+
+           |        int          |
+     ffc4  +---------------------+
+           |        int          |  
+     ffc8  +---------------------+
+           |        int          |
+     ffcc  +---------------------+
+           |        int          |  
+     ffd0  +---------------------+
+           |        int          |  
+     ffd4  +---------------------+
+           |        int          |
+     ffd8  +---------------------+
+           |        char         |  buff
+     fff4  +---------------------+  
+           |        int          |  4 byte
+           +---------------------+
+           |        dummy        |  8 Byte
+     [ebp] +---------------------+  <-- 프로그램 시작시 [ebp] 레지스터
+           |         ebp         |  4 Byte
+           +---------------------+
+           |     RET Address     |  <-- main(argc, argv) 함수가 실행될때 [RET]
+   [ebp]+8 +---------------------+
+           |         argc        |  <-- Argument counter
+   [ebp]+c +---------------------+
+           |         argv        |  <-- Argument vector
+           +---------------------+
+           |                     |  
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           ~~~~~~~~~~~~~~~~~~~~~~~
+           |                     |  <-- Stack의 하위
+    0xFFFF +---------------------+  <-- 메모리의 높은 번지
+
+(gdb) disas main
+Dump of assembler code for function main:
+0x8048854 <main>:       push   %ebp
+0x8048855 <main+1>:     mov    %esp,%ebp
+0x8048857 <main+3>:     sub    $0x48,%esp
+
+  int  fff4 = 0x14;
+  char ffd8[10];        <-- buff[10]
+  int  ffd4;
+  int  ffd0;
+  int  ffcc;
+  int  ffc8;
+  int  ffc4 = 0x10;
+  int  ffc0;
+
+0x804885a <main+6>:     movl   $0x14,0xfffffff4(%ebp) <-- fff4 = 0x14
+0x8048861 <main+13>:    movl   $0x10,0xffffffc4(%ebp) <-- ffc4 = 0x10
+  for(  ffc0 = 0x00; ffc0 < argc; ffc0++) {
+0x8048868 <main+20>:    movl   $0x0,0xffffffc0(%ebp)  <-- ffc0 = 0x00
+0x804886f <main+27>:    nop    
+0x8048870 <main+28>:    mov    0xffffffc0(%ebp),%eax
+0x8048873 <main+31>:    cmp    0x8(%ebp),%eax         <-- ffc0 와 argc 의 비교.
+0x8048876 <main+34>:    jl     0x804887c <main+40>
+0x8048878 <main+36>:    jmp    0x80488b8 <main+100>
+    memset(argv[ffc0], 0, strlen(argv[ffc0]));
+0x804887a <main+38>:    mov    %esi,%esi
+0x804887c <main+40>:    sub    $0x4,%esp
+0x804887f <main+43>:    sub    $0x8,%esp
+0x8048882 <main+46>:    mov    0xffffffc0(%ebp),%eax
+0x8048885 <main+49>:    imul   $0x4,%eax,%edx
+0x8048888 <main+52>:    mov    0xc(%ebp),%eax
+0x804888b <main+55>:    pushl  (%eax,%edx,1)
+0x804888e <main+58>:    call   0x80485c8 <strlen>
+0x8048893 <main+63>:    add    $0xc,%esp
+
+0x8048896 <main+66>:    mov    %eax,%eax
+0x8048898 <main+68>:    push   %eax
+0x8048899 <main+69>:    push   $0x0
+0x804889b <main+71>:    mov    0xffffffc0(%ebp),%eax
+0x804889e <main+74>:    imul   $0x4,%eax,%edx
+0x80488a1 <main+77>:    mov    0xc(%ebp),%eax
+0x80488a4 <main+80>:    pushl  (%eax,%edx,1)
+0x80488a7 <main+83>:    call   0x8048608 <memset>
+0x80488ac <main+88>:    add    $0x10,%esp
+0x80488af <main+91>:    lea    0xffffffc0(%ebp),%eax
+0x80488b2 <main+94>:    incl   (%eax)
+0x80488b4 <main+96>:    jmp    0x8048870 <main+28>
+  }
+0x80488b6 <main+98>:    mov    %esi,%esi           <-- 메모리의 주소를 4의 배수로 만들기
+0x80488b8 <main+100>:   nop                            위해서 삽입한 dummy code
+
+  for(ffc0=0; environ[ffc0]; ffc0++)
+0x80488b9 <main+101>:   movl   $0x0,0xffffffc0(%ebp)  <-- ffc0 = 0x00
+0x80488c0 <main+108>:   mov    0xffffffc0(%ebp),%eax
+0x80488c3 <main+111>:   imul   $0x4,%eax,%ecx
+0x80488c6 <main+114>:   mov    0x8049c40,%edx
+0x80488cc <main+120>:   mov    0xffffffc0(%ebp),%eax
+0x80488cf <main+123>:   cmp    (%edx,%ecx,1),%eax
+0x80488d2 <main+126>:   jb     0x80488d8 <main+132>
+0x80488d4 <main+128>:   jmp    0x8048918 <main+196>
+     memset(environ[ffc0], 0, strlen(environ[ffc0]));
+0x80488d6 <main+130>:   mov    %esi,%esi
+0x80488d8 <main+132>:   sub    $0x4,%esp
+0x80488db <main+135>:   sub    $0x8,%esp
+0x80488de <main+138>:   mov    0xffffffc0(%ebp),%eax
+0x80488e1 <main+141>:   imul   $0x4,%eax,%edx
+0x80488e4 <main+144>:   mov    0x8049c40,%eax
+0x80488e9 <main+149>:   pushl  (%eax,%edx,1)
+0x80488ec <main+152>:   call   0x80485c8 <strlen>
+0x80488f1 <main+157>:   add    $0xc,%esp
+
+0x80488f4 <main+160>:   mov    %eax,%eax
+0x80488f6 <main+162>:   push   %eax
+0x80488f7 <main+163>:   push   $0x0
+0x80488f9 <main+165>:   mov    0xffffffc0(%ebp),%eax
+0x80488fc <main+168>:   imul   $0x4,%eax,%edx
+0x80488ff <main+171>:   mov    0x8049c40,%eax
+0x8048904 <main+176>:   pushl  (%eax,%edx,1)
+0x8048907 <main+179>:   call   0x8048608 <memset>
+0x804890c <main+184>:   add    $0x10,%esp
+
+0x804890f <main+187>:   lea    0xffffffc0(%ebp),%eax
+0x8048912 <main+190>:   incl   (%eax)                  <-- ffc0++
+0x8048914 <main+192>:   jmp    0x80488c0 <main+108>
+0x8048916 <main+194>:   mov    %esi,%esi
+  }
+//   int getpeername(int s, struct sockaddr *name, socklen_t *namelen);
+  if (getpeername(0, ffc8, ffc4)== -1)
+0x8048918 <main+196>:   sub    $0x4,%esp
+0x804891b <main+199>:   lea    0xffffffc4(%ebp),%eax
+0x804891e <main+202>:   push   %eax
+0x804891f <main+203>:   lea    0xffffffc8(%ebp),%eax
+0x8048922 <main+206>:   push   %eax
+0x8048923 <main+207>:   push   $0x0
+0x8048925 <main+209>:   call   0x80485a8 <getpeername>
+0x804892a <main+214>:   add    $0x10,%esp
+0x804892d <main+217>:   mov    %eax,%eax
+0x804892f <main+219>:   cmp    $0xffffffff,%eax
+0x8048932 <main+222>:   jne    0x8048968 <main+276>
+    snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", getlogin());
+0x8048934 <main+224>:   call   0x8048618 <getlogin>
+0x8048939 <main+229>:   mov    %eax,%eax
+0x804893b <main+231>:   push   %eax
+0x804893c <main+232>:   push   $0x8048ac1
+0x8048941 <main+237>:   push   $0x100
+0x8048946 <main+242>:   push   $0x8049c80
+0x804894b <main+247>:   call   0x80485f8 <snprintf>
+0x8048950 <main+252>:   add    $0x10,%esp
+    Message(tmp_buf);
+0x8048953 <main+255>:   sub    $0xc,%esp
+0x8048956 <main+258>:   push   $0x8049c80
+0x804895b <main+263>:   call   0x8048730 <Message>
+0x8048960 <main+268>:   add    $0x10,%esp
+0x8048963 <main+271>:   jmp    0x80489a0 <main+332>
+0x8048965 <main+273>:   lea    0x0(%esi),%esi
+  }
+  else {
+//  char *inet_ntoa(struct in_addr in);
+    snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", inet_ntoa(ffcc));
+0x8048968 <main+276>:   sub    $0xc,%esp
+0x804896b <main+279>:   pushl  0xffffffcc(%ebp)
+0x804896e <main+282>:   call   0x8048588 <inet_ntoa>
+0x8048973 <main+287>:   add    $0x10,%esp
+0x8048976 <main+290>:   mov    %eax,%eax
+0x8048978 <main+292>:   push   %eax
+0x8048979 <main+293>:   push   $0x8048ae0
+0x804897e <main+298>:   push   $0x100
+0x8048983 <main+303>:   push   $0x8049c80
+0x8048988 <main+308>:   call   0x80485f8 <snprintf>
+0x804898d <main+313>:   add    $0x10,%esp
+    Message(tmp_buf);
+0x8048990 <main+316>:   sub    $0xc,%esp
+0x8048993 <main+319>:   push   $0x8049c80
+0x8048998 <main+324>:   call   0x8048730 <Message> 200 안녕하세요. (null)님!
+0x804899d <main+329>:   add    $0x10,%esp
+  }
+  Message("이름 : ");
+0x80489a0 <main+332>:   sub    $0xc,%esp
+0x80489a3 <main+335>:   push   $0x8048b0a
+0x80489a8 <main+340>:   call   0x8048730 <Message> 이름: 
+0x80489ad <main+345>:   add    $0x10,%esp
+  fgets(ffd8, sizeof(ffd8), stdin);    // 30 byte
+0x80489b0 <main+348>:   sub    $0x4,%esp
+0x80489b3 <main+351>:   pushl  0x8049c48    <-- stdin
+0x80489b9 <main+357>:   push   $0x1e        <-- 30 byte
+0x80489bb <main+359>:   lea    0xffffffd8(%ebp),%eax
+0x80489be <main+362>:   push   %eax
+0x80489bf <main+363>:   call   0x80485b8 <fgets>  이름 입력을 받는곳.
+0x80489c4 <main+368>:   add    $0x10,%esp
+  print_total(ffd8, fff4);
+0x80489c7 <main+371>:   sub    $0x8,%esp
+0x80489ca <main+374>:   pushl  0xfffffff4(%ebp)
+0x80489cd <main+377>:   lea    0xffffffd8(%ebp),%eax
+0x80489d0 <main+380>:   push   %eax
+0x80489d1 <main+381>:   call   0x804876c <print_total>
+0x80489d6 <main+386>:   add    $0x10,%esp
+
+0x80489d9 <main+389>:   leave  
+0x80489da <main+390>:   ret    
+}
+
+  이렇게 C 로 번역된 main 부분을 하나씩 모아서 소스로 만들어 보겠습니다.
+
+int main(int argc, char **argv)
+{
+  int  fff4 = 0x14;
+  char ffd8[10];
+  int  ffd4;
+  int  ffd0;
+  int  ffcc;
+  int  ffc8;
+  int  ffc4 = 0x10;
+  int  ffc0;
+
+  for(  ffc0 = 0x00; ffc0 < argc; ffc0++)
+    memset(argv[ffc0], 0, strlen(argv[ffc0]));
+
+  for(ffc0=0; environ[ffc0]; ffc0++)
+     memset(environ[ffc0], 0, strlen(environ[ffc0]));
+/*
+//   int getpeername(int s, struct sockaddr *name, socklen_t *namelen);
+  if (getpeername(0, ffc8, ffc4)== -1)
+    snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", getlogin());
+    Message(tmp_buf);
+  }
+  else {
+//  char *inet_ntoa(struct in_addr in);
+    snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", inet_ntoa(ffcc));
+    Message(tmp_buf);
+  }
+*/
+  Message("이름 : ");
+  fgets(ffd8, 30, stdin);
+//  fgets(ffd8, sizeof(ffd8)+2, stdin);    // 30 byte
+  print_total(ffd8, fff4);
+}
+
+  이파일을 컴파일하여 본래의 역어셈블 파일과 같은 상태로 만들어 줍니다.
+
+  이것을 모두 조합하면 다음의 소스가 만들어 집니다.
+
+    #include <stdio.h>
+    #include <string.h>
+
+    extern char **environ;
+    char tmp_buf[256];
+
+    void Message(char *str)
+    {
+      write(1, str, strlen(str));
+      fflush(stdout);
+    }
+    void print_total(char *par1, int par2)
+    {
+      char ff98[90];
+      char ff97;
+      char *ff90;
+      int  ff8c;
+
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력할 수 있는 문자 수는 %d개 입니다.\n", par2);
+      Message(tmp_buf);
+      ff90 = ff98;
+      for(ff8c=0; ff8c<par2; ff8c++) {
+        Message("Input char : ");
+        ff97 = fgetc(stdin);
+        *(ff90++) = ff97;
+        ff97 = fgetc(stdin);
+        ff97 = fgetc(stdin);
+      }
+      *ff90=0x00;
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력한 단어는 %s입니다.\n", ff98);
+      Message(tmp_buf);
+    }
+
+    int main(int argc, char **argv)
+    {
+      int  fff4 = 0x14;
+      char ffd8[10];
+      int  ffd4;
+      int  ffd0;
+      int  ffcc;
+      int  ffc8;
+      int  ffc4 = 0x10;
+      int  ffc0;
+
+      for(  ffc0 = 0x00; ffc0 < argc; ffc0++)
+        memset(argv[ffc0], 0, strlen(argv[ffc0]));
+
+      for(ffc0=0; environ[ffc0]; ffc0++)
+        memset(environ[ffc0], 0, strlen(environ[ffc0]));
+    /*
+    //   int getpeername(int s, struct sockaddr *name, socklen_t *namelen);
+      if (getpeername(0, ffc8, ffc4)== -1)
+        snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", getlogin());
+        Message(tmp_buf);
+      }
+      else {
+    //  char *inet_ntoa(struct in_addr in);
+        snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", inet_ntoa(ffcc));
+        Message(tmp_buf);
+      }
+    */
+      Message("이름 : ");
+      fgets(ffd8, 30, stdin);
+    //  fgets(ffd8, sizeof(ffd8)+2, stdin);    // 30 byte
+      print_total(ffd8, fff4);
+    }
+
+  소스가 비슷하게 만들어 졌습니다.
+
+  다음은 프로그램의 실행상태를 분석하기 위하여 프로그램을 조금 추가해 보겠습니다.
+
+    #include <stdio.h>
+    #include <string.h>
+    #include "dumpcode.h"
+
+    extern char **environ;
+    char tmp_buf[256];
+
+    unsigned long get_ret(void)
+    {  __asm__("movl %ebx,%eax"); }
+
+    void Message(char *str)
+    {
+      write(1, str, strlen(str));
+      fflush(stdout);
+    }
+
+    void print_total(char *par1, int par2)
+    {
+      char buff[90];	// ff98
+      char ch;		// ff97
+      char *ptr;	// ff90
+      int  i;		// ff8c
+      __asm__("push %ebx");                 // Save [ebx] register
+      __asm__("movl %ebp,%ebx");            // [ebx] <- [ebp]
+        printf("P Return Address = %x\n", get_ret()+0x04);  // Return Address 찿기
+      __asm__("pop  %ebx");                 // Restore [ebx]
+
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력할 수 있는 문자 수는 %d개 입니다.\n", par2);
+      Message(tmp_buf);
+      ptr = buff;
+      for(i=0; i<par2; i++) {
+        Message("Input char : ");
+        ch = fgetc(stdin);
+        *(ptr++) = ch;
+        ch = fgetc(stdin);
+        ch = fgetc(stdin);
+      }
+      *ptr=0x00;
+      snprintf(tmp_buf, sizeof(tmp_buf), "당신이 입력한 단어는 %s입니다.\n", buff);
+      Message(tmp_buf);
+      dumpcode((char*)buff-16, 128+32);
+    }
+
+    int main(int argc, char **argv)
+    {
+      int  fff4 = 0x14;
+      char ffd8[10];
+      int  ffd4;
+      int  ffd0;
+      int  ffcc;
+      int  ffc8;
+      int  ffc4 = 0x10;
+      int  ffc0;
+
+      __asm__("push %ebx");                 // Save [ebx] register
+      __asm__("movl %ebp,%ebx");            // [ebx] <- [ebp]
+        printf("Main Return Address = %x\n", get_ret()+0x04);  // Return Address 찿기
+      __asm__("pop  %ebx");                 // Restore [ebx]
+
+      for(  ffc0 = 0x00; ffc0 < argc; ffc0++)
+        memset(argv[ffc0], 0, strlen(argv[ffc0]));
+
+      for(ffc0=0; environ[ffc0]; ffc0++)
+        memset(environ[ffc0], 0, strlen(environ[ffc0]));
+      dumpcode((char*)argv[0]-16, 128);
+
+    /*
+    //   int getpeername(int s, struct sockaddr *name, socklen_t *namelen);
+      if (getpeername(0, ffc8, ffc4)== -1)
+        snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", getlogin());
+        Message(tmp_buf);
+      }
+      else {
+    //  char *inet_ntoa(struct in_addr in);
+        snprintf(tmp_buf, sizeof(tmp_buf), "%d 안녕하세요. (null)님!\n", inet_ntoa(ffcc));
+        Message(tmp_buf);
+      }
+    */
+      Message("이름 : ");
+      fgets(ffd8, 30, stdin);
+    //  fgets(ffd8, sizeof(ffd8)+2, stdin);    // 30 byte
+      dumpcode((char*)ffd8-16, 128);
+
+      print_total(ffd8, fff4);
+    }
+
+4. 도움이 될지 모르겠네요...
+
+  이렇게 간단한 바이너리 프로그램을 분석해서 소스파일로 만들어 봤습니다.
+
+  작은 프로그램을 분석한것이 규모가 훨씬더 큰 실질적인 프로그램에 도전할수는 없겠지만
+
+  조금씩 능력을 키우다 보면 가능하지 않겠습니까...
+
+  그리고.
+
+  공격하는 방법은 공개를 할려고 하다가 읽으시는 분의 능력을 무시하는것 같아서 생략합니다.
+
+  
+  딱딱한 글을 읽어주셔서 감사합니다.
+
+  무더운 여름날씨에 건강하시고, 즐삽하세요.
+
+
+    /|/4/|/|_|IX
+
+
+5. 별첨 -- 원본 파일
+
+#include <stdio.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#define MAX_NAME_LEN  12
+#define DEF_COUNT     20
+#define DEF_BUF_LEN  256
+
+extern char **environ;
+char tmp_buf[DEF_BUF_LEN];
+
+void Message(char *buf)
+{
+  write(STDOUT_FILENO, buf, strlen(buf));
+  fflush(stdout);
+}
+
+void print_total(char *name, int count)
+{
+  char padding[50];
+  char buf[DEF_COUNT+1], ch, *ptr;  
+  int  i;
+
+  snprintf(tmp_buf, DEF_BUF_LEN, "당신이 입력할 수 있는 문자 수는 %d개 입니다.\r\n", count);
+  Message(tmp_buf);
+
+  ptr = buf;
+  for (i=0; i<count; i++) {
+    Message("Input char : ");
+    ch = fgetc(stdin);
+    (*ptr++) = ch;
+    ch = fgetc(stdin);
+    ch = fgetc(stdin);
+  }
+  *ptr = 0;
+  snprintf(tmp_buf, DEF_BUF_LEN, "당신이 입력한 단어는 %s입니다.\r\n", buf);
+  Message(tmp_buf);
+}
+
+main(int argc, char *argv[])
+{
+  int  count = DEF_COUNT;  
+  char name[MAX_NAME_LEN];
+  struct sockaddr_in sin;
+  int  len = sizeof(struct sockaddr_in), i;
+
+  for (i=0; i<argc; i++)
+    memset(argv[i], 0, strlen(argv[i]));
+
+  for (i=0; i<environ[i]; i++)
+    memset(environ[i], 0, strlen(environ[i]));
+
+  if (getpeername(STDIN_FILENO, (struct sockaddr *)&sin, &len) == -1) {
+    snprintf(tmp_buf, DEF_BUF_LEN, "200 안녕하세요. %s님!\r\n", getlogin());
+    Message(tmp_buf);
+  }
+  else {
+    snprintf(tmp_buf, DEF_BUF_LEN, "220 당신은 %s로 부터 연결을 하셨습니다.\r\n", inet_ntoa(sin.sin_addr));
+    Message(tmp_buf);
+  }
+
+  Message("이름 : ");
+  fgets(name, MAX_NAME_LEN+18, stdin);
+  print_total(name, count);
+}
+

