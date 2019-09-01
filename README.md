@@ -1,8 +1,6 @@
-# CodeEngn Library
+# Awesome Korea Security Paper
 
-<strong>Korea Security Documents Library</strong>
-
-Introduces Republic of Korea's security documents recommended by CodeEngn.
+<strong>Introduces Republic of Korea's security documents recommended by CodeEngn.</strong>
 
 ## Category
 
@@ -22,6 +20,6 @@ Introduces Republic of Korea's security documents recommended by CodeEngn.
 
 ## Request
 
-[Request Add Document](https://www.dropbox.com/request/33AqOeZUCn7ofqKffbWM)
+[Request Add Paper](https://www.dropbox.com/request/33AqOeZUCn7ofqKffbWM)
 
-[Request Del Document](https://codeengn.com/contact)
+[Request Del Paper](https://codeengn.com/contact)
