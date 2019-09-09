@@ -1,6 +1,6 @@
 # Awesome Korea Security Paper
 
-<strong>Introduces Republic of Korea's security documents recommended by CodeEngn.</strong>
+> <strong>Introduces Republic of Korea's security documents recommended by CodeEngn.</strong>
 
 ## Category
 
