@@ -4,15 +4,20 @@
 
 ## Category
 
+- AI
 - Assembly
 - Career
 - CheatSheet
+- Cloud
 - CodeEngnTalk
 - Cryptology
 - Etc
 - Forensic
 - Guide
+- Hardware
+- Intelligence
 - Network
+- Privacy
 - ReverseEngineering
 - SmartPhone
 - WebApplication
