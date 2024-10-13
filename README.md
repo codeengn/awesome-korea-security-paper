@@ -20,6 +20,7 @@
 - Privacy
 - ReverseEngineering
 - SmartPhone
+- SBOM (Software Bill Of Materials)
 - WebApplication
 - Wireless
 
