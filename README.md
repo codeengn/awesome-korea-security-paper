@@ -16,12 +16,13 @@
 - Guide
 - Hardware
 - Intelligence
+- Mobile
 - Network
 - Privacy
 - ReverseEngineering
 - SmartPhone
-- SBOM (Software Bill Of Materials)
-- WebApplication
+- Software Supply Chain Security
+- Web
 - Wireless
 
 ## Request
